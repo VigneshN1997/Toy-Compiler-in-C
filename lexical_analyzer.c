@@ -3,53 +3,36 @@ long int line_number = 1;
 
 void getTokens(FILE* fp)
 {
-	int lexeme_size;
-	int diff_buffer = 0; // if lexemeBegin and forward are in the same buffer or not
-	size_t nread;
-	int buffer_read_into = 1;
+	int diff_buffer = 0; 								// if lexemeBegin and forward are in the same buffer or not
+	size_t nread;										// number of characters read from file	
+	int buffer_read_into = 1;							// buffer number into which characters are read
 	char* lexemeBegin,*forward,*buffer1,*buffer2;
 	char char_read;
 	buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
 	buffer2 = (char*)malloc(BUFFER_SIZE*sizeof(char));
-	buffer1[BUFFER_SIZE - 1] = '?'; // to indicate end of buffers
+	buffer1[BUFFER_SIZE - 1] = '?'; 					// to indicate end of buffers
 	buffer2[BUFFER_SIZE - 1] = '?';
-	nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fp); // do check of correct read
+	nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fp);
 	if(nread < BUFFER_SIZE - 1)
 	{
 		buffer1[nread] = '!'; // to indicate end of file
 	}
-	lexemeBegin = buffer1;
+	lexemeBegin = buffer1;								// initialize the lexemeBegin pointer		
 	forward = buffer1;
-	DFA_STATE state = START;
-	char* buffer1_end = buffer1 + BUFFER_SIZE - 1;
+	DFA_STATE state = START;							
+	char* buffer1_end = buffer1 + BUFFER_SIZE - 1;		
 	char* buffer2_end = buffer2 + BUFFER_SIZE - 1;
 	char* prvs_buff_end,*curr_buff_start;
 	Lexeme* lexeme;
 	curr_buff_start = buffer1;
-	int i;
-	// for(i = 0; i < BUFFER_SIZE; i++)
-	// {
-	// 	if(buffer1[i] == '!')
-	// 	{
-	// 		printf("hey\n");
-	// 	}
-	// 	else if(buffer1[i] == '\n')
-	// 	{
-	// 		printf("newline\n");
-	// 	}
-	// 	else
-	// 	{
-	// 		printf("%c\n",buffer1[i]);
-	// 	}
-	// }
-	int flag = 0;
+	int flag = 0;										// to terminate out of loop once eof is reached
 	Token* tok;
 	while(1)
 	{
-		char_read = *forward++;
-		switch(char_read)
+		char_read = *forward++;							// read a character from buffer
+		switch(char_read)								// sentinals check
 		{
-			case '?':
+			case '?':									
 				if(buffer_read_into == 1)
 				{
 					nread = fread(buffer2,sizeof(char),BUFFER_SIZE - 1,fp);
@@ -123,6 +106,7 @@ void getTokens(FILE* fp)
 				else state = ERROR_STATE;
 				break;
 			
+			// COMMENT
 			case ACCEPT_COMMENT:
 				if(char_read != '\n') state = ACCEPT_COMMENT;
 				else
@@ -131,6 +115,7 @@ void getTokens(FILE* fp)
 					forward--;
 				}
 				break;
+
 
 			case ACCEPT_ID1:
 				if((char_read >= 'a' && char_read <= 'z') || (char_read >= 'A' && char_read <= 'Z')) state = ACCEPT_ID1;
@@ -141,7 +126,7 @@ void getTokens(FILE* fp)
 					forward--; // retraction
 					prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 					lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-					tok = createToken(ID,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+					tok = createToken(ID,line_number,lexeme);
 					printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 					lexemeBegin = forward;
 					diff_buffer = 0;
@@ -153,7 +138,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(ID,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(ID,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -168,7 +153,7 @@ void getTokens(FILE* fp)
 					forward--; // retraction
 					prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 					lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-					tok = createToken(NUM,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+					tok = createToken(NUM,line_number,lexeme);
 					printf("type:%d name:%s line_no:%ld lexeme_len:%d %d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length,(tok->value).int_value);
 					lexemeBegin = forward;
 					diff_buffer = 0;
@@ -190,7 +175,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(RNUM,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(RNUM,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d %lf\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length,(tok->value).real_value);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -212,7 +197,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(STR,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(STR,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -231,7 +216,7 @@ void getTokens(FILE* fp)
 					forward--; // retraction
 					prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 					lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-					tok = createToken(FUNID,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+					tok = createToken(FUNID,line_number,lexeme);
 					printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 					lexemeBegin = forward;
 					diff_buffer = 0;
@@ -246,7 +231,7 @@ void getTokens(FILE* fp)
 					forward--; // retraction
 					prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 					lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-					tok = createToken(LT,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+					tok = createToken(LT,line_number,lexeme);
 					printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 					lexemeBegin = forward;
 					diff_buffer = 0;
@@ -257,7 +242,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(LE,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(LE,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -271,7 +256,7 @@ void getTokens(FILE* fp)
 					forward--; // retraction
 					prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 					lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-					tok = createToken(GT,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+					tok = createToken(GT,line_number,lexeme);
 					printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 					lexemeBegin = forward;
 					diff_buffer = 0;
@@ -283,7 +268,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(GE,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(GE,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -298,7 +283,7 @@ void getTokens(FILE* fp)
 					forward--; // retraction
 					prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 					lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-					tok = createToken(ASSIGNOP,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+					tok = createToken(ASSIGNOP,line_number,lexeme);
 					printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 					lexemeBegin = forward;
 					diff_buffer = 0;
@@ -315,7 +300,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(EQ,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(EQ,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -326,7 +311,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(NE,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(NE,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -337,7 +322,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(SQO,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(SQO,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -348,7 +333,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(SQC,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(SQC,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -359,7 +344,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(OP,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(OP,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -370,7 +355,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(CL,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(CL,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -380,7 +365,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(SEMICOLON,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(SEMICOLON,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -390,7 +375,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(COMMA,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(COMMA,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -400,7 +385,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(PLUS,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(PLUS,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -410,7 +395,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(MINUS,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(MINUS,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -420,7 +405,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(MUL,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(MUL,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -430,7 +415,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(DIV,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(DIV,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -440,7 +425,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(SIZE,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(SIZE,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -473,7 +458,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(AND,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(AND,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -493,7 +478,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(OR,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(OR,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -519,7 +504,7 @@ void getTokens(FILE* fp)
 				forward--; // retraction
 				prvs_buff_end = getPreviousBufferEnd(diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
 				lexeme = getLexeme(lexemeBegin,forward,diff_buffer,prvs_buff_end,curr_buff_start);
-				tok = createToken(NOT,line_number,lexeme); // third argument is 0 because token is not a NUM/RNUM
+				tok = createToken(NOT,line_number,lexeme);
 				printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,lexeme->length);
 				lexemeBegin = forward;
 				diff_buffer = 0;
@@ -536,6 +521,7 @@ void getTokens(FILE* fp)
 	}
 }
 
+// this function returns the pointer to end of the buffer which is needed to extract the lexeme name(if it is spread across 2 buffers)
 char* getPreviousBufferEnd(int diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end)
 {
 	if(diff_buffer == 1)
@@ -556,6 +542,7 @@ char* getPreviousBufferEnd(int diff_buffer,int buffer_read_into,char* buffer1_en
 	return buffer2_end;
 }
 
+// this function returns the lexeme name from lexemeBegin to forward pointer
 Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_buff_end,char* curr_buff_start)
 {
 	Lexeme* lexeme = (Lexeme*)malloc(sizeof(Lexeme));
@@ -591,6 +578,7 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 	return lexeme;
 }
 
+// this function is used to create a new token
 Token* createToken(TOKEN_NAME t_name,long int line_number,Lexeme* lexeme)
 {
 	Token* tok = (Token*)malloc(sizeof(Token));
