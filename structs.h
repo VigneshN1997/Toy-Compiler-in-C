@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 20
 
 enum TOKEN_NAME
 {
@@ -38,10 +38,19 @@ struct Token
 	union Value value;
 };
 
+struct Lexeme
+{
+	char* lexeme_name;
+	int length;
+};
+
 typedef union Value Value;
 typedef struct Token Token;
 typedef enum DFA_STATE DFA_STATE;
 typedef enum TOKEN_NAME TOKEN_NAME;
+typedef struct Lexeme Lexeme;
 
 void getTokens(FILE* fp);
-Token* createToken(TOKEN_NAME t_name,long int line_number,char* lexemeBegin,char* forward);
+Token* createToken(TOKEN_NAME t_name,long int line_number,Lexeme* lexeme);
+char* getPreviousBufferEnd(int diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end);
+Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_buff_end,char* curr_buff_start);
