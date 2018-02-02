@@ -23,8 +23,8 @@ struct HASH_TABLE
 {
 	int entries;
 	int size;
-	double loadFactor;
-	int freeSlots;
+	// double loadFactor;
+	// int freeSlots;
 	struct hash_node* ptr;
 };
 
@@ -33,9 +33,10 @@ typedef struct node node;
 typedef struct hash_node hash_node;
 typedef struct HASH_TABLE HASH_TABLE;
 
-void addKeywords(keyword** KeywordList, int n);
+void addKeywords(keyword** keywordList, HASH_TABLE* ht, int n);
 HASH_TABLE* createLookupTable(int size);
 int hashingFunction(char* word, int size_of_ht);
-HASH_TABLE* insertKeyword(HASH_TABLE* ht, keyword* word);
-int isSlotEmpty(HASH_TABLE* ht, int index);
-int findKeyword(HASH_TABLE* ht,char* word);
+void insertKeyword(HASH_TABLE* ht, keyword* word);
+// int isSlotEmpty(HASH_TABLE* ht, int index);
+keyword* findKeyword(HASH_TABLE* ht,char* word);
+void printLookupTable(HASH_TABLE* ht);

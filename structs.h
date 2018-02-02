@@ -33,7 +33,6 @@ struct Lexeme
 typedef union Value Value;
 typedef struct Token Token;
 typedef enum DFA_STATE DFA_STATE;
-typedef enum TOKEN_NAME TOKEN_NAME;
 typedef struct Lexeme Lexeme;
 
 void getTokens(FILE* fp);
