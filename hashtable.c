@@ -1,11 +1,19 @@
 #include "hashtable.h"
 
-void addKeywords(keyword** keywordList,HASH_TABLE* ht, int n)
+HASH_TABLE* getLookupTable()
 {
+	HASH_TABLE* ht = createLookupTable(table_size);
+	addKeywords(ht);
+	return ht;
+}
+
+void addKeywords(HASH_TABLE* ht)
+{
+	int num_keywords = sizeof(keyword_mapping)/sizeof(keyword_mapping[0]);
 	int i;
-	for(i = 0; i < n; i++)
+	for(i = 0; i < num_keywords; i++)
 	{
-		insertKeyword(ht,keywordList[i]);
+		insertKeyword(ht,keyword_mapping + i);
 	}
 }
 
@@ -20,7 +28,7 @@ int hashingFunction(char* word, int size_of_ht)
 		hash = (hash*31 + c) % size_of_ht;
 	}
 	// printf("%s %d\n",word,hash);
-	return hash;
+	return hash%size_of_ht;
 }
 
 HASH_TABLE* createLookupTable(int size)
@@ -66,16 +74,16 @@ void insertKeyword(HASH_TABLE* ht, keyword* word)
 	}
 }
 
-keyword* findKeyword(HASH_TABLE* ht,char* word)
+keyword* findKeyword(HASH_TABLE* ht,char* find_word)
 {
-	int index = hashingFunction(word,ht->size);
+	int index = hashingFunction(find_word,ht->size);
 	node* n = ((ht->ptr)+index)->first;
-	keyword* sym = n->word;
 	if(n == NULL)
 	{
 		return NULL;
 	}
-	if(strcmp(sym->name,word) == 0)
+	keyword* sym = n->word;
+	if(strcmp(sym->name,find_word) == 0)
 	{
 		return sym;
 	}
@@ -85,7 +93,7 @@ keyword* findKeyword(HASH_TABLE* ht,char* word)
 		while(n != NULL)
 		{
 			sym = n->word;
-			if(strcmp(sym->name,word) == 0)
+			if(strcmp(sym->name,find_word) == 0)
 			{
 				return sym;
 			}
