@@ -1,4 +1,4 @@
-#include "lexer.c"
+#include "grammar_preprocess.c"
 int main(int argc, char const *argv[])
 {
 	FILE* fp = fopen("testcase.txt","r");
@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
 	Token* tok = NULL;
 	HASH_TABLE* lookupTable = getLookupTable();
 	// printLookupTable(lookupTable);
-	while(1)
+	/*while(1)
 	{
 		tok = getNextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,&line_number,lookupTable);
 		if(tok == NULL)
@@ -48,6 +48,8 @@ int main(int argc, char const *argv[])
 		{
 			printf("type:%d name:%s line_no:%ld lexeme_len:%d\n",tok->t_name,tok->lexeme,tok->line_no,tok->l);
 		}
-	}
+	}*/
+	FILE* g_file = fopen("grammar.txt","r");
+	extractGrammarFromFile(g_file);
 	return 0;
 }

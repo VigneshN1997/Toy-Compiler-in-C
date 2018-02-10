@@ -14,7 +14,24 @@ enum DFA_STATE
 	INT_A3, INT_A4, INT_OR1, INT_OR2,INT_N1,INT_N2,INT_N3,INT_NE,ERROR_STATE
 };
 
-enum TOKEN_NAME
+enum SYMBOL_NAME
+{
+	MAIN_FUNCTION,STMTS_AND_FUNCTION_DEFS,LF1,STMT_OR_FUNCTION_DEF,STMT,
+	FUNCTION_DEF,DECLARATION_STMT,ASSIGNMENT_STMT,CONDITIONAL_STMT,OTHER_STMTS,
+	LF5,IO_STMT,FUN_CALL_STMT,PARAMETER_LIST,TYPE,
+	REMAINING_LIST,VAR_LIST,LEFT_HAND_SIDE,RIGHT_HAND_SIDE,ARITHMETIC_EXPR,
+	ARITHMETIC_EXPR1,BOOLEAN_EXPR,OP1,TERM,TERM1,
+	FACTOR,OP2,VAR,LF2,MATRIX_ASSIGN,SIZE_ASSIGN,ROWS,ROW,LF3,LF4,
+	RELATIONAL_OP,MORE_IDS,FUNCTION_CALL,VAR_LIST1,LOGICAL_OP1,LEFT_HAND_SIDE1,
+	RIGHT_HAND_SIDE1, ASSIGNOP, FUNID, ID, NUM, RNUM,
+	STR, END, INT, REAL, STRING, MATRIX,
+	MAIN, SQO, SQC, OP, CL, SEMICOLON, COMMA,
+	IF, ELSE, ENDIF, READ, PRINT, FUNCTION,
+	PLUS, MINUS, MUL, DIV, SIZE, AND, OR,
+	NOT, LT, LE, EQ, GT, GE, NE, EPSILON
+};
+
+/*enum SYMBOL_NAME
 {
 	ASSIGNOP, FUNID, ID, NUM, RNUM,
 	STR, END, INT, REAL, STRING, MATRIX,
@@ -22,10 +39,10 @@ enum TOKEN_NAME
 	IF, ELSE, ENDIF, READ, PRINT, FUNCTION,
 	PLUS, MINUS, MUL, DIV, SIZE, AND, OR,
 	NOT, LT, LE, EQ, GT, GE, NE
-};
+};*/
 
 typedef struct {
-	enum TOKEN_NAME t_name;
+	enum SYMBOL_NAME t_name;
 	char* name;
 }keyword;
 
@@ -59,23 +76,12 @@ struct Lexeme
 
 struct Token
 {
-	enum TOKEN_NAME t_name;
+	enum SYMBOL_NAME t_name;
 	char* lexeme;
 	int l;
 	long int line_no;
 	union Value value;
 };
-
-// enum SYMBOL_NAME
-// {
-// 	A,B,C
-// };
-
-// enum SYMBOL_TYPE
-// {	
-// 	T, // terminal
-// 	NT // non-terminal
-// };
 
 // struct grammar_var
 // {
@@ -89,8 +95,6 @@ struct Token
 // 	struct grammar_var* variable;	// grammar variable
 // };
 
-typedef enum TOKEN_NAME TOKEN_NAME;
-typedef enum SYMBOL_TYPE SYMBOL_TYPE;
 typedef enum SYMBOL_NAME SYMBOL_NAME;
 typedef union Value Value;
 typedef struct Lexeme Lexeme;

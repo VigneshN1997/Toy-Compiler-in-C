@@ -346,7 +346,7 @@ void retract(char** forward)
 	*forward = *forward - 1;
 }
 
-Token* processInput(TOKEN_NAME t_name,char** lexemeBegin,char** forward,int* diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char* curr_buff_start,int line_number,HASH_TABLE* lookupTable)
+Token* processInput(SYMBOL_NAME t_name,char** lexemeBegin,char** forward,int* diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char* curr_buff_start,int line_number,HASH_TABLE* lookupTable)
 {
 	retract(forward); // retraction
 	*prvs_buff_end = getPreviousBufferEnd(*diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
@@ -430,7 +430,7 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 	return lexeme;
 }
 
-Token* createToken(TOKEN_NAME t_name,long int line_number,Lexeme* lexeme)
+Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 {
 	Token* tok = (Token*)malloc(sizeof(Token));
 	if(tok == NULL)
