@@ -22,7 +22,7 @@ Grammar* extractGrammarFromFile(FILE* fp)
 
 Grammar* createGrammarAdjacencyList()
 {
-	Grammar* gram = (Grammar*)malloc(num_non_terminals*sizeof(Grammar));
+	Grammar* gram = (Grammar*)malloc((num_non_terminals+1)*sizeof(Grammar));
 	int i;
 	for(i = 0; i < num_non_terminals; i++)
 	{
@@ -33,6 +33,12 @@ Grammar* createGrammarAdjacencyList()
 		gram[(int)grammar_var_mapping[i].sym_name]->last_rule = NULL;
 		gram[(int)grammar_var_mapping[i].sym_name]->rhs_occur = NULL;
 	}
+	gram[(int)EPSILON] = (Grammar)malloc(sizeof(LHS));
+	gram[(int)EPSILON]->sym_name = EPSILON;
+	gram[(int)EPSILON]->name = "EPSILON";
+	gram[(int)EPSILON]->first_rule = NULL;
+	gram[(int)EPSILON]->last_rule = NULL;
+	gram[(int)EPSILON]->rhs_occur = NULL;
 	return gram;
 }
 
@@ -142,6 +148,21 @@ void insertRHSSymbol(Grammar* g,rhs_head* r_head, grammar_var sym,SYMBOL_NAME lh
 			g[(int)sym.sym_name]->rhs_occur = occur1;
 		}
 	}
+	else if(sym.sym_name == EPSILON)
+	{
+		rhs_occurrences* occur1 = (rhs_occurrences*)malloc(sizeof(rhs_occurrences));
+		occur1->ptr_to_rhs_node = n;
+		occur1->next = NULL;
+		if(g[(int)EPSILON]->rhs_occur == NULL)
+		{
+			g[(int)EPSILON]->rhs_occur = occur1;	
+		}
+		else
+		{
+			occur1->next = g[(int)EPSILON]->rhs_occur;
+			g[(int)EPSILON]->rhs_occur = occur1;
+		}
+	}
 }
 
 rhs_occurrences* getRHSOccurrences(Grammar* gram,SYMBOL_NAME lhs_sym)
@@ -152,7 +173,7 @@ rhs_occurrences* getRHSOccurrences(Grammar* gram,SYMBOL_NAME lhs_sym)
 void printGrammar(Grammar* gram)
 {
 	int i;
-	for(i = 0; i < num_non_terminals; i++)
+	for(i = 0; i < num_non_terminals+1; i++)
 	{
 		printf("lhs symbol:%s(%d)\t",gram[i]->name,(int)gram[i]->sym_name);
 		rhs_head* rule = gram[i]->first_rule;
@@ -174,7 +195,7 @@ void printGrammar(Grammar* gram)
 
 void printRHSOccurrences(Grammar* gram)
 {
-	for(int i = 0; i < num_non_terminals; i++)
+	for(int i = 0; i < num_non_terminals+1; i++)
 	{
 		printf("lhs symbol:%s(%d)\t",gram[i]->name,(int)gram[i]->sym_name);
 		rhs_occurrences* temp = gram[i]->rhs_occur;

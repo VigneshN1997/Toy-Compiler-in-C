@@ -98,6 +98,7 @@ grammar_var grammar_var_mapping[] = {
 	{"funCallStmt",FUN_CALL_STMT,NT},
 	{"functionCall",FUNCTION_CALL,NT},
 	{"var_list1",VAR_LIST1,NT},
+	{"EPSILON",EPSILON,T},
 	{"ASSIGNOP",ASSIGNOP,T},
 	{"FUNID",FUNID,T},
 	{"ID",ID,T},
@@ -135,6 +136,5 @@ grammar_var grammar_var_mapping[] = {
 	{"EQ",EQ,T},
 	{"GT",GT,T},
 	{"GE",GE,T},
-	{"NE",NE,T},
-	{"EPSILON",EPSILON,T}
+	{"NE",NE,T}
 };
