@@ -1,5 +1,5 @@
 #include "lexer.c"
-
+#define num_non_terminals 42
 enum SYMBOL_TYPE
 {	
 	T, // terminal
@@ -17,9 +17,17 @@ struct grammar_var
 struct rhs_node
 {
 	enum SYMBOL_NAME sym_name;
+	char* name;
 	enum SYMBOL_NAME lhs_sym;
 	enum SYMBOL_TYPE sym_type;
 	struct rhs_node* next;
+};
+
+struct rhs_head
+{
+	struct rhs_node* first_sym;
+	struct rhs_node* last_sym;
+	struct rhs_head* next_rule;
 };
 
 struct rhs_occurrences
@@ -31,16 +39,21 @@ struct rhs_occurrences
 struct lhs
 {
 	enum SYMBOL_NAME sym_name;
-	struct rhs_node* first_sym;
+	char* name;
+	struct rhs_head* first_rule;
+	struct rhs_head* last_rule;
 	struct rhs_occurrences* rhs_occur; 
 };
 
 typedef enum SYMBOL_TYPE SYMBOL_TYPE;
 typedef enum SYMBOL_NAME SYMBOL_NAME;
 typedef struct grammar_var grammar_var;
-typedef struct rhs_node NODE;
+typedef struct rhs_node rhs_node;
+typedef struct rhs_head rhs_head;
 typedef struct rhs_occurrences rhs_occurrences;
 typedef struct lhs LHS; 
+typedef struct lhs* Grammar;
+
 
 grammar_var grammar_var_mapping[] = {
 	{"mainFunction",MAIN_FUNCTION,NT},

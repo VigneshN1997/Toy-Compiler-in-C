@@ -50,6 +50,8 @@ int main(int argc, char const *argv[])
 		}
 	}*/
 	FILE* g_file = fopen("grammar.txt","r");
-	extractGrammarFromFile(g_file);
+	Grammar* g = extractGrammarFromFile(g_file);
+	// printGrammar(g);
+	printRHSOccurrences(g);
 	return 0;
 }
