@@ -1,5 +1,5 @@
-#include "lexer.c"
-#define num_non_terminals 42
+#include "Set.c"
+#define num_non_terminals 44
 enum SYMBOL_TYPE
 {	
 	T, // terminal
@@ -16,11 +16,10 @@ struct grammar_var
 // rhs rhs_node
 struct rhs_node
 {
-	enum SYMBOL_NAME sym_name;
-	char* name;
+	grammar_var* sym;
 	enum SYMBOL_NAME lhs_sym;
-	enum SYMBOL_TYPE sym_type;
 	struct rhs_node* next;
+	struct rhs_node* previous;
 };
 
 struct rhs_head
@@ -43,10 +42,12 @@ struct lhs
 	struct rhs_head* first_rule;
 	struct rhs_head* last_rule;
 	struct rhs_occurrences* rhs_occur; 
+	int derives_epsilon;
+	Set* first_set;
+	Set* follow_set;
 };
 
 typedef enum SYMBOL_TYPE SYMBOL_TYPE;
-typedef enum SYMBOL_NAME SYMBOL_NAME;
 typedef struct grammar_var grammar_var;
 typedef struct rhs_node rhs_node;
 typedef struct rhs_head rhs_head;
@@ -58,7 +59,7 @@ typedef struct lhs* Grammar;
 grammar_var grammar_var_mapping[] = {
 	{"mainFunction",MAIN_FUNCTION,NT},
 	{"stmtsAndFunctionDefs",STMTS_AND_FUNCTION_DEFS,NT},
-	{"LF1",LF1,NT},
+	{"moreStmtsorFunctionDefs",MORE_STMTS_OR_FUNCTION_DEFS,NT},
 	{"stmtOrFunctionDef",STMT_OR_FUNCTION_DEF,NT},
 	{"stmt",STMT,NT},
 	{"functionDef",FUNCTION_DEF,NT},
@@ -66,38 +67,40 @@ grammar_var grammar_var_mapping[] = {
 	{"type",TYPE,NT},
 	{"remainingList",REMAINING_LIST,NT},
 	{"declarationStmt",DECLARATION_STMT,NT},
-	{"assignmentStmt",ASSIGNMENT_STMT,NT},
-	{"leftHandSide",LEFT_HAND_SIDE,NT},
-	{"leftHandSide1",LEFT_HAND_SIDE1,NT},
-	{"rightHandSide1",RIGHT_HAND_SIDE1,NT},
-	{"rightHandSide",RIGHT_HAND_SIDE,NT},
-	{"conditionalStmt",CONDITIONAL_STMT,NT},
-	{"LF5",LF5,NT},
-	{"otherStmts",OTHER_STMTS,NT},
-	{"ioStmt",IO_STMT,NT},
-	{"arithmeticExpression",ARITHMETIC_EXPR,NT},
-	{"arithmeticExpression1",ARITHMETIC_EXPR1,NT},
-	{"OP1",OP1,NT},
-	{"term",TERM,NT},
-	{"term1",TERM1,NT},
-	{"OP2",OP2,NT},
-	{"factor",FACTOR,NT},
-	{"var",VAR,NT},
-	{"LF2",LF2,NT},
-	{"matrixAssign",MATRIX_ASSIGN,NT},
-	{"rows",ROWS,NT},
-	{"LF3",LF3,NT},
-	{"row",ROW,NT},
-	{"LF4",LF4,NT},
-	{"sizeAssign",SIZE_ASSIGN,NT},
-	{"booleanExpression",BOOLEAN_EXPR,NT},
-	{"logicalOp1",LOGICAL_OP1,NT},
-	{"relationalOp",RELATIONAL_OP,NT},
 	{"var_list",VAR_LIST,NT},
 	{"more_ids",MORE_IDS,NT},
+	{"assignmentStmt_type1",ASSIGNMENT_STMT_TYPE1,NT},
+	{"assignmentStmt_type2",ASSIGNMENT_STMT_TYPE2,NT},
+	{"leftHandSide_singleVar",LHS_SINGLE_VAR,NT},
+	{"leftHandSide_listVar",LHS_LIST_VAR,NT},
+	{"rightHandSide_type1",RHS_TYPE1,NT},
+	{"rightHandSide_type2",RHS_TYPE2,NT},
+	{"sizeExpression",SIZE_EXPR,NT},
+	{"ifStmt",IF_STMT,NT},
+	{"elseFactor",ELSE_FACTOR,NT},
+	{"otherStmts",OTHER_STMTS,NT},
+	{"ioStmt",IO_STMT,NT},
 	{"funCallStmt",FUN_CALL_STMT,NT},
-	{"functionCall",FUNCTION_CALL,NT},
-	{"var_list1",VAR_LIST1,NT},
+	{"inputParameterList",INPUT_PARAMETER_LIST,NT},
+	{"listVar",LIST_VAR,NT},
+	{"arithmeticExpression",ARITHMETIC_EXPR,NT},
+	{"arithmeticExprLF",ARITHMETIC_EXPR_LF,NT},
+	{"arithmeticTerm",ARITHMETIC_TERM,NT},
+	{"arithmeticTermLF",ARITHMETIC_TERM_LF,NT},
+	{"factor",FACTOR,NT},
+	{"operator_lowPrecedence",OPERATOR_LOW_PREC,NT},
+	{"operator_highPrecedence",OPERATOR_HIGH_PREC,NT},
+	{"booleanExpression",BOOL_EXPR,NT},
+	{"constrainedVars",CONSTRAINED_VARS,NT},
+	{"var",VAR,NT},
+	{"matrix",MATRIX_DEF,NT},
+	{"rows",ROWS,NT},
+	{"rowsLF",ROWS_LF,NT},
+	{"row",ROW,NT},
+	{"rowLF",ROW_LF,NT},
+	{"isMatrixElement",IS_MATRIX_ELEM,NT},
+	{"logicalOp",LOGICAL_OP,NT},
+	{"relationalOp",RELATIONAL_OP,NT},
 	{"EPSILON",EPSILON,T},
 	{"ASSIGNOP",ASSIGNOP,T},
 	{"FUNID",FUNID,T},

@@ -32,6 +32,9 @@ Grammar* createGrammarAdjacencyList()
 		gram[(int)grammar_var_mapping[i].sym_name]->first_rule = NULL;
 		gram[(int)grammar_var_mapping[i].sym_name]->last_rule = NULL;
 		gram[(int)grammar_var_mapping[i].sym_name]->rhs_occur = NULL;
+		gram[(int)grammar_var_mapping[i].sym_name]->derives_epsilon = 0;
+		gram[(int)grammar_var_mapping[i].sym_name]->first_set = NULL;
+		gram[(int)grammar_var_mapping[i].sym_name]->follow_set = NULL;
 	}
 	gram[(int)EPSILON] = (Grammar)malloc(sizeof(LHS));
 	gram[(int)EPSILON]->sym_name = EPSILON;
@@ -44,7 +47,7 @@ Grammar* createGrammarAdjacencyList()
 
 void processRule(char* rule,Grammar* g)
 {
-	char delim[3] = "->";
+	char delim[5] = "===>";
 	char* lhs = strtok(rule,delim);
 	char* rhs = strtok(NULL,delim);
 	SYMBOL_NAME lhs_sym = convertStrSymtoEnum(lhs).sym_name;
@@ -67,6 +70,7 @@ grammar_var convertStrSymtoEnum(char* str)
 
 void storeRuleinGrammar(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs)
 {
+	// printf("lhs:%d\n",lhs_sym);
 	char delim[2] = "|";
 	char * rest = rhs;
 	char* rhs_part = strtok_r(rest,delim,&rest);
@@ -117,12 +121,14 @@ void storeRHS(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs_part)
 void insertRHSSymbol(Grammar* g,rhs_head* r_head, grammar_var sym,SYMBOL_NAME lhs_sym)
 {
 	rhs_node* n = (rhs_node*)malloc(sizeof(rhs_node));
-	n->sym_name = sym.sym_name;
 	n->lhs_sym = lhs_sym;
-	n->sym_type = sym.sym_type;
-	n->name = sym.sym_str;
+	n->sym = (grammar_var*)malloc(sizeof(grammar_var));
+	n->sym->sym_str = sym.sym_str;
+	n->sym->sym_name = sym.sym_name;
+	n->sym->sym_type = sym.sym_type;
 	// printf("name:%s\n",n->name);
 	n->next = NULL;
+	n->previous = NULL;
 	if(r_head->first_sym == NULL)
 	{
 		r_head->first_sym = n;
@@ -131,6 +137,7 @@ void insertRHSSymbol(Grammar* g,rhs_head* r_head, grammar_var sym,SYMBOL_NAME lh
 	else
 	{
 		(r_head->last_sym)->next = n;
+		n->previous = r_head->last_sym;
 		r_head->last_sym = n;
 	}
 	if(sym.sym_type == NT)
@@ -153,6 +160,7 @@ void insertRHSSymbol(Grammar* g,rhs_head* r_head, grammar_var sym,SYMBOL_NAME lh
 		rhs_occurrences* occur1 = (rhs_occurrences*)malloc(sizeof(rhs_occurrences));
 		occur1->ptr_to_rhs_node = n;
 		occur1->next = NULL;
+		g[(int)lhs_sym]->derives_epsilon = 1;
 		if(g[(int)EPSILON]->rhs_occur == NULL)
 		{
 			g[(int)EPSILON]->rhs_occur = occur1;	
@@ -182,7 +190,7 @@ void printGrammar(Grammar* gram)
 			rhs_node* temp = rule->first_sym;
 			while(temp != NULL)
 			{
-				printf("%s:(%d)(%d)(%d) ",temp->name,(int)temp->sym_name,(int)temp->lhs_sym,(int)temp->sym_type);
+				printf("%s:(%d)(%d)(%d) ",temp->sym->sym_str,(int)temp->sym->sym_name,(int)temp->lhs_sym,(int)temp->sym->sym_type);
 				temp = temp->next;
 			}
 			printf("| ");
@@ -202,7 +210,7 @@ void printRHSOccurrences(Grammar* gram)
 		while(temp != NULL)
 		{
 			rhs_node* a = temp->ptr_to_rhs_node;
-			printf("%s:(%d)(%d)(%d) ",a->name,(int)a->sym_name,(int)a->lhs_sym,(int)a->sym_type);
+			printf("%s:(%d)(%d)(%d) ",a->sym->sym_str,(int)a->sym->sym_name,(int)a->lhs_sym,(int)a->sym->sym_type);
 			temp = temp->next;
 		}
 		printf("\n");

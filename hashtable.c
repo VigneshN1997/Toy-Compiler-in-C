@@ -118,7 +118,7 @@ void printLookupTable(HASH_TABLE* ht)
 			node* n = hs[i].first;
 			while(n != NULL)
 			{
-				printf("%s:%d:%d->",(n->word)->name,(n->word)->t_name,strlen((n->word)->name));
+				printf("%s:%d:%d->",(n->word)->name,(int)((n->word)->t_name),(int)strlen((n->word)->name));
 				n = n->next;
 			}
 			printf("\n");
