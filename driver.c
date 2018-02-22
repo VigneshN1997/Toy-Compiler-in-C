@@ -1,4 +1,4 @@
-#include "parser.c"
+#include "firstfollow.c"
 int main(int argc, char const *argv[])
 {
 	FILE* fp = fopen("testcase.txt","r");
@@ -53,6 +53,11 @@ int main(int argc, char const *argv[])
 	Grammar* g = extractGrammarFromFile(g_file);
 	// printGrammar(g);
 	// printRHSOccurrences(g);
-	ComputeFirtSets(g);
+	ComputeFirstSets(g);
+	ComputeFollowSets(g);
+	printFirstSets(g);
+	printFollowSets(g);
+	parsingTable pTable = createParsingTable(g);
+	printParsingTable(pTable);
 	return 0;
 }

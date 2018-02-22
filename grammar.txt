@@ -8,8 +8,8 @@ parameter_list===>type ID remainingList | EPSILON
 type===>INT | REAL | STRING | MATRIX
 remainingList===>COMMA parameter_list | EPSILON
 declarationStmt===>type var_list SEMICOLON
-var_list>===>ID more_ids
-more_ids>===>COMMA var_list | EPSILON
+var_list===>ID more_ids
+more_ids===>COMMA var_list | EPSILON
 assignmentStmt_type1===>leftHandSide_singleVar ASSIGNOP rightHandSide_type1 SEMICOLON
 assignmentStmt_type2===>leftHandSide_listVar ASSIGNOP rightHandSide_type2 SEMICOLON
 leftHandSide_singleVar===>ID
@@ -17,8 +17,8 @@ leftHandSide_listVar===>SQO var_list SQC
 rightHandSide_type1===>arithmeticExpression | sizeExpression |funCallStmt
 rightHandSide_type2===>sizeExpression | funCallStmt
 sizeExpression===>SIZE ID
-ifStmt===>IF OP booleanExpression CL stmt otherStmts elseFactor
-elseFactor===>ELSE stmt otherStmts ENDIF SEMICOLON | ENDIF SEMICOLON
+ifStmt===>IF OP booleanExpression CL stmt otherStmts elseFactor SEMICOLON
+elseFactor===>ELSE stmt otherStmts ENDIF | ENDIF
 otherStmts===>stmt otherStmts | EPSILON
 ioStmt===>READ OP ID CL SEMICOLON | PRINT OP ID CL SEMICOLON
 funCallStmt===>FUNID OP inputParameterList CL

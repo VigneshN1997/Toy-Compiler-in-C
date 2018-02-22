@@ -54,6 +54,7 @@ typedef struct rhs_head rhs_head;
 typedef struct rhs_occurrences rhs_occurrences;
 typedef struct lhs LHS; 
 typedef struct lhs* Grammar;
+typedef struct rhs_head*** parsingTable;
 
 
 grammar_var grammar_var_mapping[] = {
@@ -139,5 +140,6 @@ grammar_var grammar_var_mapping[] = {
 	{"EQ",EQ,T},
 	{"GT",GT,T},
 	{"GE",GE,T},
-	{"NE",NE,T}
+	{"NE",NE,T},
+	{"$",$,T}
 };

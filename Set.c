@@ -40,37 +40,51 @@ void setBit(Set* A,int i)
 	A[index].num = A[index].num | j;
 }
 
-void printSet(Set* A)
+// void printSet(Set* A)
+// {
+// 	int set_size = sizeof(A)/sizeof(A[0]);
+// 	for(int i = 0; i < set_size; i++)
+// 	{
+// 		decToBinary(A[i].num);
+// 	}
+// 	printf("\n");
+// }
+
+// void decToBinary(unsigned int n)
+// {
+//     // array to store binary number
+//     int binaryNum[32] = {0};
+ 
+//     // counter for binary array
+//     int i = 0;
+//     while (n > 0) {
+ 
+//         // storing remainder in binary array
+//         binaryNum[i] = n % 2;
+//         n = n / 2;
+//         i++;
+//     }
+ 
+//     // printing binary array in reverse order
+//     for (int j = element_size - 1; j >= 0; j--)
+//         printf("%d",binaryNum[j]);
+//     printf("\t");
+// }
+
+int compareSets(Set* A,Set* B)
 {
+	int equal = 1;
 	int set_size = sizeof(A)/sizeof(A[0]);
 	for(int i = 0; i < set_size; i++)
 	{
-		decToBinary(A[i].num);
+		if(A[i].num != B[i].num)
+		{
+			equal = 0;
+			break;
+		}
 	}
-	printf("\n");
+	return equal;
 }
-
-void decToBinary(unsigned int n)
-{
-    // array to store binary number
-    int binaryNum[32] = {0};
- 
-    // counter for binary array
-    int i = 0;
-    while (n > 0) {
- 
-        // storing remainder in binary array
-        binaryNum[i] = n % 2;
-        n = n / 2;
-        i++;
-    }
- 
-    // printing binary array in reverse order
-    for (int j = element_size - 1; j >= 0; j--)
-        printf("%d",binaryNum[j]);
-    printf("\t");
-}
-
 
 /*int main(int argc, char const *argv[])
 {
