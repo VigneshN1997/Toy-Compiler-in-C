@@ -1,6 +1,6 @@
 #include "lexer.h"
 
-Token* getNextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,char** forward,char** buffer1,char** buffer2,FILE* fp,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char** curr_buff_start,int* flag,int* line_number,HASH_TABLE* lookupTable)
+Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,char** forward,char** buffer1,char** buffer2,FILE* fp,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char** curr_buff_start,int* flag,int* line_number,HASH_TABLE* lookupTable)
 {
 	Token* tok = NULL;
 	size_t nread;
@@ -477,4 +477,64 @@ Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 	return tok;
 }
 
+HEAD* getAllTokens(char* fileName)
+{
+	HASH_TABLE* lookupTable = getLookupTable();
+	FILE* fp = fopen(fileName,"r");
+	int diff_buffer = 0;
+	int buffer_read_into = 1;
+	size_t nread;
+	int line_number = 1;
+	char *lexemeBegin, *forward, *buffer1, *buffer2;
+	buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
+	buffer2 = (char*)malloc(BUFFER_SIZE*sizeof(char));
+	buffer1[BUFFER_SIZE - 1] = '?'; 					// to indicate end of buffers
+	buffer2[BUFFER_SIZE - 1] = '?';
+	nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fp);
+	if(nread < BUFFER_SIZE - 1)
+	{
+		// printf("%d\n",nread);
+		buffer1[nread] = '!'; // to indicate end of file
+	}
+	lexemeBegin = buffer1;								// initialize the lexemeBegin pointer		
+	forward = buffer1;
+	char* buffer1_end = buffer1 + BUFFER_SIZE - 1;		
+	char* buffer2_end = buffer2 + BUFFER_SIZE - 1;
+	char* prvs_buff_end,*curr_buff_start;
+	Lexeme* lexeme;
+	curr_buff_start = buffer1;
+	prvs_buff_end = buffer1_end;
+	int flag = 0;
+	Token* tok = NULL;
 
+	// printLookupTable(lookupTable);
+	HEAD* tokenList = initializeLinkedList();
+	while(1)
+	{
+		tok = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,&line_number,lookupTable);
+		if(tok == NULL)
+		{
+			break;
+		}
+		// printf("%s\n",tok->lexeme);
+		node_data* data = createNodeData(tok,NULL,NULL);
+		insertAtEnd(tokenList,data);
+	}
+	tok = (Token*)malloc(sizeof(Token));
+	tok->t_name = $;
+	tok->lexeme  = NULL;
+	tok->l = 1;
+	tok->line_no = -1;
+	node_data* data = createNodeData(tok,NULL,NULL);
+	insertAtEnd(tokenList,data);
+	ll_node* n = tokenList->first;
+	free(lookupTable);
+	return tokenList;
+}
+
+Token* getNextToken(HEAD* tokenList,ll_node** pointer_to_node)
+{	
+	node_data* node = (*pointer_to_node)->data;
+	*pointer_to_node = (*pointer_to_node)->next;
+	return  node->token;
+}

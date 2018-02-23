@@ -20,11 +20,11 @@ void addKeywords(HASH_TABLE* ht)
 // implement this
 int hashingFunction(char* word, int size_of_ht)
 {
-	int hash = word[0] - 'a' + 1;
+	int hash = word[0] % size_of_ht;
 	int c;
 	for(int i = 1; i < strlen(word); i++)
 	{
-		c = word[i] - 'a' + 1;
+		c = word[i];
 		hash = (hash*31 + c) % size_of_ht;
 	}
 	// printf("%s %d\n",word,hash);
@@ -77,6 +77,7 @@ void insertKeyword(HASH_TABLE* ht, keyword* word)
 keyword* findKeyword(HASH_TABLE* ht,char* find_word)
 {
 	int index = hashingFunction(find_word,ht->size);
+	// printf("index:%d\n",index);
 	node* n = ((ht->ptr)+index)->first;
 	if(n == NULL)
 	{

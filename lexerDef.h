@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 4096
 #define table_size 24 // lookup table
 
 enum DFA_STATE
@@ -29,16 +29,11 @@ enum SYMBOL_NAME
 	NOT, LT, LE, EQ, GT, GE, NE,$
 };
 
-
-/*enum SYMBOL_NAME
-{
-	ASSIGNOP, FUNID, ID, NUM, RNUM,
-	STR, END, INT, REAL, STRING, MATRIX,
-	MAIN, SQO, SQC, OP, CL, SEMICOLON, COMMA,
-	IF, ELSE, ENDIF, READ, PRINT, FUNCTION,
-	PLUS, MINUS, MUL, DIV, SIZE, AND, OR,
-	NOT, LT, LE, EQ, GT, GE, NE
-};*/
+enum SYMBOL_TYPE
+{	
+	T, // terminal
+	NT // non-terminal
+};
 
 typedef struct {
 	enum SYMBOL_NAME t_name;
@@ -78,23 +73,27 @@ struct Token
 	enum SYMBOL_NAME t_name;
 	char* lexeme;
 	int l;
-	long int line_no;
+	int line_no;
 	union Value value;
 };
 
-// struct grammar_var
-// {
-// 	enum SYMBOL_TYPE sym_type;
-// 	enum SYMBOL_NAME sym_name;
-// };
+struct grammar_var
+{
+	char* sym_str;
+	enum SYMBOL_NAME sym_name;
+	enum SYMBOL_TYPE sym_type;
+};
 
-// struct node_data
-// {
-// 	struct Token* token;			// lexical token
-// 	struct grammar_var* variable;	// grammar variable
-// };
+struct node_data
+{
+	struct Token* token;			// lexical token
+	struct grammar_var* variable;	// grammar variable
+	void* ptr_to_ParseTreeNode;
+};
+
 
 typedef enum SYMBOL_NAME SYMBOL_NAME;
+typedef enum SYMBOL_TYPE SYMBOL_TYPE;
 typedef union Value Value;
 typedef struct Lexeme Lexeme;
 typedef struct Token Token;

@@ -1,23 +1,15 @@
-#include "def.h"
-
-
-struct stack_node
-{
-	stack_symbol* symbol;
-	struct stack_node* next;
-};
+#include "firstfollow.c"
 
 struct stack
 {
-	int size;
-	struct stack_node* top;
+	HEAD* top;
 };
 
-typedef struct stack_node stack_node;
 typedef struct stack STACK;
 
 STACK* createStack();
-void push(STACK* s,stack_symbol* s);
+void push(STACK* s,node_data* data);
 void pop(STACK* s);
-stack_symbol* top(STACK* s);
-int isEmpty(STACK* s);
+node_data* top(STACK* s);
+STACK* initializeStackforParsing();
+// int isEmpty(STACK* s);

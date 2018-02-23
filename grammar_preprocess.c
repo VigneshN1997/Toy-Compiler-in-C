@@ -216,3 +216,25 @@ void printRHSOccurrences(Grammar* gram)
 		printf("\n");
 	}
 }
+
+void printGrammarRulesReverse(Grammar* gram)
+{
+	int i;
+	for(i = 0; i < num_non_terminals+1; i++)
+	{
+		printf("lhs symbol:%s(%d)\t",gram[i]->name,(int)gram[i]->sym_name);
+		rhs_head* rule = gram[i]->first_rule;
+		while(rule != NULL)
+		{
+			rhs_node* temp = rule->last_sym;
+			while(temp != NULL)
+			{
+				printf("%s:(%d)(%d)(%d) ",temp->sym->sym_str,(int)temp->sym->sym_name,(int)temp->lhs_sym,(int)temp->sym->sym_type);
+				temp = temp->previous;
+			}
+			printf("| ");
+			rule = rule->next_rule;
+		}
+		printf("\n");
+	}
+}

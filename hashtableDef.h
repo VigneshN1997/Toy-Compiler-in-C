@@ -1,4 +1,4 @@
-#include "lexerDef.h"
+#include "linked_list.c"
 
 struct node
 {

@@ -1,17 +1,5 @@
 #include "Set.c"
 #define num_non_terminals 44
-enum SYMBOL_TYPE
-{	
-	T, // terminal
-	NT // non-terminal
-};
-
-struct grammar_var
-{
-	char* sym_str;
-	enum SYMBOL_NAME sym_name;
-	enum SYMBOL_TYPE sym_type;
-};
 
 // rhs rhs_node
 struct rhs_node
@@ -47,7 +35,17 @@ struct lhs
 	Set* follow_set;
 };
 
-typedef enum SYMBOL_TYPE SYMBOL_TYPE;
+struct treeNode
+{
+	node_data* nodeVal;
+	struct treeNode* parent;
+	struct treeNode* nextSibling;
+	struct treeNode* children;
+};
+
+
+
+
 typedef struct grammar_var grammar_var;
 typedef struct rhs_node rhs_node;
 typedef struct rhs_head rhs_head;
@@ -55,8 +53,8 @@ typedef struct rhs_occurrences rhs_occurrences;
 typedef struct lhs LHS; 
 typedef struct lhs* Grammar;
 typedef struct rhs_head*** parsingTable;
-
-
+typedef struct treeNode treeNode;
+typedef struct treeNode* ParseTree;
 grammar_var grammar_var_mapping[] = {
 	{"mainFunction",MAIN_FUNCTION,NT},
 	{"stmtsAndFunctionDefs",STMTS_AND_FUNCTION_DEFS,NT},
