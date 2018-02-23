@@ -1,5 +1,95 @@
 #include "lexer.h"
 
+void printCommentFreeCode(char* cleanFile)
+{
+	FILE* fpc = fopen(cleanFile,"w");
+	char* buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
+	size_t nread = fread(buffer1,sizeof(char),BUFFER_SIZE,fpc);
+	while(1)
+	{
+		if(nread < BUFFER_SIZE)
+		{
+			fwrite(buffer1,sizeof(char),nread,stdout);
+		}
+		else
+		{
+			fwrite(buffer1,sizeof(char),BUFFER_SIZE,stdout);
+			nread = fread(buffer1,sizeof(char),BUFFER_SIZE,fpc);
+		}
+	}
+}
+
+void removeComments(char* testcaseFile, char* cleanFile)
+{
+	FILE* fpt = fopen(testcaseFile,"r");
+	FILE* fpc = fopen(cleanFile,"w");
+	size_t nread;
+	char* buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
+	buffer1[BUFFER_SIZE - 1] = '?';
+	nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fpt);
+	if(nread < BUFFER_SIZE - 1)
+	{
+		// printf("%d\n",nread);
+		buffer1[nread] = '!'; // to indicate end of file
+	}
+	char* fwd = buffer1;
+	char* char_read = (char*)malloc(sizeof(char));
+	int flag = 0;
+	DFA_STATE state = START;
+	while(1)
+	{
+		*char_read = *fwd;
+		fwd++;
+		switch(*char_read)
+		{
+			case '?':
+				nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fpt);
+				fwd = buffer1;
+				if(nread < BUFFER_SIZE - 1)
+				{
+					buffer1[nread] = '!'; // to indicate end of file
+				}
+				break;
+			case '!':
+				flag = 1;
+				break;
+		}
+		if(flag == 1)
+		{
+			break;
+		}
+		if(*char_read == '?')
+		{
+			continue;
+		}
+		switch(state)
+		{
+			case START:
+				if(*char_read == '#') state = ACCEPT_COMMENT;
+				else
+				{
+					fwrite(char_read,1,1,fpc);
+					// fwrite(char_read,1,1,stdout);
+					state = START;
+				} 
+				break;
+			case ACCEPT_COMMENT:
+				if(*char_read == '\n')
+				{ 
+					state = START;
+					fwrite(char_read,1,1,fpc);
+					// fwrite(char_read,1,1,stdout);
+				}
+				else state = ACCEPT_COMMENT;
+				break;
+		}
+	}
+	free(buffer1);
+	fclose(fpt);
+	fclose(fpc);
+}
+
+
 Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,char** forward,char** buffer1,char** buffer2,FILE* fp,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char** curr_buff_start,int* flag,int* line_number,HASH_TABLE* lookupTable)
 {
 	Token* tok = NULL;
@@ -134,7 +224,7 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 				break;
 
 			case ACCEPT_RNUM:
-				tok = processInput(NUM,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
+				tok = processInput(RNUM,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
 				return tok;
 				break;
 
@@ -402,6 +492,7 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 	if(diff_buffer == 0)
 	{
 		lexeme->length = (int)(forward-lexemeBegin);
+		lexeme->length++;
 		char* lexeme_name = (char*)malloc(len_lexeme*sizeof(char));
 		i = 0;
 		for(char *c = lexemeBegin; c != forward; c++)
@@ -414,6 +505,7 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 	else
 	{
 		lexeme->length = (int)(prvs_buff_end - lexemeBegin) + (int)(forward - curr_buff_start);
+		lexeme->length++;
 		lexeme->lexeme_name = (char*)malloc(len_lexeme * sizeof(char));
 		i = 0;
 		for(char* c = lexemeBegin; c != prvs_buff_end; c++)
@@ -427,6 +519,7 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 			i++;
 		}
 	}
+	lexeme->lexeme_name[lexeme->length - 1] = '\0';
 	return lexeme;
 }
 
@@ -447,7 +540,7 @@ Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 	if(t_name == NUM)
 	{
 		int val = 0;
-		for(i = 0; i < len_lexeme; i ++)
+		for(i = 0; i < len_lexeme - 1; i ++)
 		{
 			val = val*10 + (tok->lexeme[i] - '0');
 		}
@@ -465,7 +558,7 @@ Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 		}
 		i++;
 		double p = 1;
-		while(i < len_lexeme)
+		while(i < len_lexeme - 1)
 		{
 			frac_part =  frac_part*10 + (tok->lexeme[i] - '0');
 			p = p*10;
@@ -476,6 +569,7 @@ Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 	}
 	return tok;
 }
+
 
 HEAD* getAllTokens(char* fileName)
 {
@@ -529,6 +623,7 @@ HEAD* getAllTokens(char* fileName)
 	insertAtEnd(tokenList,data);
 	ll_node* n = tokenList->first;
 	free(lookupTable);
+	fclose(fp);
 	return tokenList;
 }
 

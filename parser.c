@@ -204,3 +204,14 @@ void doInOrderTraversal(ParseTree tree,FILE* fp)
 		}
 	}
 }
+
+void printTokens(HEAD* tokenList)
+{
+	ll_node* n = tokenList->first;
+	Token* tok = NULL;
+	while(n != NULL)
+	{
+		tok = n->data->token;
+		printf("%s %s %d\n",grammar_var_mapping[(int)tok->t_name].sym_str,tok->lexeme,tok->line_no);
+	}
+}

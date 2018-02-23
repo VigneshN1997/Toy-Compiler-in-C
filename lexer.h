@@ -9,3 +9,6 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme);
 HEAD* getAllTokens(char* fileName);
 Token* getNextToken(HEAD* tokenList,ll_node** pointer_to_node);
+
+void removeComments(char* testcaseFile, char* cleanFile);
+void printCommentFreeCode(char* cleanFile);

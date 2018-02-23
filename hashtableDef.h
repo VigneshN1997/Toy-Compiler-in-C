@@ -16,8 +16,6 @@ struct HASH_TABLE
 {
 	int entries;
 	int size;
-	// double loadFactor;
-	// int freeSlots;
 	struct hash_node* ptr;
 };
 

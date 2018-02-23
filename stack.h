@@ -12,4 +12,3 @@ void push(STACK* s,node_data* data);
 void pop(STACK* s);
 node_data* top(STACK* s);
 STACK* initializeStackforParsing();
-// int isEmpty(STACK* s);

@@ -5,10 +5,6 @@ void ComputeFirstSets(Grammar* g)
 	int num_symbols = sizeof(grammar_var_mapping)/sizeof(grammar_var_mapping[0]);
 	int num_terminals = num_symbols - num_non_terminals;
 	findNullProducingSymbols(g);
-	// for(int i = 0; i < num_non_terminals; i++)
-	// {
-	// 	printf("lhs_sym:%s\tderives_epsilon:%d\n",g[i]->name,g[i]->derives_epsilon);
-	// }
 	int* stack_arr = (int*)malloc(num_non_terminals*sizeof(int));
 	int i = 0;
 	for(i = 0; i < num_non_terminals; i++)
@@ -25,7 +21,7 @@ void ComputeFirstSets(Grammar* g)
 		}
 	}
 }
-// define num terminals
+
 void ComputeFirstSet(SYMBOL_NAME sym,Grammar* g,int* stack_arr,int num_terminals,SYMBOL_TYPE sym_type)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -177,64 +173,6 @@ void printFFSet(Set* set,int num_terminals)
 	}
 	printf("\n");
 }
-
-// void ComputeFirstSets(Grammar* g)
-// {
-// 	int eps = (int)EPSILON;
-// 	int num_symbols = sizeof(grammar_var_mapping)/sizeof(grammar_var_mapping[0]);
-// 	int num_terminals = num_symbols - num_non_terminals;
-// 	int changed = 0;
-// 	while(1)
-// 	{
-// 		for(i = 0; i < num_non_terminals; i++)
-// 		{
-// 			if(g[i]->first_set == NULL)
-// 			{
-// 				g[i]->first_set = createSet(num_terminals);
-// 			}
-// 			SYMBOL_NAME lhs_sym = g[i]->sym_name;
-// 			rhs_head* rule = g[i]->first_rule;
-// 			while(rule != NULL)
-// 			{
-// 				rhs_node* rh = rule->first_sym;
-// 				while(rh != NULL)
-// 				{
-// 					grammar_var* sym = rh->sym;
-
-// 					if(sym->sym_type == T)
-// 					{	
-// 						int bit_number = (int)(sym->sym_name) - (int)eps;
-// 						setBit(g[i]->first_set,bit_number);
-// 						changed = 1;
-// 						break;
-// 					}
-// 					else
-// 					{
-// 						if(g[(int)sym->sym_name]->first_set != NULL)
-// 						{
-// 							Set* unionSet = Union(g[i]->first_set,g[(int)sym->sym_name]->first_set);
-// 							if(compareSets(unionSet,g[i]->first_set) == 0)
-// 							{
-// 								Set* temp = g[i]->first_set;
-// 								g[i]->first_set = unionSet;
-// 								free(temp);
-// 								changed = 1;
-// 							}
-// 						}
-// 					}
-// 					rh = rh->next;
-// 				}
-// 				rule = rule->next_rule;
-// 			}
-// 		}
-// 		if(changed == 0)
-// 		{
-// 			break;
-// 		}
-//		changed = 0;
-// 	}
-// }
-
 
 void ComputeFollowSets(Grammar* g)
 {

@@ -15,3 +15,4 @@ void printStack(STACK* stack);
 
 void printParseTree(ParseTree tree,char* outfile);
 void doInOrderTraversal(ParseTree tree,FILE* fp);
+void printTokens(HEAD* tokenList);

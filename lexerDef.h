@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 100
 #define table_size 24 // lookup table
 
 enum DFA_STATE

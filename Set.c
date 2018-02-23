@@ -40,37 +40,6 @@ void setBit(Set* A,int i)
 	A[index].num = A[index].num | j;
 }
 
-// void printSet(Set* A)
-// {
-// 	int set_size = sizeof(A)/sizeof(A[0]);
-// 	for(int i = 0; i < set_size; i++)
-// 	{
-// 		decToBinary(A[i].num);
-// 	}
-// 	printf("\n");
-// }
-
-// void decToBinary(unsigned int n)
-// {
-//     // array to store binary number
-//     int binaryNum[32] = {0};
- 
-//     // counter for binary array
-//     int i = 0;
-//     while (n > 0) {
- 
-//         // storing remainder in binary array
-//         binaryNum[i] = n % 2;
-//         n = n / 2;
-//         i++;
-//     }
- 
-//     // printing binary array in reverse order
-//     for (int j = element_size - 1; j >= 0; j--)
-//         printf("%d",binaryNum[j]);
-//     printf("\t");
-// }
-
 int compareSets(Set* A,Set* B)
 {
 	int equal = 1;
@@ -85,32 +54,3 @@ int compareSets(Set* A,Set* B)
 	}
 	return equal;
 }
-
-/*int main(int argc, char const *argv[])
-{
-	Set* A = createSet(42);
-	Set* B = createSet(42);
-	setBit(A,0);
-	printSet(A);
-	setBit(A,2);
-	printSet(A);
-	setBit(A,4);
-	printSet(A);
-	setBit(A,5);
-	printSet(A);
-	setBit(A,6);
-	printSet(A);
-	setBit(B,1);
-	printSet(B);
-	setBit(B,3);
-	printSet(B);
-	setBit(B,63);
-	printSet(B);
-	setBit(B,7);
-	printSet(B);
-	setBit(B,9);
-	printSet(B);
-	Set* C = Union(A,B);
-	printSet(C);
-	return 0;
-}*/
