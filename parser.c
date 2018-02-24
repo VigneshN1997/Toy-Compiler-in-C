@@ -22,18 +22,60 @@ ParseTree initializeTree()
 	return tree;
 }
 
-ParseTree parseInput(HEAD* tokenList,parsingTable pTable)
+ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTable)
 {
+	HASH_TABLE* lookupTable = getLookupTable();
+	FILE* fp1 = fopen(fileName,"r");
+	int diff_buffer = 0;
+	int buffer_read_into = 1;
+	size_t nread;
+	int* line_number = (int*)malloc(sizeof(int));
+	*line_number = 1;
+	char *lexemeBegin, *forward, *buffer1, *buffer2;
+	buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
+	buffer2 = (char*)malloc(BUFFER_SIZE*sizeof(char));
+	buffer1[BUFFER_SIZE - 1] = '?'; 					// to indicate end of buffers
+	buffer2[BUFFER_SIZE - 1] = '?';
+	nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fp1);
+	if(nread < BUFFER_SIZE - 1)
+	{
+		// printf("%d\n",nread);
+		buffer1[nread] = '!'; // to indicate end of file
+	}
+	lexemeBegin = buffer1;								// initialize the lexemeBegin pointer		
+	forward = buffer1;
+	char* buffer1_end = buffer1 + BUFFER_SIZE - 1;		
+	char* buffer2_end = buffer2 + BUFFER_SIZE - 1;
+	char* prvs_buff_end,*curr_buff_start;
+	curr_buff_start = buffer1;
+	prvs_buff_end = buffer1_end;
+	int flag = 0;
+	Token* lookahead = NULL;
+
+	int error_come = 0;
+
+
 	SYMBOL_NAME eps = EPSILON;
+	// int num_symbols = sizeof(grammar_var_mapping)/sizeof(grammar_var_mapping[0]);
+	// int num_terminals = num_symbols - num_non_terminals;
 	ParseTree tree = initializeTree();
 	STACK* stack = initializeStackforParsing(tree);
-	// printStack(stack);
-	ll_node** ptr_to_node = &(tokenList->first);
-	Token* lookahead = getNextToken(tokenList,ptr_to_node);
 	
+	lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+	while(lookahead != NULL && lookahead->err != NULL)
+	{
+		error_come = 1;
+		printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+		lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+	}
+	if(lookahead != NULL)
+	{
+		node_data* data1 = createNodeData(lookahead,NULL,NULL);
+		insertAtEnd(tokenList,data1);
+	}
 	grammar_var* stackTopSym;
 	int index;
-	while(lookahead->t_name != $)
+	while(lookahead != NULL)
 	{
 		node_data* stackTopData = top(stack);
 		stackTopSym = stackTopData->variable;
@@ -50,7 +92,31 @@ ParseTree parseInput(HEAD* tokenList,parsingTable pTable)
 			}	
 			else
 			{
-
+				// do error recovery
+				error_come = 1;
+				printf("%d: Syntax error:found token %s with lexeme %s\n",lookahead->line_no,grammar_var_mapping[lookahead->t_name].sym_str,lookahead->lexeme);
+				Set* syncSet = getFollowSet(g,stackTopSym->sym_name);
+				int found = findTerminalinSyncSet(lookahead->t_name,syncSet);
+				while(found == 0 && lookahead != NULL)
+				{
+					lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+					while(lookahead != NULL && lookahead->err != NULL)
+					{
+						printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+						lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+					}
+					if(lookahead != NULL)
+					{
+						node_data* data1 = createNodeData(lookahead,NULL,NULL);
+						insertAtEnd(tokenList,data1);
+						found = findTerminalinSyncSet(lookahead->t_name,syncSet);
+					}
+				}
+				if(found == 1)
+				{
+					pop(stack);
+					free(stackTopData);
+				}
 			}
 		}
 		else
@@ -61,17 +127,79 @@ ParseTree parseInput(HEAD* tokenList,parsingTable pTable)
 				copyDetailstoTerminalNode(terminalPtr,lookahead);
 				pop(stack);
 				free(stackTopData);
-				lookahead = getNextToken(tokenList,ptr_to_node);
+				// lookahead = getNextToken(tokenList,&ptr_to_node);
+				lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+				while(lookahead != NULL && lookahead->err != NULL)
+				{
+					error_come = 1;
+					printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+					lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+				}
+				if(lookahead != NULL)
+				{
+					node_data* data1 = createNodeData(lookahead,NULL,NULL);
+					insertAtEnd(tokenList,data1);
+				}	
 			}
 			else if(stackTopSym->sym_name == $)
 			{
-
+				// do error recovery
+				error_come = 1;
+				printf("pda stack empty\n");
+				return tree;
+			}
+			else
+			{
+				error_come = 1;
+				printf("%d: Syntax error: The token %s for lexeme %s does not match at line %d. The expected token here is %s.\n",lookahead->line_no,grammar_var_mapping[lookahead->t_name].sym_str,lookahead->lexeme,lookahead->line_no,stackTopSym->sym_str);
+				pop(stack);
+				free(stackTopData);
+				lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+				while(lookahead != NULL && lookahead->err != NULL)
+				{
+					error_come = 1;
+					printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+					lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable);
+				}
+				if(lookahead != NULL)
+				{
+					node_data* data1 = createNodeData(lookahead,NULL,NULL);
+					insertAtEnd(tokenList,data1);
+				}
 			}
 		}
 		// printf("%s %d\n",lookahead->lexeme,lookahead->t_name);
 	}
+	if(lookahead == NULL && top(stack)->variable->sym_name != $)
+	{
+		printf("error: something left on stack\n");
+	}
+	else if(lookahead == NULL && top(stack)->variable->sym_name == $ && error_come == 0)
+	{
+		printf("Successful compilation\n");
+	}
+	free(buffer1);
+	free(buffer2);
+	free(lookupTable);
+	fclose(fp1);
 	return tree;
 }
+
+int findTerminalinSyncSet(SYMBOL_NAME sym_name,Set* syncSet)
+{
+	SYMBOL_NAME eps = EPSILON;
+	int i = (int)sym_name - (int)eps;
+	int index =  i / element_size;
+	int bit_num = i % element_size;
+	unsigned int j = 1 << bit_num;
+	unsigned int num = syncSet[index].num;
+	if(j & num)
+	{
+		return 1;
+	}
+	return 0;
+}
+
 
 void insertChildreninStackandTree(rhs_head* rule_rhs, ParseTree lhsTreePtr,STACK* stack)
 {
@@ -84,6 +212,8 @@ void insertChildreninStackandTree(rhs_head* rule_rhs, ParseTree lhsTreePtr,STACK
 		children = insertChild(t_node,children);
 		if(r_node->sym->sym_name == EPSILON)
 		{
+			// printf("hey\n");
+			lhsTreePtr->children = children;
 			return;
 		}
 		node_data* s_node = createStackNode(r_node,t_node);
@@ -213,5 +343,6 @@ void printTokens(HEAD* tokenList)
 	{
 		tok = n->data->token;
 		printf("%s %s %d\n",grammar_var_mapping[(int)tok->t_name].sym_str,tok->lexeme,tok->line_no);
+		n = n->next;
 	}
 }

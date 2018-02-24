@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 8192
 #define table_size 24 // lookup table
 
 enum DFA_STATE
@@ -75,6 +75,7 @@ struct Token
 	int l;
 	int line_no;
 	union Value value;
+	struct Error* err;
 };
 
 struct grammar_var
@@ -91,6 +92,18 @@ struct node_data
 	void* ptr_to_ParseTreeNode;
 };
 
+struct Error
+{
+	int error_no;
+};
+
+
+struct error_msg
+{
+	int error_no;
+	char* msg;
+};
+
 
 typedef enum SYMBOL_NAME SYMBOL_NAME;
 typedef enum SYMBOL_TYPE SYMBOL_TYPE;
@@ -100,3 +113,11 @@ typedef struct Token Token;
 typedef struct grammar_var grammar_var;
 typedef struct node_data node_data;
 typedef enum DFA_STATE DFA_STATE;
+typedef struct Error Error;
+typedef struct error_msg error_msg;
+
+error_msg error_msg_mapping[] = {
+	{1,"Indentifier is longer than prescribed length"},
+	{2,"Unknown symbol "},
+	{3,"Unknown pattern "}
+};

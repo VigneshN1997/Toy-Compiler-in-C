@@ -2,7 +2,7 @@
 
 void printCommentFreeCode(char* cleanFile)
 {
-	FILE* fpc = fopen(cleanFile,"w");
+	FILE* fpc = fopen(cleanFile,"r");
 	char* buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
 	size_t nread = fread(buffer1,sizeof(char),BUFFER_SIZE,fpc);
 	while(1)
@@ -10,6 +10,7 @@ void printCommentFreeCode(char* cleanFile)
 		if(nread < BUFFER_SIZE)
 		{
 			fwrite(buffer1,sizeof(char),nread,stdout);
+			break;
 		}
 		else
 		{
@@ -99,6 +100,10 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 	while(1)
 	{
 		char_read = **forward;							// read a character from buffer
+		if(*forward == (char*)(curr_buff_start - 1))
+		{
+			char_read = '.';			
+		}
 		*forward = *forward + 1;
 		switch(char_read)								// sentinals check
 		{
@@ -140,7 +145,7 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 		{
 			// START state
 			case START:
-				if(char_read == '\t' || char_read == ' ') 
+				if(char_read == '\t' || char_read == ' ' || char_read == '\r') 
 				{
 					*lexemeBegin = *forward;
 					*diff_buffer = 0;
@@ -173,7 +178,25 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 				else if(char_read == '*') state = ACCEPT_MUL;
 				else if(char_read == '/') state = ACCEPT_DIV;
 				else if(char_read == '@') state = ACCEPT_SIZE;
-				else state = ERROR_STATE;
+				else
+				{
+					if(*flag != 1)
+					{
+						tok = (Token*)malloc(sizeof(Token));
+						tok->lexeme = (char*)malloc(sizeof(char));
+						strcpy(tok->lexeme,&char_read);
+						tok->l = 1;
+						tok->line_no = *line_number;
+						tok->err = (Error*)malloc(sizeof(Error));
+						tok->err->error_no = 2;
+						*lexemeBegin = *forward;
+						return tok;
+					}
+					else
+					{
+						return NULL;
+					}
+				}
 				break;
 			
 			// COMMENT
@@ -193,12 +216,22 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 				else 
 				{
 					tok = processInput(ID,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
+					if((tok->l) - 1 > 20)
+					{
+						tok->err = (Error*)malloc(sizeof(Error));
+						tok->err->error_no = 1;
+					}
 					return tok;
 				}
 				break;
 			
 			case ACCEPT_ID2:
 				tok = processInput(ID,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
+				if((tok->l) - 1 > 20)
+				{
+					tok->err = (Error*)malloc(sizeof(Error));
+					tok->err->error_no = 1;
+				}
 				return tok;
 				break;
 
@@ -215,12 +248,26 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 
 			case INT_RNUM1:
 				if(char_read >= '0' && char_read <= '9') state = INT_RNUM2;
-				else state = ERROR_STATE; // 
+				else if(char_read == 'a' || char_read == 'o' || char_read == 'n')
+				{
+					retract(forward);
+					tok = processInput(NUM,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
+					return tok;
+				}
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;
+				}
 				break;
 
 			case INT_RNUM2:
 				if(char_read >= '0' && char_read <= '9') state = ACCEPT_RNUM;
-				else state = ERROR_STATE; //
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);	
+					return tok;	
+				}
 				break;
 
 			case ACCEPT_RNUM:
@@ -229,24 +276,41 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 				break;
 
 			case INT_STR1:
-				if(char_read >= 'a' && char_read <= 'z') state = INT_STR2;
-				else state = ERROR_STATE;
+				if((char_read >= 'a' && char_read <= 'z') || char_read == ' ') state = INT_STR2;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case INT_STR2:
-				if(char_read >= 'a' && char_read <= 'z') state = INT_STR2;
+				if((char_read >= 'a' && char_read <= 'z') || char_read == ' ') state = INT_STR2;
 				else if(char_read == '"') state = ACCEPT_STR;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 			
 			case ACCEPT_STR:
 				tok = processInput(STR,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
+				if((tok->l) - 1 > 20)
+				{
+					tok->err = (Error*)malloc(sizeof(Error));
+					tok->err->error_no = 1;
+				}
 				return tok;
 				break;
 
 			case INT_F1:
-				if(char_read >= 'a' && char_read <= 'z') state = ACCEPT_FUNID;
-				else state = ERROR_STATE;
+				if((char_read >= 'a' && char_read <= 'z') || (char_read >= 'A' && char_read <= 'Z')) state = ACCEPT_FUNID;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case ACCEPT_FUNID:
@@ -254,6 +318,11 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 				else
 				{
 					tok = processInput(FUNID,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
+					if((tok->l) - 1 > 20)
+					{
+						tok->err = (Error*)malloc(sizeof(Error));
+						tok->err->error_no = 1;
+					}
 					return tok;
 				}
 				break;
@@ -297,7 +366,11 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 
 			case INT_NE:
 				if(char_read == '=') state = ACCEPT_NE;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case ACCEPT_EQ:
@@ -362,22 +435,38 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 				if(char_read == 'a') state = INT_A2;
 				else if(char_read == 'o') state = INT_OR1;
 				else if(char_read == 'n') state = INT_N1;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case INT_A2:
 				if(char_read == 'n') state = INT_A3;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 			
 			case INT_A3:
 				if(char_read == 'd') state = INT_A4;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case INT_A4:
 				if(char_read == '.') state = ACCEPT_AND;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case ACCEPT_AND:
@@ -387,11 +476,19 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 
 			case INT_OR1:
 				if(char_read == 'r') state = INT_OR2;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 			case INT_OR2:
 				if(char_read == '.') state = ACCEPT_OR;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 			
 			case ACCEPT_OR:
@@ -401,26 +498,34 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 
 			case INT_N1:
 				if(char_read == 'o') state = INT_N2;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case INT_N2:
 				if(char_read == 't') state = INT_N3;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case INT_N3:
 				if(char_read == '.') state = ACCEPT_NOT;
-				else state = ERROR_STATE;
+				else
+				{
+					tok = getErrorToken(lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,3);
+					return tok;	
+				}
 				break;
 
 			case ACCEPT_NOT:
 				tok = processInput(NOT,lexemeBegin,forward,diff_buffer,*buffer_read_into,buffer1_end,buffer2_end,prvs_buff_end,*curr_buff_start,*line_number,lookupTable);
 				return tok;
-				break;
-
-			case ERROR_STATE:
-				printf("error\n");
 				break;
 		}
 		if(*flag == 1)
@@ -429,6 +534,23 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 		}
 	}
 	return NULL;
+}
+
+
+Token* getErrorToken(char** lexemeBegin,char** forward,int* diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char* curr_buff_start,int line_number,int error_no)
+{
+	*prvs_buff_end = getPreviousBufferEnd(*diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
+	Lexeme* lexeme = getLexeme(*lexemeBegin,*forward,*diff_buffer,*prvs_buff_end,curr_buff_start);
+	retract(forward);
+	Token* tok = (Token*)malloc(sizeof(Token));
+	tok->lexeme = lexeme->lexeme_name;
+	tok->l = lexeme->length;
+	tok->line_no = line_number;
+	tok->err = (Error*)malloc(sizeof(Error));
+	tok->err->error_no = error_no;
+	*lexemeBegin = *forward;
+	*diff_buffer = 0;
+	return tok;	
 }
 
 void retract(char** forward)
@@ -447,10 +569,6 @@ Token* processInput(SYMBOL_NAME t_name,char** lexemeBegin,char** forward,int* di
 		if(kw != NULL)
 		{
 			t_name = kw->t_name;
-		}
-		else if(lexeme->length > 20)
-		{
-			printf("error in line: %d -> lexeme length > 20\n",line_number);
 		}
 	}
 	Token* tok = createToken(t_name,line_number,lexeme);
@@ -493,31 +611,35 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 	{
 		lexeme->length = (int)(forward-lexemeBegin);
 		lexeme->length++;
-		char* lexeme_name = (char*)malloc(len_lexeme*sizeof(char));
+		char lexeme_name[lexeme->length];
 		i = 0;
 		for(char *c = lexemeBegin; c != forward; c++)
 		{
 			lexeme_name[i] = *c;
 			i++;
 		}
-		lexeme->lexeme_name = lexeme_name;
+		lexeme->lexeme_name = (char*)malloc(lexeme->length * sizeof(char));
+		strcpy(lexeme->lexeme_name,lexeme_name);
+		// lexeme->lexeme_name = lexeme_name;
 	}
 	else
 	{
 		lexeme->length = (int)(prvs_buff_end - lexemeBegin) + (int)(forward - curr_buff_start);
 		lexeme->length++;
-		lexeme->lexeme_name = (char*)malloc(len_lexeme * sizeof(char));
+		char lexeme_name[lexeme->length];
 		i = 0;
 		for(char* c = lexemeBegin; c != prvs_buff_end; c++)
 		{
-			lexeme->lexeme_name[i] = *c;
+			lexeme_name[i] = *c;
 			i++;
 		}
 		for(char* c = curr_buff_start; c != forward; c++)
 		{
-			lexeme->lexeme_name[i] = *c;
+			lexeme_name[i] = *c;
 			i++;
 		}
+		lexeme->lexeme_name = (char*)malloc(lexeme->length * sizeof(char));
+		strcpy(lexeme->lexeme_name,lexeme_name);
 	}
 	lexeme->lexeme_name[lexeme->length - 1] = '\0';
 	return lexeme;
@@ -536,6 +658,7 @@ Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 	tok->lexeme = lexeme->lexeme_name;
 	int len_lexeme = lexeme->length;
 	tok->l = len_lexeme;
+	tok->err = NULL;
 	int i;
 	if(t_name == NUM)
 	{

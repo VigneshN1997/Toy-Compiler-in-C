@@ -7,6 +7,9 @@ Token* processInput(SYMBOL_NAME t_name,char** lexemeBegin,char** forward,int* di
 char* getPreviousBufferEnd(int diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end);
 Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_buff_end,char* curr_buff_start);
 Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme);
+Token* getErrorToken(char** lexemeBegin,char** forward,int* diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char* curr_buff_start,int line_number,int error_no);
+
+
 HEAD* getAllTokens(char* fileName);
 Token* getNextToken(HEAD* tokenList,ll_node** pointer_to_node);
 
