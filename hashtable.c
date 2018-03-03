@@ -1,5 +1,8 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "hashtable.h"
 
+// get lookup table of keywords
 HASH_TABLE* getLookupTable()
 {
 	HASH_TABLE* ht = createLookupTable(table_size);
@@ -7,6 +10,7 @@ HASH_TABLE* getLookupTable()
 	return ht;
 }
 
+// add keywords to lookup table
 void addKeywords(HASH_TABLE* ht)
 {
 	int num_keywords = sizeof(keyword_mapping)/sizeof(keyword_mapping[0]);
@@ -31,6 +35,7 @@ int hashingFunction(char* word, int size_of_ht)
 	return hash%size_of_ht;
 }
 
+// create a new lookup table
 HASH_TABLE* createLookupTable(int size)
 {
 	HASH_TABLE* h = (HASH_TABLE*)malloc(sizeof(HASH_TABLE));
@@ -48,6 +53,7 @@ HASH_TABLE* createLookupTable(int size)
 	return h;
 }
 
+// hash keyword into the table
 void insertKeyword(HASH_TABLE* ht, keyword* word)
 {
 	ht->entries += 1;
@@ -74,6 +80,7 @@ void insertKeyword(HASH_TABLE* ht, keyword* word)
 	}
 }
 
+// find a word in the table(if doesnt exist return NULL)
 keyword* findKeyword(HASH_TABLE* ht,char* find_word)
 {
 	int index = hashingFunction(find_word,ht->size);
@@ -104,6 +111,7 @@ keyword* findKeyword(HASH_TABLE* ht,char* find_word)
 	return NULL;
 }
 
+// print hash table(for debugging)
 void printLookupTable(HASH_TABLE* ht)
 {
 	int i = 0;

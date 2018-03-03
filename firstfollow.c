@@ -1,5 +1,8 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "firstfollow.h"
 
+// This function is called to compute first sets of the non terminals in grammar
 void ComputeFirstSets(Grammar* g)
 {
 	int num_symbols = sizeof(grammar_var_mapping)/sizeof(grammar_var_mapping[0]);
@@ -22,6 +25,7 @@ void ComputeFirstSets(Grammar* g)
 	}
 }
 
+// This function is used to compute the first set of a single non terminal
 void ComputeFirstSet(SYMBOL_NAME sym,Grammar* g,int* stack_arr,int num_terminals,SYMBOL_TYPE sym_type)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -72,6 +76,7 @@ void ComputeFirstSet(SYMBOL_NAME sym,Grammar* g,int* stack_arr,int num_terminals
 	}
 }
 
+// This function is passed as parameter a string of terminals and non terminals(rhs_node*) and the function returns the first set of the string
 Set* getFirstSet(Grammar* g,rhs_node* r_node,int num_terminals)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -108,11 +113,7 @@ Set* getFirstSet(Grammar* g,rhs_node* r_node,int num_terminals)
 
 }
 
-Set* getFollowSet(Grammar* g,SYMBOL_NAME sym_name)
-{
-	return g[(int)sym_name]->follow_set;
-}
-
+// this function is used for debugging ( printing the first set of all non terminals and terminals)
 void printFirstSets(Grammar* g)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -142,6 +143,7 @@ void printFirstSets(Grammar* g)
 	}
 }
 
+// this function is used for debugging ( printing the follow set of all non terminals)
 void printFollowSets(Grammar* g)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -157,6 +159,7 @@ void printFollowSets(Grammar* g)
 	}
 }
 
+// this function is passed a bit vector(set) the function prints those terminal token names whose bit in bit vector is 1
 void printFFSet(Set* set,int num_terminals)
 {
 	int index = 0;
@@ -174,6 +177,8 @@ void printFFSet(Set* set,int num_terminals)
 	printf("\n");
 }
 
+
+// this function is called to compute the follow sets of non terminals in grammar
 void ComputeFollowSets(Grammar* g)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -254,6 +259,14 @@ void ComputeFollowSets(Grammar* g)
 	}
 }
 
+
+// this function returns the follow set of a non terminals
+Set* getFollowSet(Grammar* g,SYMBOL_NAME sym_name)
+{
+	return g[(int)sym_name]->follow_set;
+}
+
+// this function is used to set the derived epsilon of those non terminals = 1 which derive epsilon
 void findNullProducingSymbols(Grammar* g)
 {
 	int flag = 0;
@@ -309,6 +322,7 @@ void findNullProducingSymbols(Grammar* g)
 	}
 }
 
+// this function is passed the grammar and it returns the parsing table
 parsingTable createParsingTable(Grammar* g)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -376,6 +390,7 @@ parsingTable createParsingTable(Grammar* g)
 	return pTable;
 }
 
+// this function is used for debugging (for printing the parse table)
 void printParsingTable(parsingTable pTable)
 {
 	SYMBOL_NAME eps = EPSILON;
@@ -397,6 +412,7 @@ void printParsingTable(parsingTable pTable)
 	}
 }
 
+// this function is used for debugging (for printing a rule)
 void printRule(rhs_head* rule)
 {
 	SYMBOL_NAME lhs_sym = (rule->first_sym)->lhs_sym;

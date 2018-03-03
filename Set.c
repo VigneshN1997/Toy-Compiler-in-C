@@ -1,5 +1,7 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "Set.h"
-
+// create a new set
 Set* createSet(int size)
 {
 	int num_elems;
@@ -19,6 +21,7 @@ Set* createSet(int size)
 	return s1;
 }
 
+// union 2 sets
 Set* Union(Set* A, Set* B)
 {
 	int set_size = sizeof(A)/sizeof(A[0]);
@@ -31,6 +34,7 @@ Set* Union(Set* A, Set* B)
 	return union_set;
 }
 
+// set a bit of bit vector
 void setBit(Set* A,int i)
 {
 	int set_size = sizeof(A)/sizeof(A[0]);
@@ -40,6 +44,7 @@ void setBit(Set* A,int i)
 	A[index].num = A[index].num | j;
 }
 
+// compare 2 sets(if they are equal return 1)
 int compareSets(Set* A,Set* B)
 {
 	int equal = 1;

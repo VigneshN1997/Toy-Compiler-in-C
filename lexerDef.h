@@ -1,9 +1,13 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define BUFFER_SIZE 8192
-#define table_size 24 // lookup table
+#define BUFFER_SIZE 8192 // buffer size of the buffer used in lexer
+#define table_size 24 // lookup table (for keywords)
 
+
+// dfa states
 enum DFA_STATE
 {
 	START, ACCEPT_ID1,ACCEPT_ID2,ACCEPT_FUNID,ACCEPT_COMMENT,ACCEPT_NUM,
@@ -11,9 +15,10 @@ enum DFA_STATE
 	ACCEPT_ASSIGNOP, ACCEPT_EQ, ACCEPT_NE, ACCEPT_GT, ACCEPT_GE, ACCEPT_SQC, ACCEPT_SQO,
 	ACCEPT_OP,ACCEPT_CL, ACCEPT_SC, ACCEPT_COMMA,ACCEPT_PLUS, ACCEPT_MINUS, ACCEPT_MUL,
 	ACCEPT_DIV, ACCEPT_SIZE,INT_F1,INT_RNUM1,INT_RNUM2,INT_STR1, INT_STR2, INT_A1,INT_A2, 
-	INT_A3, INT_A4, INT_OR1, INT_OR2,INT_N1,INT_N2,INT_N3,INT_NE,ERROR_STATE
+	INT_A3, INT_A4, INT_OR1, INT_OR2,INT_N1,INT_N2,INT_N3,INT_NE
 };
 
+// this enum has all the non terminals in grammar followed by epsilon and then the terminals and $
 enum SYMBOL_NAME
 {
 	MAIN_FUNCTION,STMTS_AND_FUNCTION_DEFS,MORE_STMTS_OR_FUNCTION_DEFS,
@@ -40,6 +45,7 @@ typedef struct {
 	char* name;
 }keyword;
 
+// mapping of enum keyword to string
 keyword keyword_mapping [] = {
 	{END,"end"},
 	{INT,"int"},
@@ -75,7 +81,7 @@ struct Token
 	int l;
 	int line_no;
 	union Value value;
-	struct Error* err;
+	struct Error* err; // if erroneous token then the error number
 };
 
 struct grammar_var
@@ -116,6 +122,7 @@ typedef enum DFA_STATE DFA_STATE;
 typedef struct Error Error;
 typedef struct error_msg error_msg;
 
+// lexical error: error messages
 error_msg error_msg_mapping[] = {
 	{1,"Indentifier is longer than prescribed length"},
 	{2,"Unknown symbol "},

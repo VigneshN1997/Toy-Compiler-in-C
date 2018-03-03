@@ -1,3 +1,5 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "grammar_preprocess.c"
 
 void findNullProducingSymbols(Grammar* g);
@@ -8,10 +10,11 @@ void ComputeFollowSets(Grammar* g);
 Set* getFirstSet(Grammar* g,rhs_node* r_node,int num_terminals);
 Set* getFollowSet(Grammar* g,SYMBOL_NAME sym_name);
 
+
+parsingTable createParsingTable(Grammar* g);
+
 void printFirstSets(Grammar* g);
 void printFollowSets(Grammar* g);
 void printFFSet(Set* set,int num_terminals);
-
-parsingTable createParsingTable(Grammar* g);
 void printParsingTable(parsingTable pTable);
 void printRule(rhs_head* rule);

@@ -4,7 +4,7 @@ moreStmtsorFunctionDefs===>stmtsAndFunctionDefs | EPSILON
 stmtOrFunctionDef===>stmt | functionDef
 stmt===>declarationStmt | assignmentStmt_type1 | assignmentStmt_type2 | ifStmt | ioStmt | funCallStmt SEMICOLON
 functionDef===>FUNCTION SQO parameter_list SQC ASSIGNOP FUNID SQO parameter_list SQC stmtsAndFunctionDefs END SEMICOLON
-parameter_list===>type ID remainingList | EPSILON
+parameter_list===>type ID remainingList
 type===>INT | REAL | STRING | MATRIX
 remainingList===>COMMA parameter_list | EPSILON
 declarationStmt===>type var_list SEMICOLON

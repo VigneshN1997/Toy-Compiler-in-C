@@ -1,10 +1,20 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "parser.c"
 int main(int argc, char* argv[])
 {
-	removeComments(argv[1],argv[2]);
-	// HEAD* tokenList = getAllTokens(argv[2]);
+	if(argc != 3)
+	{
+		printf("usage: ./stage1exe testcase.txt parsetreeoutfile.txt\n");
+		return 0;
+	}
 	HEAD* tokenList = initializeLinkedList();
 	FILE* g_file = fopen("grammar.txt","r");
+	if(g_file == NULL)
+	{
+		printf("Grammar file not opened successfully\n");
+		return 0;
+	}
 	Grammar* g = extractGrammarFromFile(g_file);
 	ComputeFirstSets(g);
 	ComputeFollowSets(g);
@@ -29,7 +39,7 @@ int main(int argc, char* argv[])
 		scanf("%d",&c);
 		if(c == 1)
 		{
-			printCommentFreeCode(argv[2]);
+			removeComments(argv[1]);
 		}
 		else if(c == 2)
 		{
@@ -44,7 +54,11 @@ int main(int argc, char* argv[])
 		}
 		else if(c == 3)
 		{
-			ptree = parseInput(g,argv[2],tokenList,pTable);
+			ptree = parseInput(g,argv[1],tokenList,pTable);
+			if(ptree == NULL)
+			{
+				printf("file not opened successfully\n");
+			}
 		}
 		else if(c == 4)
 		{
@@ -54,7 +68,7 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				printParseTree(ptree,argv[3]);
+				printParseTree(ptree,argv[2]);
 			}
 		}
 		else
@@ -62,5 +76,9 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 	}
+	free(g);
+	free(pTable);
+	free(ptree);
+	fclose(g_file);
 	return 0;
 }

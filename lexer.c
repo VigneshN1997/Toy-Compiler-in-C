@@ -1,37 +1,27 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "lexer.h"
 
-void printCommentFreeCode(char* cleanFile)
-{
-	FILE* fpc = fopen(cleanFile,"r");
-	char* buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
-	size_t nread = fread(buffer1,sizeof(char),BUFFER_SIZE,fpc);
-	while(1)
-	{
-		if(nread < BUFFER_SIZE)
-		{
-			fwrite(buffer1,sizeof(char),nread,stdout);
-			break;
-		}
-		else
-		{
-			fwrite(buffer1,sizeof(char),BUFFER_SIZE,stdout);
-			nread = fread(buffer1,sizeof(char),BUFFER_SIZE,fpc);
-		}
-	}
-}
-
-void removeComments(char* testcaseFile, char* cleanFile)
+// This function removes comments from testcase file and puts the comment free code on console
+void removeComments(char* testcaseFile)
 {
 	FILE* fpt = fopen(testcaseFile,"r");
-	FILE* fpc = fopen(cleanFile,"w");
+	if(fpt == NULL)
+	{
+		printf("input source code not present\n");
+		return;
+	}
+	FILE* fpc = stdout;
 	size_t nread;
 	char* buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
 	buffer1[BUFFER_SIZE - 1] = '?';
 	nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fpt);
+	char* end_file = NULL;
 	if(nread < BUFFER_SIZE - 1)
 	{
 		// printf("%d\n",nread);
 		buffer1[nread] = '!'; // to indicate end of file
+		end_file = buffer1 + nread;
 	}
 	char* fwd = buffer1;
 	char* char_read = (char*)malloc(sizeof(char));
@@ -49,10 +39,14 @@ void removeComments(char* testcaseFile, char* cleanFile)
 				if(nread < BUFFER_SIZE - 1)
 				{
 					buffer1[nread] = '!'; // to indicate end of file
+					end_file = buffer1 + nread;
 				}
 				break;
 			case '!':
-				flag = 1;
+				if(fwd - 1 == end_file)
+				{	
+					flag = 1;
+				}
 				break;
 		}
 		if(flag == 1)
@@ -87,15 +81,16 @@ void removeComments(char* testcaseFile, char* cleanFile)
 	}
 	free(buffer1);
 	fclose(fpt);
-	fclose(fpc);
 }
 
 
-Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,char** forward,char** buffer1,char** buffer2,FILE* fp,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char** curr_buff_start,int* flag,int* line_number,HASH_TABLE* lookupTable)
+// This function returns the next lexical token or an error
+Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,char** forward,char** buffer1,char** buffer2,FILE* fp,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char** curr_buff_start,int* flag,int* line_number,HASH_TABLE* lookupTable,char* ef)
 {
 	Token* tok = NULL;
 	size_t nread;
 	char char_read;
+	char* end_file = ef;
 	DFA_STATE state = START;
 	while(1)
 	{
@@ -107,37 +102,45 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 		*forward = *forward + 1;
 		switch(char_read)								// sentinals check
 		{
-			case '?':									
-				if(*buffer_read_into == 1)
-				{
-					nread = fread(*buffer2,sizeof(char),BUFFER_SIZE - 1,fp);
-					if(nread < BUFFER_SIZE - 1)
+			case '?':
+				if(*forward - 1  == buffer1_end || *forward - 1  == buffer2_end)
+				{								
+					if(*buffer_read_into == 1)
 					{
-						(*buffer2)[nread] = '!'; // to indicate end of file
+						nread = fread(*buffer2,sizeof(char),BUFFER_SIZE - 1,fp);
+						if(nread < BUFFER_SIZE - 1)
+						{
+							(*buffer2)[nread] = '!'; // to indicate end of file
+							end_file = *buffer2 + nread;
+						}
+						*diff_buffer = 1;
+						*forward = *buffer2;
+						*curr_buff_start = *buffer2;
+						*buffer_read_into = 2;
 					}
-					*diff_buffer = 1;
-					*forward = *buffer2;
-					*curr_buff_start = *buffer2;
-					*buffer_read_into = 2;
-				}
-				else
-				{
-					nread = fread(*buffer1,sizeof(char),BUFFER_SIZE - 1,fp);
-					if(nread < BUFFER_SIZE - 1)
+					else
 					{
-						(*buffer1)[nread] = '!'; // to indicate end of file
+						nread = fread(*buffer1,sizeof(char),BUFFER_SIZE - 1,fp);
+						if(nread < BUFFER_SIZE - 1)
+						{
+							(*buffer1)[nread] = '!'; // to indicate end of file
+							end_file = *buffer1 + nread;
+						}
+						*diff_buffer = 1;
+						*forward = *buffer1;
+						*curr_buff_start = *buffer1;
+						*buffer_read_into = 1; 
 					}
-					*diff_buffer = 1;
-					*forward = *buffer1;
-					*curr_buff_start = *buffer1;
-					*buffer_read_into = 1; 
 				}
 				break;
 			case '!':
-				*flag = 1;
+				if(*forward - 1 == end_file)
+				{
+					*flag = 1;
+				}
 				break;
 		}
-		if(char_read == '?')
+		if(char_read == '?' && *forward == *curr_buff_start)
 		{
 			continue;
 		}
@@ -536,7 +539,7 @@ Token* nextToken(int* diff_buffer, int* buffer_read_into, char** lexemeBegin,cha
 	return NULL;
 }
 
-
+// This function return a error token (if error is found) -> this token will not be added to the token list
 Token* getErrorToken(char** lexemeBegin,char** forward,int* diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char* curr_buff_start,int line_number,int error_no)
 {
 	*prvs_buff_end = getPreviousBufferEnd(*diff_buffer,buffer_read_into,buffer1_end,buffer2_end);
@@ -553,11 +556,13 @@ Token* getErrorToken(char** lexemeBegin,char** forward,int* diff_buffer,int buff
 	return tok;	
 }
 
+// retract forward pointer
 void retract(char** forward)
 {
 	*forward = *forward - 1;
 }
 
+// This function processes the lexeme from lexemeBegin to forward and returns the token thus formed 
 Token* processInput(SYMBOL_NAME t_name,char** lexemeBegin,char** forward,int* diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end,char** prvs_buff_end,char* curr_buff_start,int line_number,HASH_TABLE* lookupTable)
 {
 	retract(forward); // retraction
@@ -577,6 +582,7 @@ Token* processInput(SYMBOL_NAME t_name,char** lexemeBegin,char** forward,int* di
 	return tok;
 }
 
+// this function is used for buffer management (when a lexeme straddles accross buffers)
 char* getPreviousBufferEnd(int diff_buffer,int buffer_read_into,char* buffer1_end,char* buffer2_end)
 {
 	if(diff_buffer == 1)
@@ -597,6 +603,7 @@ char* getPreviousBufferEnd(int diff_buffer,int buffer_read_into,char* buffer1_en
 	return buffer2_end;
 }
 
+// this function is used to return the lexeme string between lexemeBegin and forward
 Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_buff_end,char* curr_buff_start)
 {
 	Lexeme* lexeme = (Lexeme*)malloc(sizeof(Lexeme));
@@ -645,6 +652,7 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 	return lexeme;
 }
 
+// This function creates a new token and assigns the different parameters to struct token variable
 Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 {
 	Token* tok = (Token*)malloc(sizeof(Token));
@@ -691,68 +699,4 @@ Token* createToken(SYMBOL_NAME t_name,long int line_number,Lexeme* lexeme)
 		(tok->value).real_value = int_part + frac_part;
 	}
 	return tok;
-}
-
-
-HEAD* getAllTokens(char* fileName)
-{
-	HASH_TABLE* lookupTable = getLookupTable();
-	FILE* fp = fopen(fileName,"r");
-	int diff_buffer = 0;
-	int buffer_read_into = 1;
-	size_t nread;
-	int line_number = 1;
-	char *lexemeBegin, *forward, *buffer1, *buffer2;
-	buffer1 = (char*)malloc(BUFFER_SIZE*sizeof(char));
-	buffer2 = (char*)malloc(BUFFER_SIZE*sizeof(char));
-	buffer1[BUFFER_SIZE - 1] = '?'; 					// to indicate end of buffers
-	buffer2[BUFFER_SIZE - 1] = '?';
-	nread = fread(buffer1,sizeof(char),BUFFER_SIZE - 1,fp);
-	if(nread < BUFFER_SIZE - 1)
-	{
-		// printf("%d\n",nread);
-		buffer1[nread] = '!'; // to indicate end of file
-	}
-	lexemeBegin = buffer1;								// initialize the lexemeBegin pointer		
-	forward = buffer1;
-	char* buffer1_end = buffer1 + BUFFER_SIZE - 1;		
-	char* buffer2_end = buffer2 + BUFFER_SIZE - 1;
-	char* prvs_buff_end,*curr_buff_start;
-	Lexeme* lexeme;
-	curr_buff_start = buffer1;
-	prvs_buff_end = buffer1_end;
-	int flag = 0;
-	Token* tok = NULL;
-
-	// printLookupTable(lookupTable);
-	HEAD* tokenList = initializeLinkedList();
-	while(1)
-	{
-		tok = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,&line_number,lookupTable);
-		if(tok == NULL)
-		{
-			break;
-		}
-		// printf("%s\n",tok->lexeme);
-		node_data* data = createNodeData(tok,NULL,NULL);
-		insertAtEnd(tokenList,data);
-	}
-	tok = (Token*)malloc(sizeof(Token));
-	tok->t_name = $;
-	tok->lexeme  = NULL;
-	tok->l = 1;
-	tok->line_no = -1;
-	node_data* data = createNodeData(tok,NULL,NULL);
-	insertAtEnd(tokenList,data);
-	ll_node* n = tokenList->first;
-	free(lookupTable);
-	fclose(fp);
-	return tokenList;
-}
-
-Token* getNextToken(HEAD* tokenList,ll_node** pointer_to_node)
-{	
-	node_data* node = (*pointer_to_node)->data;
-	*pointer_to_node = (*pointer_to_node)->next;
-	return  node->token;
 }

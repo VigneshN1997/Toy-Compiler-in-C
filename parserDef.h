@@ -1,7 +1,10 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "Set.c"
 #define num_non_terminals 44
 
 // rhs rhs_node
+// rhs symbol node
 struct rhs_node
 {
 	grammar_var* sym;
@@ -10,6 +13,7 @@ struct rhs_node
 	struct rhs_node* previous;
 };
 
+// struct that has pointers to first symbol and last symbol of rule
 struct rhs_head
 {
 	struct rhs_node* first_sym;
@@ -17,6 +21,7 @@ struct rhs_head
 	struct rhs_head* next_rule;
 };
 
+// struct which is a linked list of pointers to rhs occurrences of a non terminal
 struct rhs_occurrences
 {
 	struct rhs_node* ptr_to_rhs_node;
@@ -55,6 +60,8 @@ typedef struct lhs* Grammar;
 typedef struct rhs_head*** parsingTable;
 typedef struct treeNode treeNode;
 typedef struct treeNode* ParseTree;
+
+// mapping having name of non terminal/ terminal, its enum, and symbol type
 grammar_var grammar_var_mapping[] = {
 	{"mainFunction",MAIN_FUNCTION,NT},
 	{"stmtsAndFunctionDefs",STMTS_AND_FUNCTION_DEFS,NT},

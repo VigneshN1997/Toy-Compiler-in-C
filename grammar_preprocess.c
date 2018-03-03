@@ -1,5 +1,8 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "grammar_preprocess.h"
 
+// this function is passed a file pointer(file containing grammar) and returns the grammar extracted from file
 Grammar* extractGrammarFromFile(FILE* fp)
 {
 	char* rule = NULL;
@@ -20,6 +23,7 @@ Grammar* extractGrammarFromFile(FILE* fp)
 	return gram;
 }
 
+// This function is used to create a new adjancency list(which will store grammar)
 Grammar* createGrammarAdjacencyList()
 {
 	Grammar* gram = (Grammar*)malloc((num_non_terminals+1)*sizeof(Grammar));
@@ -45,6 +49,7 @@ Grammar* createGrammarAdjacencyList()
 	return gram;
 }
 
+// this function is called to process a single line extracted from grammar.txt
 void processRule(char* rule,Grammar* g)
 {
 	char delim[5] = "===>";
@@ -55,6 +60,7 @@ void processRule(char* rule,Grammar* g)
 	// printf("lhs:%s  rhs:%s\n",lhs,rhs);
 }
 
+// this function is used to return a grammar_var struct variable(having the enum of variable, the string representation, the symbol type)
 grammar_var convertStrSymtoEnum(char* str)
 {
 	int num_symbols = sizeof(grammar_var_mapping)/sizeof(grammar_var_mapping[0]);
@@ -68,6 +74,7 @@ grammar_var convertStrSymtoEnum(char* str)
 	}
 }
 
+// this function is used to store a single rule / more(if | is there in rule) in grammar
 void storeRuleinGrammar(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs)
 {
 	// printf("lhs:%d\n",lhs_sym);
@@ -85,6 +92,7 @@ void storeRuleinGrammar(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs)
 	}
 }
 
+// this function is used to store a single rhs in grammar
 void storeRHS(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs_part)
 {
 	char delim[2] = " ";
@@ -118,6 +126,7 @@ void storeRHS(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs_part)
 	// printf("\n");
 }
 
+// this function is used to store a single rhs symbol(T or NT) in the grammar rule
 void insertRHSSymbol(Grammar* g,rhs_head* r_head, grammar_var sym,SYMBOL_NAME lhs_sym)
 {
 	rhs_node* n = (rhs_node*)malloc(sizeof(rhs_node));
@@ -173,11 +182,14 @@ void insertRHSSymbol(Grammar* g,rhs_head* r_head, grammar_var sym,SYMBOL_NAME lh
 	}
 }
 
+// this function is a utility function that is used in follow set computation
 rhs_occurrences* getRHSOccurrences(Grammar* gram,SYMBOL_NAME lhs_sym)
 {
 	return gram[(int)lhs_sym]->rhs_occur;
 }
 
+
+// this function is used for debugging (for printing the grammar)
 void printGrammar(Grammar* gram)
 {
 	int i;
@@ -201,6 +213,8 @@ void printGrammar(Grammar* gram)
 }
 // (%d)(%d)(%d) ,(int)temp->sym_name,(int)temp->lhs_sym,(int)temp->sym_type
 
+
+// this function is used for debugging (for printing the rules in which a particular non terminal is occuring)
 void printRHSOccurrences(Grammar* gram)
 {
 	for(int i = 0; i < num_non_terminals+1; i++)
@@ -217,6 +231,7 @@ void printRHSOccurrences(Grammar* gram)
 	}
 }
 
+// this function is used for printing grammar rules in reverse(debugging)-> (rhs of rules are pushed in stack in reverse order)
 void printGrammarRulesReverse(Grammar* gram)
 {
 	int i;
