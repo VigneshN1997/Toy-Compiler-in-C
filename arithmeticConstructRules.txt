@@ -1,0 +1,103 @@
+
+operator_lowPrecedence===>PLUS									operator_lowPrecedence.addr = +.addr
+operator_lowPrecedence===>MINUS									operator_lowPrecedence.addr = -.addr
+operator_highPrecedence===>MUL									operator_highPrecedence.addr = *.addr
+operator_highPrecedence===>DIV									operator_highPrecedence.addr = /.addr
+factor===>var													factor.addr = var.addr
+factor===>OP arithmeticExpression CL							factor.addr = arithmeticExpression.addr
+
+
+arithmeticExpression===>arithmeticTerm arithmeticExprLF			arithmeticExprLF.inh_addr = arithmeticTerm.addr, arithmeticExpression.addr = arithmeticExprLF.addr
+arithmeticExprLF===>operator_lowPrecedence arithmeticExpression	arithmeticExprLF.addr = (arithmeticExprLF.inh_addr,operator_lowPrecedence.addr,arithmeticExpression.addr)
+arithmeticExprLF===>EPSILON										arithmeticExprLF.addr = arithmeticExprLF.inh_addr
+arithmeticTerm===>factor arithmeticTermLF						arithmeticTermLF.inh_addr = factor.addr, arithmeticTerm.addr = arithmeticTermLF.addr
+arithmeticTermLF===>operator_highPrecedence arithmeticTerm 		arithmeticTermLF.addr = (arithmeticTermLF.inh_addr,operator_highPrecedence.addr,arithmeticTerm.addr)
+arithmeticTermLF===>EPSILON										arithmeticTermLF.addr = arithmeticTermLF.inh_addr				
+
+
+
+
+
+var===>ID isMatrixElement						isMatrixElement.inh_addr = ID.addr, var.addr = isMatrixElement.addr
+var===>NUM										var.addr = NUM.addr
+var===>RNUM										var.addr = RNUM.addr
+var===>STR										var.addr = STR.addr
+var===>matrix									var.addr = matrix.addr
+isMatrixElement===>SQO NUM1 COMMA NUM2 SQC		isMatrixElement.addr = (isMatrixElement.inh_addr,NUM1,NUM2)
+isMatrixElement===>EPSILON						isMatrixElement.addr = isMatrixElement.inh_addr
+
+matrix===>SQO rows SQC							matrix.addr = rows.addr
+rows===>row rowsLF								rowsLF.addr = (row.addr,concat,rowsLF.addr)
+rowsLF===>SEMICOLON rows 						rowsLF.addr = rows.addr
+rowsLF===>EPSILON								rowsLF.addr = NULL
+
+row===>NUM rowLF 								row.addr = (NUM.addr,concat,rowLF.addr)  								
+rowLF===>COMMA row 								rowLF.addr = row.addr
+rowLF===>EPSILON								rowLF.addr = NULL
+
+
+booleanExpression===>OP booleanExpression1 CL logicalOp OP booleanExpression2 CL	booleanExpression.addr = (booleanExpression1.addr,logicalOp.addr,booleanExpression2.addr)
+booleanExpression===>NOT OP booleanExpression1 CL									booleanExpression.addr = (NOT,booleanExpression1.addr)
+booleanExpression===>constrainedVars1 relationalOp constrainedVars2 				booleanExpression.addr = (constrainedVars1.addr,relationalOp.addr,constrainedVars2.addr)
+constrainedVars===>ID | NUM | RNUM													constrainedVars.addr
+logicalOp===>AND | OR 																logicalOp.addr
+relationalOp===>LT | LE | EQ | GT | GE | NE											relationalOp.addr
+
+mainFunction===>MAIN SQO SQC stmtsAndFunctionDefs END								mainFunction.addr = stmtsAndFunctionDefs.addr
+stmtsAndFunctionDefs===>stmtOrFunctionDef moreStmtsorFunctionDefs					stmtsAndFunctionDefs.addr = (stmtOrFunctionDef.addr,concat,moreStmtsorFunctionDefs.addr)		
+moreStmtsorFunctionDefs===>stmtsAndFunctionDefs										moreStmtsorFunctionDefs.addr = stmtsAndFunctionDefs.addr
+moreStmtsorFunctionDefs===>EPSILON													moreStmtsorFunctionDefs.addr = NULL
+
+stmtOrFunctionDef===>stmt 				stmtOrFunctionDef.addr = stmt.addr
+stmtOrFunctionDef===>functionDef 		stmtOrFunctionDef.addr = functionDef.addr
+stmt===>declarationStmt					stmt.addr
+stmt===>assignmentStmt_type1			stmt.addr
+stmt===>assignmentStmt_type2			stmt.addr
+stmt===>ifStmt							stmt.addr
+stmt===>ioStmt							stmt.addr		
+stmt===>funCallStmt SEMICOLON			stmt.addr
+
+functionDef===>FUNCTION SQO parameter_listIN SQC ASSIGNOP FUNID SQO parameter_listOUT SQC stmtsAndFunctionDefs END SEMICOLON
+
+
+parameter_list===>type ID remainingList 	parameter_list.addr = ((type.addr,ID.addr),concat,remainingList.addr)
+remainingList===>COMMA parameter_list 		remainingList.addr = parameter_list.addr
+remainingList===>EPSILON					remainingList.addr = NULL
+
+type===>INT 								type.addr 
+type===>REAL 								type.addr
+type===>STRING 								type.addr
+type===>MATRIX 								type.addr
+
+declarationStmt===>type var_list SEMICOLON		declarationStmt.addr = (type.addr,var_list.addr)
+var_list===>ID more_ids							var_list.addr = (ID.addr,concat,more_ids.addr)
+more_ids===>COMMA var_list 						more_ids.addr = var_list.addr
+more_ids===>EPSILON 							more_ids.addr = NULL
+
+
+assignmentStmt_type1===>leftHandSide_singleVar ASSIGNOP rightHandSide_type1 SEMICOLON	assignmentStmt_type1.addr = (leftHandSide_singleVar.addr,=,rightHandSide_type1.addr)
+assignmentStmt_type2===>leftHandSide_listVar ASSIGNOP rightHandSide_type2 SEMICOLON		assignmentStmt_type2.addr = (leftHandSide_listVar.addr,=,rightHandSide_type2.addr)
+leftHandSide_singleVar===>ID 															leftHandSide_singleVar.addr = ID.addr
+leftHandSide_listVar===>SQO var_list SQC 												leftHandSide_listVar.addr = var_list.addr
+rightHandSide_type1===>arithmeticExpression												rightHandSide_type1.addr
+rightHandSide_type1===>sizeExpression													rightHandSide_type1.addr
+rightHandSide_type1===>funCallStmt 														rightHandSide_type1.addr
+rightHandSide_type2===>sizeExpression													rightHandSide_type1.addr
+rightHandSide_type2===>funCallStmt														rightHandSide_type1.addr
+
+sizeExpression===>SIZE ID 																sizeExpression.addr = (@,ID.addr)
+
+ifStmt===>IF OP booleanExpression CL stmt otherStmts elseFactor SEMICOLON		ifStmt.addr = (IF,booleanExpression.addr,(stmt.addr,concat,otherStmts.addr),elseFactor.addr)		
+elseFactor===>ELSE stmt otherStmts ENDIF 										elseFactor.addr = (stmt,concat,otherStmts.addr)
+elseFactor===>ENDIF 															elseFactor.addr = NULL
+otherStmts===>stmt otherStmts1 													otherStmts.addr = (stmt,concat,otherStmts1.addr)
+otherStmts===>EPSILON															otherStmts.addr = NULL
+
+ioStmt===>READ OP ID CL SEMICOLON		ioStmt.addr = (READ,ID)
+ioStmt===>PRINT OP ID CL SEMICOLON		ioStmt.addr = (PRINT,ID)
+
+funCallStmt===>FUNID OP inputParameterList CL 		funCallStmt.addr = (FUNID,inputParameterList.addr)
+inputParameterList===>var listVar 					inputParameterList.addr = (var.addr,concat,listVar.addr)
+inputParameterList===>EPSILON						inputParameterList.addr = NULL
+listVar===>COMMA inputParameterList					listVar.addr = inputParameterList.addr
+listVar===>EPSILON									listVar.addr = NULL
