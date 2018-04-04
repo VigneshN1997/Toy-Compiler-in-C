@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	Grammar* g = extractGrammarFromFile(g_file);
+	// printGrammar(g);
 	ComputeFirstSets(g);
 	ComputeFollowSets(g);
 	parsingTable pTable = createParsingTable(g);

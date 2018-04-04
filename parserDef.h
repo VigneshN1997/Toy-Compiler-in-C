@@ -19,6 +19,7 @@ struct rhs_head
 	struct rhs_node* first_sym;
 	struct rhs_node* last_sym;
 	struct rhs_head* next_rule;
+	int ruleNumber;
 };
 
 // struct which is a linked list of pointers to rhs occurrences of a non terminal
@@ -46,6 +47,8 @@ struct treeNode
 	struct treeNode* parent;
 	struct treeNode* nextSibling;
 	struct treeNode* children;
+	struct rhs_head* ptrToRule;
+	void* ptrToASTNode;
 };
 
 

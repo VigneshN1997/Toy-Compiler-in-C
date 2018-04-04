@@ -8,12 +8,13 @@ Grammar* extractGrammarFromFile(FILE* fp)
 	char* rule = NULL;
 	size_t len = 0;
 	ssize_t read;
-	
+	int* ruleNumber = (int*)malloc(sizeof(int));
+	*ruleNumber = 0;
 	Grammar* gram = createGrammarAdjacencyList();
 	
 	while((read = getline(&rule,&len,fp)) != -1)
 	{
-		processRule(rule,gram);
+		processRule(rule,gram,ruleNumber);
 		// printf("len:%d\n",read);
 	}
 	if(rule)
@@ -50,13 +51,13 @@ Grammar* createGrammarAdjacencyList()
 }
 
 // this function is called to process a single line extracted from grammar.txt
-void processRule(char* rule,Grammar* g)
+void processRule(char* rule,Grammar* g, int* ruleNumber)
 {
 	char delim[5] = "===>";
 	char* lhs = strtok(rule,delim);
 	char* rhs = strtok(NULL,delim);
 	SYMBOL_NAME lhs_sym = convertStrSymtoEnum(lhs).sym_name;
-	storeRuleinGrammar(g,lhs_sym,rhs);
+	storeRuleinGrammar(g,lhs_sym,rhs,ruleNumber);
 	// printf("lhs:%s  rhs:%s\n",lhs,rhs);
 }
 
@@ -75,7 +76,7 @@ grammar_var convertStrSymtoEnum(char* str)
 }
 
 // this function is used to store a single rule / more(if | is there in rule) in grammar
-void storeRuleinGrammar(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs)
+void storeRuleinGrammar(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs,int* ruleNumber)
 {
 	// printf("lhs:%d\n",lhs_sym);
 	char delim[2] = "|";
@@ -86,14 +87,15 @@ void storeRuleinGrammar(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs)
 	while(rhs_part != NULL)
 	{
 		// printf("rhs%d:%s\n",i,rhs_part);
-		storeRHS(g,lhs_sym,rhs_part);
+		storeRHS(g,lhs_sym,rhs_part,*ruleNumber);
 		rhs_part = strtok_r(rest,delim,&rest);
+		*ruleNumber = *ruleNumber + 1;
 		i++;
 	}
 }
 
 // this function is used to store a single rhs in grammar
-void storeRHS(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs_part)
+void storeRHS(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs_part, int ruleNumber)
 {
 	char delim[2] = " ";
 	char* rest1 = rhs_part;
@@ -103,7 +105,8 @@ void storeRHS(Grammar* g,SYMBOL_NAME lhs_sym,char* rhs_part)
 	rhs_head* r1 = (rhs_head*)malloc(sizeof(rhs_head));
 	r1->first_sym = NULL;
 	r1->last_sym = NULL;
-	r1->next_rule = NULL;	
+	r1->next_rule = NULL;
+	r1->ruleNumber = ruleNumber;
 	if(g[(int)lhs_sym]->first_rule == NULL)
 	{
 		g[(int)lhs_sym]->first_rule	= r1;
@@ -199,6 +202,7 @@ void printGrammar(Grammar* gram)
 		rhs_head* rule = gram[i]->first_rule;
 		while(rule != NULL)
 		{
+			printf("rnum:%d\n",rule->ruleNumber);
 			rhs_node* temp = rule->first_sym;
 			while(temp != NULL)
 			{

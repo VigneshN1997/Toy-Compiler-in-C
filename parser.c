@@ -10,6 +10,8 @@ ParseTree createParseTree(node_data* nodeVal)
 	tree->nextSibling = NULL;
 	tree->children = NULL;
 	tree->parent = NULL;
+	tree->ptrToASTNode = NULL;
+	tree->ptrToRule = NULL;
 	return tree;
 }
 
@@ -219,6 +221,7 @@ void insertChildreninStackandTree(rhs_head* rule_rhs, ParseTree lhsTreePtr,STACK
 {
 	rhs_node* r_node = rule_rhs->last_sym; // traverse rule from last symbol to first
 	treeNode* children = NULL;
+	lhsTreePtr->ptrToRule = rule_rhs;
 	while(r_node != NULL)
 	{
 		treeNode* t_node = createTreeNode(r_node);
