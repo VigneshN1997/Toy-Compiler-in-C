@@ -43,7 +43,7 @@ void applyRuleFor_mainFunction(treeNode* node)
 {
 	treeNode* mainTokenNode = node->children;
 	treeNode* stmtsNode = getIthChildOfParseTreeNode(node,3);
-	node->ptrToASTNode = createNewASTNode(MAIN,mainTokenNode->nodeVal->token,stmtsNode->ptrToASTNode);
+	node->ptrToASTNode = createASTNode(MAIN,mainTokenNode->nodeVal->token,stmtsNode->ptrToASTNode);
 }
 
 
@@ -315,8 +315,121 @@ void applyRuleFor_booleanExpression1(treeNode* node)
 	treeNode* booleanExpression1 = node->children->nextSibling;
 	treeNode* logicalOp = lhs->nextSibling->nextSibling;
 	treeNode* booleanExpression2 = logicalOp->nextSibling->nextSibling;
-	
+	ASTNode* children = concat(booleanExpression1->ptrToASTNode,booleanExpression2->ptrToASTNode);
+	logicalOp->ptrToASTNode->children = children;
+	node->ptrToASTNode = logicalOp->ptrToASTNode;
 }
 
+void applyRuleFor_booleanExpression2(treeNode* node)
+{
+	treeNode* notOp = node->children;
+	treeNode* booleanExpression1 = notOp->nextSibling->nextSibling;
+	notOp->ptrToASTNode->children = booleanExpression1->ptrToASTNode;
+	node->ptrToASTNode = notOp->ptrToASTNode;
+}
 
+void applyRuleFor_booleanExpression3(treeNode* node)
+{
+	treeNode* constrainedVars1 = node->children;
+	treeNode* relationalOp = constrainedVars1->nextSibling;
+	treeNode* constrainedVars2 = relationalOp->nextSibling;
+	ASTNode* children = concat(constrainedVars1->ptrToASTNode,constrainedVars2->ptrToASTNode);
+	relationalOp->ptrToASTNode->children = children;
+	node->ptrToASTNode = relationalOp->ptrToASTNode;
+}
 
+void applyRuleFor_constraintVars(treeNode* node)
+{
+	treeNode* child = node->children;
+	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
+}
+
+void applyRuleFor_logicalOp(treeNode* node)
+{
+	treeNode* child = node->children;
+	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
+}
+
+void applyRuleFor_relationalOp(treeNode* node)
+{
+	treeNode* child = node->children;
+	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
+}
+
+void applyRuleFor_var1(treeNode* node)
+{
+	treeNode* child = node->children;
+	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);	
+}
+
+void applyRuleFor_varMatrix(treeNode* node)
+{
+	treeNode* matrix = node->children;
+	node->ptrToASTNode = matrix->ptrToASTNode;
+}
+
+void applyRuleFor_varIsMatrixElement(treeNode* node)
+{
+	treeNode* idNode = node->children;
+	treeNode* isMatrixElement = idNode->nextSibling;
+	ASTNode* idNodeAST = createASTNode(ID,idNode->nodeVal->token,isMatrixElement->ptrToASTNode);
+}
+
+void applyRuleFor_isMatrixElement1(treeNode* node)
+{
+	treeNode* num1 = node->children->nextSibling;
+	treeNode* num2 = num1->nextSibling->nextSibling;
+	ASTNode num1AST = createASTNode(NUM,num1->nodeVal->token,NULL);
+	ASTNode num2AST = createASTNode(NUM,num2->nodeVal->token,NULL);
+	node->ptrToASTNode = concat(num1AST,num2AST);
+}
+
+void applyRuleFor_isMatrixElement2(treeNode* node)
+{
+	node->ptrToASTNode = NULL;
+}
+
+void applyRuleFor_matrix(treeNode* node)
+{
+	treeNode* rows = node->children->nextSibling;
+	node->ptrToASTNode = createASTNode(MATRIX,NULL,rows->ptrToASTNode);
+}
+
+void applyRuleFor_rows(treeNode* node)
+{
+	treeNode* row = node->children;
+	treeNode* rowsLF = row->nextSibling;
+	
+	ASTNode* rowAST = createASTNode(ROW,NULL,row->ptrToASTNode);
+	node->ptrToASTNode = concat(rowAST,rowsLF->ptrToASTNode);
+}
+
+void applyRuleFor_rowsLF1(treeNode* node)
+{
+	treeNode* rows = node->children->nextSibling;
+	node->ptrToASTNode = rows->ptrToASTNode;
+}
+
+void applyRuleFor_rowsLF2(treeNode* node)
+{
+	node->ptrToASTNode = NULL;
+}
+
+void applyRuleFor_row(treeNode* node)
+{
+	treeNode* numNode = node->children;
+	treeNode* rowLF = numNode->nextSibling;
+	ASTNode* numNodeAST = createASTNode(NUM,numNode->nodeVal->token,NULL);
+	node->ptrToASTNode = concat(numNodeAST,rowLF);		
+}
+
+void applyRuleFor_rowLF1(treeNode* node)
+{
+	treeNode* row = node->children->nextSibling;
+	node->ptrToASTNode = row->ptrToASTNode;
+}
+
+void applyRuleFor_rowLF2(treeNode* node)
+{
+	node->ptrToASTNode = NULL;
+}
