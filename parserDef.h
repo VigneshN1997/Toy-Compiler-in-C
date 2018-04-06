@@ -48,7 +48,7 @@ struct treeNode
 	struct treeNode* nextSibling;
 	struct treeNode* children;
 	struct rhs_head* ptrToRule;
-	void* ptrToASTNode;
+	void* ptrToASTNode;			// addr attribute
 };
 
 
