@@ -1,24 +1,15 @@
-// struct ASTNode
-// {
-// 	SYMBOL_NAME op;
-// 	struct ASTNode* parent;
-// 	struct ASTNode* nextSibling;
-// 	struct ASTNode* children;
-// 	void* ptrToSymTableEntry;
-// 	Token* token;
-// };
-
+#include "ASTCreation.h"
 
 ASTNode* createASTNode(SYMBOL_NAME op,Token* token,ASTNode* children)
 {
-	ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
-	node->op = op;
-	node->parent = NULL;
-	node->nextSibling = NULL;
-	node->children = children;
-	node->ptrToSymTableEntry = NULL;
-	node->token = token;
-	return node;
+	ASTNode* tnode = (ASTNode*)malloc(sizeof(ASTNode));
+	tnode->op = op;
+	tnode->parent = NULL;
+	tnode->nextSibling = NULL;
+	tnode->children = children;
+	tnode->ptrToSymTableEntry = NULL;
+	tnode->token = token;
+	return tnode;
 }
 
 ASTNode* concat(ASTNode* singleNode,ASTNode* restList)
@@ -27,447 +18,454 @@ ASTNode* concat(ASTNode* singleNode,ASTNode* restList)
 	return singleNode;
 }
 
-treeNode* getIthChildOfParseTreeNode(treeNode* pTreeNode, int i)
+void applyRuleFor_mainFunction(treeNode* tnode)
 {
-	treeNode* temp = pTreeNode->children;
-	int childNum = 0;
-	while(childNum != i)
-	{
-		temp = temp->nextSibling;
-		childNum++;
-	}
-	return temp;
+	treeNode* mainTokenNode = tnode->children;
+	treeNode* stmtsNode = mainTokenNode->nextSibling->nextSibling->nextSibling;
+	tnode->ptrToASTNode = createASTNode(MAIN,mainTokenNode->nodeVal->token,(ASTNode*)stmtsNode->ptrToASTNode);
 }
 
-void applyRuleFor_mainFunction(treeNode* node)
+void applyRuleFor_stmtsAndFunctionDefs(treeNode* tnode)
 {
-	treeNode* mainTokenNode = node->children;
-	treeNode* stmtsNode = getIthChildOfParseTreeNode(node,3);
-	node->ptrToASTNode = createASTNode(MAIN,mainTokenNode->nodeVal->token,stmtsNode->ptrToASTNode);
-}
-
-
-void applyRuleFor_stmtsAndFunctionDefs(treeNode* node)
-{
-	treeNode* stmtOrFunctionDef = node->children;
+	treeNode* stmtOrFunctionDef = tnode->children;
 	treeNode* moreStmtsOrFunctionDefs = stmtOrFunctionDef->nextSibling;
-	node->ptrToASTNode = concat(stmtOrFunctionDef->ptrToASTNode,moreStmtsOrFunctionDefs->ptrToASTNode);
+	// printf("stmtsAndFunctionDefs\n");
+	tnode->ptrToASTNode = concat((ASTNode*)stmtOrFunctionDef->ptrToASTNode,(ASTNode*)moreStmtsOrFunctionDefs->ptrToASTNode);
 }
 
-void applyRuleFor_moreStmtsorFunctionDefs1(treeNode* node)
+void applyRuleFor_moreStmtsorFunctionDefs1(treeNode* tnode)
 {
-	treeNode* stmtsAndFunctionDefs = node->children;
-	node->ptrToASTNode = stmtsAndFunctionDefs->ptrToASTNode;
+	treeNode* stmtsAndFunctionDefs = tnode->children;
+	tnode->ptrToASTNode = stmtsAndFunctionDefs->ptrToASTNode;
 }
 
-void applyRuleFor_moreStmtsorFunctionDefs2(treeNode* node)
+void applyRuleFor_moreStmtsorFunctionDefs2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_stmtOrFunctionDef1(treeNode* node)
+void applyRuleFor_stmtOrFunctionDef1(treeNode* tnode)
 {
-	treeNode* stmt = node->children;
-	node->ptrToASTNode = stmt->ptrToASTNode;
+	treeNode* stmt = tnode->children;
+	tnode->ptrToASTNode = stmt->ptrToASTNode;
 }
 
-void applyRuleFor_stmtOrFunctionDef2(treeNode* node)
+void applyRuleFor_stmtOrFunctionDef2(treeNode* tnode)
 {
-	treeNode* functionDef = node->children;
-	node->ptrToASTNode = functionDef->ptrToASTNode;
+	treeNode* functionDef = tnode->children;
+	tnode->ptrToASTNode = functionDef->ptrToASTNode;
 }
 
-void applyRuleFor_stmt(treeNode* node)
+void applyRuleFor_stmt(treeNode* tnode)
 {
-	treeNode* child = node->children;
-	node->ptrToASTNode = child->ptrToASTNode;	
+	treeNode* child = tnode->children;
+	tnode->ptrToASTNode = child->ptrToASTNode;	
 }
 
-void applyRuleFor_functionDef(treeNode* node)
+void applyRuleFor_functionDef(treeNode* tnode)
 {
-	treeNode* parameterListOut = node->children->nextSibling->nextSibling;
+	treeNode* parameterListOut = tnode->children->nextSibling->nextSibling;
 	treeNode* funIdNode = parameterListOut->nextSibling->nextSibling->nextSibling;
 	treeNode* parameterListIn = funIdNode->nextSibling->nextSibling;
 	treeNode* stmtsAndFunctionDefs = parameterListIn->nextSibling->nextSibling;
 
-	ASTNode* parameterListOutAST = createASTNode(PARAMETER_LIST,NULL,parameterListOut->ptrToASTNode);
-	ASTNode* parameterListInAST = createASTNode(PARAMETER_LIST,NULL,parameterListIn->ptrToASTNode);
-	ASTNode* stmtsAndFunctionDefsAST = createASTNode(STMTS_AND_FUNCTION_DEFS,NULL,stmtsAndFunctionDefs->ptrToASTNode);
-	
+	ASTNode* parameterListOutAST = createASTNode(PARAMETER_LIST,NULL,(ASTNode*)parameterListOut->ptrToASTNode);
+	ASTNode* parameterListInAST = createASTNode(PARAMETER_LIST,NULL,(ASTNode*)parameterListIn->ptrToASTNode);
+	ASTNode* stmtsAndFunctionDefsAST = createASTNode(STMTS_AND_FUNCTION_DEFS,NULL,stmtsAndFunctionDefs->ptrToASTNode); // check if this tnode creation is needed?
+	// printf("functionDef*1\n");
 	ASTNode* children = concat(parameterListOutAST,stmtsAndFunctionDefsAST);
-	children = concat(parameterListIn,children);
+	// printf("functionDef*2\n");
+	children = concat(parameterListInAST,children);
 
-	node->ptrToASTNode = createASTNode(FUNCTION,funIdNode->nodeVal->token,children);
+	tnode->ptrToASTNode = createASTNode(FUNCTION,funIdNode->nodeVal->token,children);
 }
 
-void applyRuleFor_parameter_list(treeNode node)
+void applyRuleFor_parameter_list(treeNode* tnode)
 {
-	treeNode* type = node->children;
+	treeNode* type = tnode->children;
 	treeNode* idNode = type->nextSibling;
 	treeNode* remainingList = idNode->nextSibling;
 	
 	ASTNode* typeNodeAST = type->ptrToASTNode;
-	ASTNode* idNodeAST = createASTNode(ID,token,NULL);
+	ASTNode* idNodeAST = createASTNode(ID,idNode->nodeVal->token,NULL);
+	// printf("parameterList*1\n");
 	ASTNode* children = concat(typeNodeAST,idNodeAST);
-	ASTNode* parNodeAST = createASTNode(idNode->nodeVal->token->t_name,NULL,children);
+	ASTNode* parNodeAST = createASTNode(type->nodeVal->variable->sym_name,NULL,children);
 	// ASTNode* typeNode = createASTNode(typeNode->nodeVal->token->t_name,NULL);
-	node->ptrToASTNode = concat(parNodeAST,remainingList->ptrToASTNode);
+	// printf("parameterList*2\n");
+	tnode->ptrToASTNode = concat(parNodeAST,(ASTNode*)remainingList->ptrToASTNode);
 }
 
-void applyRuleFor_type(treeNode* node)
+void applyRuleFor_type(treeNode* tnode)
 {
-	node->ptrToASTNode = createASTNode(node->children->nodeVal->token->t_name,NULL,NULL); // check NULL
+	tnode->ptrToASTNode = createASTNode(tnode->children->nodeVal->token->t_name,tnode->children->nodeVal->token,NULL); // check NULL
 }
 
-void applyRuleFor_remainingList1(treeNode* node)
+void applyRuleFor_remainingList1(treeNode* tnode)
 {
-	treeNode* parameterList = node->children->nextSibling;
-	node->ptrToASTNode = parameterList->ptrToASTNode;
+	treeNode* parameterList = tnode->children->nextSibling;
+	tnode->ptrToASTNode = parameterList->ptrToASTNode;
 }
 
-void applyRuleFor_remainingList2(treeNode* node)
+void applyRuleFor_remainingList2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_declarationStmt(treeNode* node)
+void applyRuleFor_declarationStmt(treeNode* tnode)
 {
-	treeNode* type = node->children;
+	treeNode* type = tnode->children;
 	treeNode* var_list = type->nextSibling;
-	ASTNode* children = concat(type->ptrToASTNode,var_list->ptrToASTNode);
-	node->ptrToASTNode = createASTNode(DECLARATION_STMT,NULL,children);
+	// printf("DECLARATION_STMT\n");
+	ASTNode* children = concat((ASTNode*)type->ptrToASTNode,(ASTNode*)var_list->ptrToASTNode);
+	tnode->ptrToASTNode = createASTNode(DECLARATION_STMT,NULL,children);
 }
 
-void applyRuleFor_var_list(treeNode* node)
+void applyRuleFor_var_list(treeNode* tnode)
 {
-	treeNode* idNode = node->children;
+	treeNode* idNode = tnode->children;
 	treeNode* more_ids = idNode->nextSibling;
 	ASTNode* idNodeAST = createASTNode(ID,idNode->nodeVal->token,NULL);
-	node->ptrToASTNode = concat(idNodeAST,more_ids->ptrToASTNode);
+	// printf("var_list\n");
+	tnode->ptrToASTNode = concat((ASTNode*)idNodeAST,(ASTNode*)more_ids->ptrToASTNode);
 }
 
-void applyRuleFor_more_ids1(treeNode* node)
+void applyRuleFor_more_ids1(treeNode* tnode)
 {
-	treeNode* var_list = node->children->nextSibling;
-	node->ptrToASTNode = var_list->ptrToASTNode;
+	treeNode* var_list = tnode->children->nextSibling;
+	tnode->ptrToASTNode = var_list->ptrToASTNode;
 }
 
-void applyRuleFor_more_ids2(treeNode* node)
+void applyRuleFor_more_ids2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_assignmentStmt_type1(treeNode* node)
+void applyRuleFor_assignmentStmt_type1(treeNode* tnode)
 {
-	treeNode* leftHandSide_singleVar = node->children;
+	treeNode* leftHandSide_singleVar = tnode->children;
 	treeNode* assignOp = leftHandSide_singleVar->nextSibling; // for line number
 	treeNode* rightHandSide_type1 = assignOp->nextSibling;
 
-	ASTNode* varsAST = createASTNode(LHS_SINGLE_VAR,NULL,leftHandSide_singleVar->ptrToASTNode);
-	ASTNode* children = concat(varsAST,rightHandSide_type1);
+	ASTNode* varsAST = createASTNode(LHS_SINGLE_VAR,NULL,(ASTNode*)leftHandSide_singleVar->ptrToASTNode);
+	// printf("assignmentStmt_type1\n");
+	ASTNode* children = concat(varsAST,(ASTNode*)rightHandSide_type1->ptrToASTNode);
 
-	node->ptrToASTNode = createASTNode(ASSIGN_OP,assignOp->nodeVal->token,children);
+	tnode->ptrToASTNode = createASTNode(ASSIGNOP,assignOp->nodeVal->token,children);
 }
 
-void applyRuleFor_assignmentStmt_type2(treeNode* node)
+void applyRuleFor_assignmentStmt_type2(treeNode* tnode)
 {
-	treeNode* leftHandSide_listVar = node->children;
+	treeNode* leftHandSide_listVar = tnode->children;
 	treeNode* assignOp = leftHandSide_listVar->nextSibling; // for line number
 	treeNode* rightHandSide_type2 = assignOp->nextSibling;
 
-	ASTNode* varsAST = createASTNode(LHS_LIST_VAR,NULL,leftHandSide_listVar->ptrToASTNode);
-	ASTNode* children = concat(varsAST,rightHandSide_type2);
+	ASTNode* varsAST = createASTNode(LHS_LIST_VAR,NULL,(ASTNode*)leftHandSide_listVar->ptrToASTNode);
+	// printf("assignmentStmt_type1\n");
+	ASTNode* children = concat(varsAST,(ASTNode*)rightHandSide_type2->ptrToASTNode);
 
-	node->ptrToASTNode = createASTNode(ASSIGN_OP,assignOp->nodeVal->token,children);
+	tnode->ptrToASTNode = createASTNode(ASSIGNOP,assignOp->nodeVal->token,children);
 }
 
-void applyRuleFor_leftHandSide_singleVar(treeNode* node)
+void applyRuleFor_leftHandSide_singleVar(treeNode* tnode)
 {
-	treeNode* idNode = node->children;
-	node->ptrToASTNode = createASTNode(ID,idNode->nodeVal->token,NULL);
+	treeNode* idNode = tnode->children;
+	tnode->ptrToASTNode = createASTNode(ID,idNode->nodeVal->token,NULL);
 }
 
-void applyRuleFor_leftHandSide_listVar(treeNode* node)
+void applyRuleFor_leftHandSide_listVar(treeNode* tnode)
 {
-	treeNode* var_list = node->children->nextSibling;
-	node->ptrToASTNode = var_list->ptrToASTNode;
+	treeNode* var_list = tnode->children->nextSibling;
+	tnode->ptrToASTNode = var_list->ptrToASTNode;
 }
 
-void applyRuleFor_rightHandSide_type(treeNode* node)
+void applyRuleFor_rightHandSide_type(treeNode* tnode)
 {
-	treeNode* child = node->children;
-	node->ptrToASTNode = child->ptrToASTNode;
+	treeNode* child = tnode->children;
+	tnode->ptrToASTNode = child->ptrToASTNode;
 }
 
-void applyRuleFor_sizeExpression(treeNode* node)
+void applyRuleFor_sizeExpression(treeNode* tnode)
 {
-	treeNode* sizeNode = node->children;
+	treeNode* sizeNode = tnode->children;
 	treeNode* idNode = sizeNode->nextSibling;
 	ASTNode* child = createASTNode(ID,idNode->nodeVal->token,NULL);
-	node->ptrToASTNode = createASTNode(SIZE,sizeNode->nodeVal->token,child);
+	tnode->ptrToASTNode = createASTNode(SIZE,sizeNode->nodeVal->token,child);
 }
 
-void applyRuleFor_ifStmt(treeNode* node)
+void applyRuleFor_ifStmt(treeNode* tnode)
 {
-	treeNode* ifNode = node->children;
+	treeNode* ifNode = tnode->children;
 	treeNode* booleanExpression = ifNode->nextSibling->nextSibling;
 	treeNode* stmt = booleanExpression->nextSibling->nextSibling;
 	treeNode* otherStmts = stmt->nextSibling;
 	treeNode* elseFactor = otherStmts->nextSibling;
-
-	ASTNode* allstmts = concat(stmt->ptrToASTNode,otherStmts->ptrToASTNode);
+	// printf("ifStmt*1\n");
+	ASTNode* allstmts = concat((ASTNode*)stmt->ptrToASTNode,(ASTNode*)otherStmts->ptrToASTNode);
 	ASTNode* stmtsAST = createASTNode(STMTS_AND_FUNCTION_DEFS,NULL,allstmts);
-	ASTNode* elseFactorAST = createASTNode(ELSE,NULL,elseFactor->ptrToASTNode);
-
+	ASTNode* elseFactorAST = createASTNode(ELSE,NULL,(ASTNode*)elseFactor->ptrToASTNode);
+	// printf("ifStmt*2\n");
 	ASTNode* children = concat(stmtsAST,elseFactorAST);
-	children = concat(booleanExpression->ptrToASTNode,children);
+	// printf("ifStmt*3\n");
+	children = concat((ASTNode*)booleanExpression->ptrToASTNode,children);
 
-	node->ptrToASTNode = createASTNode(IF,ifNode->nodeVal->token,children);
+	tnode->ptrToASTNode = createASTNode(IF,ifNode->nodeVal->token,children);
 }
 
-void applyRuleFor_elseFactor1(treeNode* node)
+void applyRuleFor_elseFactor1(treeNode* tnode)
 {
-	treeNode* stmt = node->children->nextSibling;
+	treeNode* stmt = tnode->children->nextSibling;
 	treeNode* otherStmts = stmt->nextSibling;
-
-	node->ptrToASTNode = concat(stmt->ptrToASTNode,otherStmts->ptrToASTNode);
+	// printf("elseFactor\n");
+	tnode->ptrToASTNode = concat((ASTNode*)stmt->ptrToASTNode,(ASTNode*)otherStmts->ptrToASTNode);
 }
 
-void applyRuleFor_elseFactor2(treeNode* node)
+void applyRuleFor_elseFactor2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_otherStmts1(treeNode* node)
+void applyRuleFor_otherStmts1(treeNode* tnode)
 {
-	treeNode* stmt = node->children;
+	treeNode* stmt = tnode->children;
 	treeNode* otherStmts = stmt->nextSibling;
-	node->ptrToASTNode = concat(stmt->ptrToASTNode,otherStmts->ptrToASTNode);
+	// printf("otherStmts\n");
+	tnode->ptrToASTNode = concat((ASTNode*)stmt->ptrToASTNode,(ASTNode*)otherStmts->ptrToASTNode);
 }
 
-void applyRuleFor_otherStmts2(treeNode* node)
+void applyRuleFor_otherStmts2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_ioStmt(treeNode* node)
+void applyRuleFor_ioStmt(treeNode* tnode)
 {
-	treeNode* opNode = node->children;
+	treeNode* opNode = tnode->children;
 	treeNode* idNode = opNode->nextSibling->nextSibling;
 	ASTNode* child = createASTNode(ID,idNode->nodeVal->token,NULL);
-	node->ptrToASTNode = createASTNode(opNode->nodeVal->token->t_name,opNode->nodeVal->token,child);
+	tnode->ptrToASTNode = createASTNode(opNode->nodeVal->token->t_name,opNode->nodeVal->token,child);
 }
 
-void applyRuleFor_funCallStmt(treeNode* node)
+void applyRuleFor_funCallStmt(treeNode* tnode)
 {
-	treeNode* funCallNode = node->children;
+	treeNode* funCallNode = tnode->children;
 	treeNode* inputParameterList = funCallNode->nextSibling->nextSibling;
-	node->ptrToASTNode = createASTNode(FUNID,funCallNode->nodeVal>token,inputParameterList->ptrToASTNode);
+	tnode->ptrToASTNode = createASTNode(FUNID,funCallNode->nodeVal->token,(ASTNode*)inputParameterList->ptrToASTNode);
 }
 
-void applyRuleFor_inputParameterList1(treeNode* node)
+void applyRuleFor_inputParameterList1(treeNode* tnode)
 {
-	treeNode* var = node->children;
+	treeNode* var = tnode->children;
 	treeNode* listVar = var->nextSibling;
-	node->ptrToASTNode = concat(var->ptrToASTNode,listVar->ptrToASTNode);
+	// printf("inputParameterList\n");
+	tnode->ptrToASTNode = concat((ASTNode*)var->ptrToASTNode,(ASTNode*)listVar->ptrToASTNode);
 }
 
-void applyRuleFor_inputParameterList2(treeNode* node)
+void applyRuleFor_inputParameterList2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_listVar1(treeNode* node)
+void applyRuleFor_listVar1(treeNode* tnode)
 {
-	treeNode* inputParameterList = node->children->nextSibling;
-	node->ptrToASTNode = inputParameterList->ptrToASTNode;
+	treeNode* inputParameterList = tnode->children->nextSibling;
+	tnode->ptrToASTNode = inputParameterList->ptrToASTNode;
 }
 
-void applyRuleFor_listVar2(treeNode* node)
+void applyRuleFor_listVar2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
 // rules for arithmetic expression(47-52)
-void applyRuleFor_arithmeticExpression(treeNode* node)
+void applyRuleFor_arithmeticExpression(treeNode* tnode)
 {
-	treeNode* arithmeticExpressionLF = node->children->nextSibling;
-	node->ptrToASTNode = arithmeticExpressionLF->ptrToASTNode;
+	treeNode* arithmeticExpressionLF = tnode->children->nextSibling;
+	tnode->ptrToASTNode = arithmeticExpressionLF->ptrToASTNode;
 }
 
-void applyRuleFor_arithmeticExpressionLF1(treeNode* node)
+void applyRuleFor_arithmeticExpressionLF1(treeNode* tnode)
 {
-	treeNode* operator_lowPrecedence = node->children;
+	treeNode* operator_lowPrecedence = tnode->children;
 	treeNode* arithmeticExpression = operator_lowPrecedence->nextSibling;
-	ASTNode* children = concat((ASTNode*)node->inh_addr,(ASTNode*)arithmeticExpression->ptrToASTNode);
-	operator_lowPrecedence->ptrToASTNode->children = children;
-	node->ptrToASTNode = operator_lowPrecedence->ptrToASTNode;
+	// printf("arithmeticExpressionLF\n");
+	ASTNode* children = concat((ASTNode*)tnode->inh_addr,(ASTNode*)arithmeticExpression->ptrToASTNode);
+	((ASTNode*)operator_lowPrecedence->ptrToASTNode)->children = children;
+	tnode->ptrToASTNode = operator_lowPrecedence->ptrToASTNode;
 }
 
-void applyRuleFor_arithmeticExpressionLF2(treeNode* node)
+void applyRuleFor_arithmeticExpressionLF2(treeNode* tnode)
 {
-	node->ptrToASTNode = node->inh_addr;
+	tnode->ptrToASTNode = tnode->inh_addr;
 }
 
-void applyRuleFor_arithmeticTerm(treeNode* node)
+void applyRuleFor_arithmeticTerm(treeNode* tnode)
 {
-	treeNode* arithmeticTermLF = node->children->nextSibling;
-	node->ptrToASTNode = arithmeticTermLF->ptrToASTNode;
+	treeNode* arithmeticTermLF = tnode->children->nextSibling;
+	tnode->ptrToASTNode = arithmeticTermLF->ptrToASTNode;
 }
 
-void applyRuleFor_arithmeticTermLF1(treeNode* node)
+void applyRuleFor_arithmeticTermLF1(treeNode* tnode)
 {
-	treeNode* operator_highPrecedence = node->children;
+	treeNode* operator_highPrecedence = tnode->children;
 	treeNode* arithmeticTerm = operator_highPrecedence->nextSibling;
-	ASTNode* children = concat((ASTNode*)node->inh_addr,(ASTNode*)arithmeticTerm->ptrToASTNode);
-	operator_highPrecedence->ptrToASTNode->children = children;
-	node->ptrToASTNode = operator_highPrecedence->ptrToASTNode;
+	// printf("arithmeticTermLF\n");
+	ASTNode* children = concat((ASTNode*)tnode->inh_addr,(ASTNode*)arithmeticTerm->ptrToASTNode);
+	((ASTNode*)operator_highPrecedence->ptrToASTNode)->children = children;
+	tnode->ptrToASTNode = operator_highPrecedence->ptrToASTNode;
 }
 
-void applyRuleFor_arithmeticTermLF2(treeNode* node)
+void applyRuleFor_arithmeticTermLF2(treeNode* tnode)
 {
-	node->ptrToASTNode = node->inh_addr;
+	tnode->ptrToASTNode = tnode->inh_addr;
 }
 
-void applyRuleFor_factor1(treeNode* node)
+
+void applyRuleFor_factor1(treeNode* tnode)
 {
-	treeNode* var = node->children;
-	node->ptrToASTNode = var->ptrToASTNode;
+	treeNode* arithmeticExpression = tnode->children->nextSibling;
+	tnode->ptrToASTNode = arithmeticExpression->ptrToASTNode;
 }
 
-void applyRuleFor_factor2(treeNode* node)
+void applyRuleFor_factor2(treeNode* tnode)
 {
-	treeNode* arithmeticExpression = node->children->nextSibling;
-	node->ptrToASTNode = arithmeticExpression->ptrToASTNode;
+	treeNode* var = tnode->children;
+	tnode->ptrToASTNode = var->ptrToASTNode;
 }
 
-void applyRuleFor_operator(treeNode* node)
+void applyRuleFor_operator(treeNode* tnode)
 {
-	treeNode* operator = node->children;
+	treeNode* operator = tnode->children;
 	ASTNode* opNodeAST = createASTNode(operator->nodeVal->token->t_name,operator->nodeVal->token,NULL);
-	node->ptrToASTNode = opNodeAST;
+	tnode->ptrToASTNode = opNodeAST;
 }
 
-void applyRuleFor_booleanExpression1(treeNode* node)
+void applyRuleFor_booleanExpression1(treeNode* tnode)
 {
-	treeNode* booleanExpression1 = node->children->nextSibling;
-	treeNode* logicalOp = lhs->nextSibling->nextSibling;
+	treeNode* booleanExpression1 = tnode->children->nextSibling;
+	treeNode* logicalOp = booleanExpression1->nextSibling->nextSibling;
 	treeNode* booleanExpression2 = logicalOp->nextSibling->nextSibling;
-	ASTNode* children = concat(booleanExpression1->ptrToASTNode,booleanExpression2->ptrToASTNode);
-	logicalOp->ptrToASTNode->children = children;
-	node->ptrToASTNode = logicalOp->ptrToASTNode;
+	// printf("booleanExpression1\n");
+	ASTNode* children = concat((ASTNode*)booleanExpression1->ptrToASTNode,(ASTNode*)booleanExpression2->ptrToASTNode);
+	((ASTNode*)logicalOp->ptrToASTNode)->children = children;
+	tnode->ptrToASTNode = logicalOp->ptrToASTNode;
 }
 
-void applyRuleFor_booleanExpression2(treeNode* node)
+void applyRuleFor_booleanExpression2(treeNode* tnode)
 {
-	treeNode* notOp = node->children;
+	treeNode* notOp = tnode->children;
+	notOp->ptrToASTNode = createASTNode(NOT,notOp->nodeVal->token,NULL);
 	treeNode* booleanExpression1 = notOp->nextSibling->nextSibling;
-	notOp->ptrToASTNode->children = booleanExpression1->ptrToASTNode;
-	node->ptrToASTNode = notOp->ptrToASTNode;
+	((ASTNode*)notOp->ptrToASTNode)->children = booleanExpression1->ptrToASTNode;
+	tnode->ptrToASTNode = notOp->ptrToASTNode;
 }
 
-void applyRuleFor_booleanExpression3(treeNode* node)
+void applyRuleFor_booleanExpression3(treeNode* tnode)
 {
-	treeNode* constrainedVars1 = node->children;
+	treeNode* constrainedVars1 = tnode->children;
 	treeNode* relationalOp = constrainedVars1->nextSibling;
 	treeNode* constrainedVars2 = relationalOp->nextSibling;
-	ASTNode* children = concat(constrainedVars1->ptrToASTNode,constrainedVars2->ptrToASTNode);
-	relationalOp->ptrToASTNode->children = children;
-	node->ptrToASTNode = relationalOp->ptrToASTNode;
+	// printf("booleanExpression3\n");
+	ASTNode* children = concat((ASTNode*)constrainedVars1->ptrToASTNode,(ASTNode*)constrainedVars2->ptrToASTNode);
+	((ASTNode*)relationalOp->ptrToASTNode)->children = children;
+	tnode->ptrToASTNode = relationalOp->ptrToASTNode;
 }
 
-void applyRuleFor_constraintVars(treeNode* node)
+void applyRuleFor_constrainedVars(treeNode* tnode)
 {
-	treeNode* child = node->children;
-	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
+	treeNode* child = tnode->children;
+	tnode->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
 }
 
-void applyRuleFor_logicalOp(treeNode* node)
+void applyRuleFor_logicalOp(treeNode* tnode)
 {
-	treeNode* child = node->children;
-	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
+	treeNode* child = tnode->children;
+	tnode->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
 }
 
-void applyRuleFor_relationalOp(treeNode* node)
+void applyRuleFor_relationalOp(treeNode* tnode)
 {
-	treeNode* child = node->children;
-	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
+	treeNode* child = tnode->children;
+	tnode->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);
 }
 
-void applyRuleFor_var1(treeNode* node)
+void applyRuleFor_var1(treeNode* tnode)
 {
-	treeNode* child = node->children;
-	node->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);	
+	treeNode* child = tnode->children;
+	tnode->ptrToASTNode = createASTNode(child->nodeVal->token->t_name,child->nodeVal->token,NULL);	
 }
 
-void applyRuleFor_varMatrix(treeNode* node)
+void applyRuleFor_varMatrix(treeNode* tnode)
 {
-	treeNode* matrix = node->children;
-	node->ptrToASTNode = matrix->ptrToASTNode;
+	treeNode* matrix = tnode->children;
+	tnode->ptrToASTNode = matrix->ptrToASTNode;
 }
 
-void applyRuleFor_varIsMatrixElement(treeNode* node)
+void applyRuleFor_varIsMatrixElement(treeNode* tnode)
 {
-	treeNode* idNode = node->children;
+	treeNode* idNode = tnode->children;
 	treeNode* isMatrixElement = idNode->nextSibling;
-	ASTNode* idNodeAST = createASTNode(ID,idNode->nodeVal->token,isMatrixElement->ptrToASTNode);
+	tnode->ptrToASTNode = createASTNode(ID,idNode->nodeVal->token,(ASTNode*)isMatrixElement->ptrToASTNode);
 }
 
-void applyRuleFor_isMatrixElement1(treeNode* node)
+void applyRuleFor_isMatrixElement1(treeNode* tnode)
 {
-	treeNode* num1 = node->children->nextSibling;
+	treeNode* num1 = tnode->children->nextSibling;
 	treeNode* num2 = num1->nextSibling->nextSibling;
-	ASTNode num1AST = createASTNode(NUM,num1->nodeVal->token,NULL);
-	ASTNode num2AST = createASTNode(NUM,num2->nodeVal->token,NULL);
-	node->ptrToASTNode = concat(num1AST,num2AST);
+	ASTNode* num1AST = createASTNode(NUM,num1->nodeVal->token,NULL);
+	ASTNode* num2AST = createASTNode(NUM,num2->nodeVal->token,NULL);
+	// printf("isMatrixElement\n");
+	tnode->ptrToASTNode = concat(num1AST,num2AST);
 }
 
-void applyRuleFor_isMatrixElement2(treeNode* node)
+void applyRuleFor_isMatrixElement2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_matrix(treeNode* node)
+void applyRuleFor_matrix(treeNode* tnode)
 {
-	treeNode* rows = node->children->nextSibling;
-	node->ptrToASTNode = createASTNode(MATRIX,NULL,rows->ptrToASTNode);
+	treeNode* rows = tnode->children->nextSibling;
+	tnode->ptrToASTNode = createASTNode(MATRIX,NULL,(ASTNode*)rows->ptrToASTNode);
 }
 
-void applyRuleFor_rows(treeNode* node)
+void applyRuleFor_rows(treeNode* tnode)
 {
-	treeNode* row = node->children;
+	treeNode* row = tnode->children;
 	treeNode* rowsLF = row->nextSibling;
 	
-	ASTNode* rowAST = createASTNode(ROW,NULL,row->ptrToASTNode);
-	node->ptrToASTNode = concat(rowAST,rowsLF->ptrToASTNode);
+	ASTNode* rowAST = createASTNode(ROW,NULL,(ASTNode*)row->ptrToASTNode);
+	// printf("rows\n");
+	tnode->ptrToASTNode = concat(rowAST,(ASTNode*)rowsLF->ptrToASTNode);
 }
 
-void applyRuleFor_rowsLF1(treeNode* node)
+void applyRuleFor_rowsLF1(treeNode* tnode)
 {
-	treeNode* rows = node->children->nextSibling;
-	node->ptrToASTNode = rows->ptrToASTNode;
+	treeNode* rows = tnode->children->nextSibling;
+	tnode->ptrToASTNode = rows->ptrToASTNode;
 }
 
-void applyRuleFor_rowsLF2(treeNode* node)
+void applyRuleFor_rowsLF2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }
 
-void applyRuleFor_row(treeNode* node)
+void applyRuleFor_row(treeNode* tnode)
 {
-	treeNode* numNode = node->children;
+	treeNode* numNode = tnode->children;
 	treeNode* rowLF = numNode->nextSibling;
 	ASTNode* numNodeAST = createASTNode(NUM,numNode->nodeVal->token,NULL);
-	node->ptrToASTNode = concat(numNodeAST,rowLF);		
+	// printf("row\n");
+	tnode->ptrToASTNode = concat(numNodeAST,(ASTNode*)rowLF->ptrToASTNode);		
 }
 
-void applyRuleFor_rowLF1(treeNode* node)
+void applyRuleFor_rowLF1(treeNode* tnode)
 {
-	treeNode* row = node->children->nextSibling;
-	node->ptrToASTNode = row->ptrToASTNode;
+	treeNode* row = tnode->children->nextSibling;
+	tnode->ptrToASTNode = row->ptrToASTNode;
 }
 
-void applyRuleFor_rowLF2(treeNode* node)
+void applyRuleFor_rowLF2(treeNode* tnode)
 {
-	node->ptrToASTNode = NULL;
+	tnode->ptrToASTNode = NULL;
 }

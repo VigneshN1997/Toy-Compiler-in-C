@@ -1,0 +1,36 @@
+main -> MAIN,main token, children: stmtsList
+functionDef -> FUNCTION, funIdToken, children: paramIn, paramOut, stmtsandFunctionDefs
+parameterList -> PARAMETER_LIST,NULL,list of (type,id)
+one parameter of list -> typeName,NULL,(typeNodeAST,idNodeAST)
+stmtsAndFunctionDefsAST(for functions, ifStmt) ->STMTS_AND_FUNCTION_DEFS, NULL, list of statements
+
+
+type : INT/REAL/STRING/MATRIX,token,NULL
+idNodeAST: ID,token,NULL
+
+declStmt: DECLARATION_STMT,NULL,(type,list of variables)
+
+
+lhs vars: LHS_SINGLE/LIST_VAR,NULL,list of variables
+
+assignmentStmt_type1: ASSIGN_OP,assignOptoken,(varlist,rhs)
+
+sizeExpr: SIZE,sizeToken,id
+
+ifStmt: IF,ifToken,(boolexpr,stmts,elseFactor(else,null,stmts in else))
+
+elseFactor -> null if no else
+
+ioStmt -> READ/PRINT , token,id
+funCall -> FUNID,funCallToken,inputparameterlist
+
+
+arithmetic
+
+bool
+
+var: ismatrixelem -> id,idToken,isMatrixElem
+
+matrix: matrix,null,list of rows
+
+row: row,null,list of numbers
