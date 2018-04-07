@@ -4,6 +4,7 @@ ASTNode* createASTFromParseTree(ParseTree ptree);
 void traverseParseTree(ParseTree ptree);
 void processArithmeticExpr(treeNode* node);
 void processNonTerminalRule(ParseTree ptree);
+void setParentPointers(ASTNode* asTree);
 
 void freeParseTree(ParseTree ptree);
 void printAST(ASTNode* ast);		// testing

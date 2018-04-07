@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 	}
 	free(g);
 	free(pTable);
-	free(ptree);
+	// free(ptree);
 	fclose(g_file);
 	return 0;
 }

@@ -5,6 +5,7 @@ ASTNode* createASTFromParseTree(ParseTree ptree)
 	traverseParseTree(ptree);
 	ASTNode* mainNodeAST = ptree->ptrToASTNode;
 	freeParseTree(ptree);
+	setParentPointers(mainNodeAST);
 	return mainNodeAST;
 }
 
@@ -350,7 +351,7 @@ void printAST(ASTNode* ast)
 	FILE* fp;
 	fp = fopen("astfile.txt","w");
 	fprintf(fp, "==============================================\n");
-	fprintf(fp, "Operator |Lexeme Current Node   |Value   \n");
+	fprintf(fp, "Operator |Lexeme Current Node   |Value|Parent  \n");
 	fprintf(fp, "==============================================\n");
 
 	doInOrderTraversalAST(ast,fp);
@@ -364,19 +365,19 @@ void doInOrderTraversalAST(ASTNode* ast,FILE* fp)
 		Token* tok = ast->token;
 		if(tok == NULL)
 		{
-			fprintf(fp, "%d - -\n",(int)ast->op);
+			fprintf(fp, "%d - - %d\n",(int)ast->op,(int)ast->parent->op);
 		}
 		else if(tok->t_name == NUM)
 		{
-			fprintf(fp,"%d %s %d\n",(int)ast->op,tok->lexeme,(tok->value).int_value);
+			fprintf(fp,"%d %s %d %d\n",(int)ast->op,tok->lexeme,(tok->value).int_value,(int)ast->parent->op);
 		}
 		else if(tok->t_name == RNUM)
 		{
-			fprintf(fp,"%d %s %lf\n",(int)ast->op,tok->lexeme,(tok->value).real_value);
+			fprintf(fp,"%d %s %lf %d\n",(int)ast->op,tok->lexeme,(tok->value).real_value,(int)ast->parent->op);
 		}
 		else
 		{
-			fprintf(fp,"%d %s -\n",(int)ast->op,tok->lexeme);
+			fprintf(fp,"%d %s - %d\n",(int)ast->op,tok->lexeme,(int)ast->parent->op);
 		}
 	}
 	else
@@ -384,13 +385,20 @@ void doInOrderTraversalAST(ASTNode* ast,FILE* fp)
 		ASTNode* leftMostChild = ast->children;
 		doInOrderTraversalAST(leftMostChild,fp);
 		Token* tok = ast->token;
-		if(tok == NULL)
-		{
-			fprintf(fp, "%d - -\n",(int)ast->op);
+		if(ast->parent != NULL)
+		{	
+			if(tok == NULL)
+			{
+				fprintf(fp, "%d - - %d\n",(int)ast->op,(int)ast->parent->op);
+			}
+			else
+			{
+				fprintf(fp,"%d %s - %d\n",(int)ast->op,tok->lexeme,(int)ast->parent->op);
+			}
 		}
 		else
 		{
-			fprintf(fp,"%d %s -\n",(int)ast->op,tok->lexeme);
+			fprintf(fp,"%d %s - -\n",(int)ast->op,tok->lexeme);
 		}
 		ASTNode* otherChildren = leftMostChild->nextSibling;
 		while(otherChildren != NULL)
@@ -398,5 +406,20 @@ void doInOrderTraversalAST(ASTNode* ast,FILE* fp)
 			doInOrderTraversalAST(otherChildren,fp);
 			otherChildren = otherChildren->nextSibling;
 		}
+	}
+}
+
+void setParentPointers(ASTNode* asTree)
+{
+	if(asTree == NULL)
+	{
+		return;
+	}
+	ASTNode* child = asTree->children;
+	while(child != NULL)
+	{
+		child->parent = asTree;
+		setParentPointers(child);
+		child = child->nextSibling;
 	}
 }
