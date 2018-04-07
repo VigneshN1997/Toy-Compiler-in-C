@@ -26,12 +26,39 @@ void traverseParseTree(ParseTree ptree)
 			if(child->nodeVal->variable != NULL)
 			{
 				traverseParseTree(child);
-				processNonTerminalRule(child);
+				// processNonTerminalRule(child);
 			}
 			child = child->nextSibling;
 		}
 		processNonTerminalRule(ptree);
 	}
+}
+
+void processArithmeticExpr(treeNode* node)
+{
+	if(node->children == NULL)
+	{
+		return;
+	}
+
+	treeNode* child = node->children;
+	while(child != NULL)
+	{
+		if(child->nodeVal->variable != NULL && child->nodeVal->variable->sym_name == ARITHMETIC_EXPR_LF)
+		{
+			child->inh_addr = node->children->ptrToASTNode;
+		}
+		else if(child->nodeVal->variable != NULL && child->nodeVal->variable->sym_name == ARITHMETIC_TERM_LF)
+		{	
+			child->inh_addr = node->children->ptrToASTNode;
+		}
+		if(child->nodeVal->variable != NULL)
+		{
+			processArithmeticExpr(child);
+		}
+		child = child->nextSibling;
+	}
+	processNonTerminalRule(node);
 }
 
 void processNonTerminalRule(ParseTree ptree)

@@ -49,6 +49,7 @@ struct treeNode
 	struct treeNode* children;
 	struct rhs_head* ptrToRule;
 	void* ptrToASTNode;			// addr attribute
+	void* inh_addr;				// inherited address attribute
 };
 
 

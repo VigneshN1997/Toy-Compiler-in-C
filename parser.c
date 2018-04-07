@@ -12,6 +12,7 @@ ParseTree createParseTree(node_data* nodeVal)
 	tree->parent = NULL;
 	tree->ptrToASTNode = NULL;
 	tree->ptrToRule = NULL;
+	tree->inh_addr = NULL;
 	return tree;
 }
 

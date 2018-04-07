@@ -289,7 +289,45 @@ void applyRuleFor_listVar2(treeNode* node)
 }
 
 // rules for arithmetic expression(47-52)
+void applyRuleFor_arithmeticExpression(treeNode* node)
+{
+	treeNode* arithmeticExpressionLF = node->children->nextSibling;
+	node->ptrToASTNode = arithmeticExpressionLF->ptrToASTNode;
+}
 
+void applyRuleFor_arithmeticExpressionLF1(treeNode* node)
+{
+	treeNode* operator_lowPrecedence = node->children;
+	treeNode* arithmeticExpression = operator_lowPrecedence->nextSibling;
+	ASTNode* children = concat((ASTNode*)node->inh_addr,(ASTNode*)arithmeticExpression->ptrToASTNode);
+	operator_lowPrecedence->ptrToASTNode->children = children;
+	node->ptrToASTNode = operator_lowPrecedence->ptrToASTNode;
+}
+
+void applyRuleFor_arithmeticExpressionLF2(treeNode* node)
+{
+	node->ptrToASTNode = node->inh_addr;
+}
+
+void applyRuleFor_arithmeticTerm(treeNode* node)
+{
+	treeNode* arithmeticTermLF = node->children->nextSibling;
+	node->ptrToASTNode = arithmeticTermLF->ptrToASTNode;
+}
+
+void applyRuleFor_arithmeticTermLF1(treeNode* node)
+{
+	treeNode* operator_highPrecedence = node->children;
+	treeNode* arithmeticTerm = operator_highPrecedence->nextSibling;
+	ASTNode* children = concat((ASTNode*)node->inh_addr,(ASTNode*)arithmeticTerm->ptrToASTNode);
+	operator_highPrecedence->ptrToASTNode->children = children;
+	node->ptrToASTNode = operator_highPrecedence->ptrToASTNode;
+}
+
+void applyRuleFor_arithmeticTermLF2(treeNode* node)
+{
+	node->ptrToASTNode = node->inh_addr;
+}
 
 void applyRuleFor_factor1(treeNode* node)
 {
