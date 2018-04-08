@@ -1,6 +1,6 @@
 // ID: 2015A7PS0355P
 // Name: Vignesh N
-#include "ASTCreation.c"
+#include "symbolTableCreation.c"
 int main(int argc, char* argv[])
 {
 	if(argc != 3)

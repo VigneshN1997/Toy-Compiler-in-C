@@ -34,3 +34,13 @@ var: ismatrixelem -> id,idToken,isMatrixElem
 matrix: matrix,null,list of rows
 
 row: row,null,list of numbers
+
+stmts to process for symbol table:
+declarationStmt
+assignmentStmt_type1 -> 
+assignmentStmt_type2 -> 
+ifStmt
+ioStmt
+funCallStmt
+functionDef --> new scope
+booleanExpression

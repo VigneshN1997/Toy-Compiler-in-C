@@ -1,14 +1,33 @@
-#include "ASTCreation.c"
+#include "errorReporting.c"
 
+#define SYMBOL_TABLE_SIZE 100
 typedef struct symbolTableEntry symbolTableEntry;
 typedef struct SymbolTable SymbolTable;
 typedef struct idInfo idInfo;
+typedef struct funcInfo funcInfo;
+
+struct idInfo
+{
+	int* widthInfo;
+	SYMBOL_NAME type;
+	int offset;
+};
+
+struct funcInfo
+{
+	ASTNode* opParameterList;
+	int numOpParameters;
+	ASTNode* ipParameterList;
+	int numIpParameters;
+};
+
 
 struct symbolTableEntry
 {
 	char* idFuncLexeme;
 	int isID;
 	struct idInfo* idInfoPtr;
+	struct funcInfo* funcInfoPtr;
 	struct SymbolTable* ptrToNewScopeST;
 	struct symbolTableEntry* nextEntry; // entries hashed to same location will be stored using separate chaining technique
 };
@@ -21,9 +40,3 @@ struct SymbolTable
 	int tableSize;
 };
 
-struct idInfo
-{
-	int* widthInfo;
-	SYMBOL_NAME type;
-	int offset;
-};

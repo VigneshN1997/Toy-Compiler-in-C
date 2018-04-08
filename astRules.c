@@ -62,7 +62,7 @@ void applyRuleFor_stmt(treeNode* tnode)
 	tnode->ptrToASTNode = child->ptrToASTNode;	
 }
 
-void applyRuleFor_functionDef(treeNode* tnode)
+void applyRuleFor_functionDef(treeNode* tnode) // updated
 {
 	treeNode* parameterListOut = tnode->children->nextSibling->nextSibling;
 	treeNode* funIdNode = parameterListOut->nextSibling->nextSibling->nextSibling;
@@ -89,11 +89,12 @@ void applyRuleFor_parameter_list(treeNode* tnode)
 	ASTNode* typeNodeAST = type->ptrToASTNode;
 	ASTNode* idNodeAST = createASTNode(ID,idNode->nodeVal->token,NULL);
 	// printf("parameterList*1\n");
-	ASTNode* children = concat(typeNodeAST,idNodeAST);
-	ASTNode* parNodeAST = createASTNode(type->nodeVal->variable->sym_name,NULL,children);
+	// ASTNode* children = concat(typeNodeAST,idNodeAST);
+	typeNodeAST->children = idNodeAST;
+	// ASTNode* parNodeAST = createASTNode(type->nodeVal->variable->sym_name,NULL,children);
 	// ASTNode* typeNode = createASTNode(typeNode->nodeVal->token->t_name,NULL);
 	// printf("parameterList*2\n");
-	tnode->ptrToASTNode = concat(parNodeAST,(ASTNode*)remainingList->ptrToASTNode);
+	tnode->ptrToASTNode = concat(typeNodeAST,(ASTNode*)remainingList->ptrToASTNode);
 }
 
 void applyRuleFor_type(treeNode* tnode)
