@@ -169,7 +169,6 @@ void populateSymbolTable(ASTNode* asTree,SymbolTable* symTable,errorHead* symTab
 	}
 }
 
-
 ASTNode* getListOfStmts(ASTNode* asTree)
 {
 	if(asTree->op == MAIN)
@@ -187,5 +186,45 @@ ASTNode* getListOfStmts(ASTNode* asTree)
 	else if(asTree->op == ELSE)
 	{
 		return asTree->children;
+	}
+}
+
+void printFirstSymbolTable(SymbolTable* symTable)
+{
+	symbolTableEntry** syms = symTable->arrOfSymbols;
+	for(int i = 0 ; i < symTable->tableSize; i++)
+	{
+		if(syms[i] == NULL)
+		{
+			printf("NULL\n");
+		}
+		else
+		{
+			symbolTableEntry* entry = syms[i];
+			while(entry != NULL)
+			{
+				if(entry->isID)
+				{
+					printf("(lexeme:%s width:%d type:%d )",entry->idFuncLexeme,entry->idInfoPtr->widthInfo[0],(int)entry->idInfoPtr->type);
+				}
+				else
+				{
+					printf("(lexeme:%s nin:%d nout:%d",entry->idFuncLexeme,entry->funcInfoPtr->numIpParameters,entry->funcInfoPtr->numOpParameters);	
+				}
+				printf("---->\n");
+				entry = entry->nextEntry;
+			}
+			printf("\n");
+		}
+	}
+}
+
+void printErrors(errorHead* h)
+{
+	errorList* temp = h->first;
+	while(temp != NULL)
+	{
+		printf("%d %s %s\n",temp->err->error_no,temp->err->errorMsg,temp->token->lexeme);
+		temp = temp->next;
 	}
 }

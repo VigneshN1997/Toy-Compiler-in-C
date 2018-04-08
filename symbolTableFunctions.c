@@ -82,7 +82,7 @@ void processAssignmentStmtListVar(ASTNode* stmt,SymbolTable* symTable,errorHead*
 void processIfStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead)
 {
 	ASTNode* booleanExpr = stmt->children;
-	ASTNode* elseStmt = stmt->nextSibling->nextSibling;
+	ASTNode* elseStmt = stmt->children->nextSibling->nextSibling;
 	processBooleanExpr(booleanExpr,symTable,symTableErrorListHead);
 	populateSymbolTable(stmt,symTable,symTableErrorListHead);
 	populateSymbolTable(elseStmt,symTable,symTableErrorListHead);
@@ -174,7 +174,7 @@ void processBooleanExpr(ASTNode* expr, SymbolTable* symTable,errorHead* symTable
 		ASTNode* child = expr->children;
 		while(child != NULL)
 		{
-			processBooleanExpr(expr,symTable,symTableErrorListHead);
+			processBooleanExpr(child,symTable,symTableErrorListHead);
 			child = child->nextSibling;
 		}
 	}
@@ -196,7 +196,7 @@ void processArithmeticExprST(ASTNode* expr, SymbolTable* symTable,errorHead* sym
 		ASTNode* child = expr->children;
 		while(child != NULL)
 		{
-			processArithmeticExprST(expr,symTable,symTableErrorListHead);
+			processArithmeticExprST(child,symTable,symTableErrorListHead);
 			child = child->nextSibling;
 		}
 	}

@@ -43,7 +43,7 @@ errorSem* createNewError(int error_no)
 {
 	errorSem* err = (errorSem*)malloc(sizeof(errorSem));
 	err->error_no = error_no;
-	err->errorMsg = semantic_error_msg_mapping[error_no].errorMsg; // check this
+	err->errorMsg = semantic_error_msg_mapping[error_no - 1].errorMsg; // check this
 	return err;
 }
 

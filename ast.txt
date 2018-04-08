@@ -1,7 +1,7 @@
 main -> MAIN,main token, children: stmtsList
 functionDef -> FUNCTION, funIdToken, children: paramIn, paramOut, stmtsandFunctionDefs
 parameterList -> PARAMETER_LIST,NULL,list of (type,id)
-one parameter of list -> typeName,NULL,(typeNodeAST,idNodeAST)
+one parameter of list -> typeName,typeToken,idNodeAST
 stmtsAndFunctionDefsAST(for functions, ifStmt) ->STMTS_AND_FUNCTION_DEFS, NULL, list of statements
 
 

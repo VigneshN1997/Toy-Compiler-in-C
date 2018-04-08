@@ -9,6 +9,9 @@ symbolTableEntry* findIdorFuncName(char* findId,SymbolTable* symTable);
 void populateSymbolTable(ASTNode* asTree,SymbolTable* symTable,errorHead* symTableErrorListHead);
 ASTNode* getListOfStmts(ASTNode* asTree);
 
+void printFirstSymbolTable(SymbolTable* symTable);
+void printErrors(errorHead* h);
+
 void processDeclarationStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead);
 void processAssignmentStmtSingleVar(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead);
 void processAssignmentStmtListVar(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead);

@@ -22,6 +22,8 @@ int main(int argc, char* argv[])
 	parsingTable pTable = createParsingTable(g);
 	ParseTree ptree = NULL;
 	ASTNode* asTree = NULL;
+	errorHead* symTableErrorListHead = initializeErrorHead();
+	SymbolTable* symTable = NULL;
 	// printGrammar(g);
 	// printGrammarRulesReverse(g);
 	// printRHSOccurrences(g);
@@ -37,7 +39,9 @@ int main(int argc, char* argv[])
 		printf("4. Print the parse tree to file\n");
 		printf("5. Create AST\n");
 		printf("6. Print AST\n");
-		printf("7. Exit\n");
+		printf("7. Create Symbol table\n");
+		printf("8. Print ST,erors\n");
+		printf("9. Exit\n");
 		printf("Option:");
 		int c;
 		scanf("%d",&c);
@@ -96,6 +100,15 @@ int main(int argc, char* argv[])
 			{
 				printAST(asTree);
 			}
+		}
+		else if(c == 7)
+		{
+			symTable = createSymbolTable(asTree,symTableErrorListHead);
+		}
+		else if(c == 8)
+		{
+			printFirstSymbolTable(symTable);
+			printErrors(symTableErrorListHead);
 		}
 		else
 		{
