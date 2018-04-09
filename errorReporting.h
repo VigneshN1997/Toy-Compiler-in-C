@@ -35,13 +35,13 @@ errorSem semantic_error_msg_mapping[] = {
 	{9, "number of input parameters in function call does not match with the number of formal input parameters"},
 	{10, "types of actual and formal input parameters do not match"},
 	{11, "recursive function calls are not allowed"},
-	{12, "type mismatch error in size expression"}
-	{13, "number of variables in lhs exceed than required in size expression"}
+	{12, "type mismatch error in size expression"},
+	{13, "number of variables in lhs exceed than required in size expression"},
 	{14,"number of lhs variables dont match number of output parameters of function"},
 	{15,"matrix not initialized but matrix element used"},
 	{16, "matrix row sizes not consistent"},
 	{17,"string used before value is assigned to it"},
-	{18,"matrix already assigned(new assignment cannot be of different size)"}
+	{18,"matrix already assigned(new assignment cannot be of different size)"},
 	{19,"string already assigned(new assignment cannot be of different size)"}
 
 };

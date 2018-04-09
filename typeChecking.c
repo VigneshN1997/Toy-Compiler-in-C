@@ -1,3 +1,5 @@
+#include "typeChecking.h"
+
 void doTypeChecking(ASTNode* asTree, SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* stmts = getListOfStmts(asTree);
@@ -37,12 +39,12 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 	}
 	else
 	{
-		lhs->type = lhs->ptrToSymTableEntry->idInfoPtr->type;
+		lhs->type = ((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->type;
 	}
 	if(rhs->op == SIZE)
 	{
 		ASTNode* sizeVar = rhs->children;
-		if(sizeVar->ptrToSymTableEntry != NULL && sizeVar->ptrToSymTableEntry->idInfoPtr->type != STRING)
+		if(((symbolTableEntry*)sizeVar->ptrToSymTableEntry) != NULL && ((symbolTableEntry*)sizeVar->ptrToSymTableEntry)->idInfoPtr->type != STRING)
 		{
 			// error
 			insertError(typeCheckingErrorsHead,sizeVar->token,12);
@@ -68,13 +70,13 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 		// do matrix/string size assignment in symbolTable
 		if(lhs->ptrToSymTableEntry != NULL)
 		{
-			if(lhs->ptrToSymTableEntry->idInfoPtr->type == MATRIX)
+			if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->type == MATRIX)
 			{
-				if(lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[0] != 0)
+				if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
 				{
 					if(rhs->widthInfo != NULL)
 					{
-						if(lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[0] != rhs->widthInfo[0] || lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[1] != rhs->widthInfo[1])
+						if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0] || ((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] != rhs->widthInfo[1])
 						{
 							insertError(typeCheckingErrorsHead,lhs->token,18);
 						}
@@ -84,25 +86,25 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 				{
 					if(rhs->widthInfo != NULL)
 					{
-						lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
-						lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[1] = rhs->widthInfo[1];
-						if(lhs->ptrToSymTableEntry->idInfoPtr->offset == -1)
+						((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
+						((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = rhs->widthInfo[1];
+						if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
 						{
-							lhs->ptrToSymTableEntry->idInfoPtr->offset = symTable->currOffset;	
-							symTable->currOffset += (rhs->widthInfo[0]*rhs->widthInfo[1]*2)
+							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
+							symTable->currOffset += (rhs->widthInfo[0]*rhs->widthInfo[1]*2);
 						}
 					}
 				}
 			}
-			else if(lhs->ptrToSymTableEntry->idInfoPtr->type == STRING)
+			else if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->type == STRING)
 			{
-				if(lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[0] != 0)
+				if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
 				{
-					if(lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[0] != 0)
+					if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
 					{
 						if(rhs->widthInfo != NULL)
 						{
-							if(lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[0] != rhs->widthInfo[0])
+							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0])
 							{
 								insertError(typeCheckingErrorsHead,lhs->token,19);
 							}
@@ -112,11 +114,11 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 					{
 						if(rhs->widthInfo != NULL)
 						{
-							lhs->ptrToSymTableEntry->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
-							if(lhs->ptrToSymTableEntry->idInfoPtr->offset == -1)
+							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
+							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
 							{
-								lhs->ptrToSymTableEntry->idInfoPtr->offset = symTable->currOffset;	
-								symTable->currOffset += rhs->widthInfo[0]
+								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
+								symTable->currOffset += rhs->widthInfo[0];
 							}
 						}
 					}
@@ -141,7 +143,7 @@ void typeCheckAssignmentStmtListVar(ASTNode* assgnStmt,SymbolTable* symTable, er
 		}
 		else
 		{
-			temp->type = temp->ptrToSymTableEntry->idInfoPtr->type;
+			temp->type = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type;
 		}
 		numLHSVars++;
 		temp = temp->nextSibling;
@@ -149,7 +151,7 @@ void typeCheckAssignmentStmtListVar(ASTNode* assgnStmt,SymbolTable* symTable, er
 	if(rhs->op == SIZE)
 	{
 		ASTNode* sizeVar = rhs->children;
-		SYMBOL_NAME sizeVarType = sizeVar->ptrToSymTableEntry->idInfoPtr->type;
+		SYMBOL_NAME sizeVarType = ((symbolTableEntry*)sizeVar->ptrToSymTableEntry)->idInfoPtr->type;
 		if(sizeVar->ptrToSymTableEntry != NULL && sizeVarType != STRING && sizeVarType != MATRIX)
 		{
 			// error
@@ -199,15 +201,15 @@ void typeCheckIfStmt(ASTNode* ifStmt,SymbolTable* symTable,errorHead* typeChecki
 
 void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
-	if(funCallStmt->ptrToSymTableEntry != NULL)
+	if(((symbolTableEntry*)funCallStmt->ptrToSymTableEntry) != NULL)
 	{
-		if(numLHSVars != funCallStmt->ptrToSymTableEntry->funcInfoPtr->numOpParameters)
+		if(numLHSVars != ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->numOpParameters)
 		{
 			insertError(typeCheckingErrorsHead,funCallStmt->token,14);
 		}
-		if(!recursionPresent(funCallStmt,symTable))
-		{
-			else
+		else
+		{	
+			if(!recursionPresent(funCallStmt,symTable))
 			{
 				ASTNode* inputParameterList = funCallStmt->children;
 				int numParams = 0;
@@ -217,18 +219,18 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 					numParams++;
 					temp = temp->nextSibling;
 				}
-				if(numParams != funCallStmt->ptrToSymTableEntry->funcInfoPtr->numIpParameters)
+				if(numParams != ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->numIpParameters)
 				{
 					insertError(typeCheckingErrorsHead,funCallStmt->token,9);		
 				}
 				else
 				{
 					temp = inputParameterList;
-					ASTNode* formalParameterList = funCallStmt->ptrToSymTableEntry->funcInfoPtr->ipParameterList;
+					ASTNode* formalParameterList = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->ipParameterList;
 					ASTNode* formalParam = formalParameterList;
 					while(temp != NULL)
 					{
-						if(temp->ptrToSymTableEntry->idInfoPtr->type != formalParam->op)
+						if(((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type != formalParam->op)
 						{
 							insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
 						}
@@ -236,12 +238,11 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 						formalParam = formalParam->nextSibling;
 					}
 				}
-
 			}
-		}
-		else
-		{
-			insertError(typeCheckingErrorsHead,funCallStmt->token,11);
+			else
+			{
+				insertError(typeCheckingErrorsHead,funCallStmt->token,11);
+			}
 		}
 	}
 }
@@ -268,20 +269,20 @@ int recursionPresent(ASTNode* funCallStmt, SymbolTable* symTable)
 void typeCheckFunction(ASTNode* func, SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* funcStmts = func->children->nextSibling->nextSibling->children;
-	int* assigned = (int*)malloc((func->ptrToSymTableEntry->funcInfoPtr->numOpParameters)*sizeof(int));
-	for(int i = 0; i < func->ptrToSymTableEntry->funcInfoPtr->numOpParameters; i++)
+	int* assigned = (int*)malloc((((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters)*sizeof(int));
+	for(int i = 0; i < ((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters; i++)
 	{
 		assigned[i] = 0;
 	}
-	checkOuputParametersAssignment(funcStmts,func->ptrToSymTableEntry->funcInfoPtr->opParameterList,assigned,0,symTable,symTable);
-	for(int i = 0; i < func->ptrToSymTableEntry->funcInfoPtr->numOpParameters; i++)
+	checkOuputParametersAssignment(funcStmts,((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->opParameterList,assigned,0,symTable,symTable);
+	for(int i = 0; i < ((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters; i++)
 	{
 		if(assigned[i] == 0)
 		{
 			insertError(typeCheckingErrorsHead,func->token,8);
 		}
 	}
-	doTypeChecking(func,func->ptrToSymTableEntry->ptrToNewScopeST,typeCheckingErrorsHead);
+	doTypeChecking(func,((symbolTableEntry*)func->ptrToSymTableEntry)->ptrToNewScopeST,typeCheckingErrorsHead);
 }
 
 void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,int* assigned,int level,SymbolTable* funcSymTable,SymbolTable* currSymTable)
@@ -340,8 +341,8 @@ void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,
 		}
 		else if(stmt->op == FUNCTION)
 		{
-			SymbolTable* nextSymTable = stmts->ptrToSymTableEntry->ptrToNewScopeST;
-			checkOuputParametersAssignmen(originalFunctionDef,stmts->children->nextSibling->nextSibling->children,opParameterList,assigned,1,funcSymTable,nextSymTable);
+			SymbolTable* nextSymTable = ((symbolTableEntry*)stmt->ptrToSymTableEntry)->ptrToNewScopeST;
+			checkOuputParametersAssignment(stmt->children->nextSibling->nextSibling->children,opParameterList,assigned,1,funcSymTable,nextSymTable);
 		}
 		stmt = stmt->nextSibling;
 	}
@@ -353,7 +354,7 @@ void typeCheckBooleanExpr(ASTNode* boolExpr,SymbolTable* symTable,errorHead* typ
 	{
 		if(boolExpr->ptrToSymTableEntry != NULL)
 		{
-			boolExpr->type = boolExpr->ptrToSymTableEntry->idInfoPtr->type;
+			boolExpr->type = ((symbolTableEntry*)boolExpr->ptrToSymTableEntry)->idInfoPtr->type;
 		}
 		else
 		{
@@ -373,7 +374,7 @@ void typeCheckBooleanExpr(ASTNode* boolExpr,SymbolTable* symTable,errorHead* typ
 		ASTNode* child = boolExpr->children;
 		while(child != NULL)
 		{
-			typeCheckBooleanExpr(child);
+			typeCheckBooleanExpr(child,symTable,typeCheckingErrorsHead);
 			child = child->nextSibling;
 		}
 		SYMBOL_NAME child1Type;
@@ -436,7 +437,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 			if(arithmeticExpr->ptrToSymTableEntry != NULL)
 			{
 				// matrix element bounds check can be done?
-				if(arithmeticExpr->ptrToSymTableEntry->idInfoPtr->widthInfo[0] != 0)
+				if(((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
 				{
 					arithmeticExpr->type = INT;
 				}
@@ -448,17 +449,17 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 			}
 			else
 			{
-				arithmeticExpr = EPSILON;	
+				arithmeticExpr->type = EPSILON;	
 			}
 		}
 		else
 		{
 			if(arithmeticExpr->ptrToSymTableEntry != NULL)
 			{
-				arithmeticExpr->type = arithmeticExpr->ptrToSymTableEntry->idInfoPtr->type;
+				arithmeticExpr->type = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->type;
 				if(arithmeticExpr->type == MATRIX)
 				{
-					if(arithmeticExpr->ptrToSymTableEntry->idInfoPtr->width[0] == 0)
+					if(((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] == 0)
 					{
 						insertError(typeCheckingErrorsHead,arithmeticExpr->token,3);
 						arithmeticExpr->widthInfo = (int*)malloc(2*sizeof(int));
@@ -468,7 +469,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 				}	
 				else if(arithmeticExpr->type == STRING)
 				{
-					if(arithmeticExpr->ptrToSymTableEntry->idInfoPtr->width[0] == 0)
+					if(((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] == 0)
 					{
 						insertError(typeCheckingErrorsHead,arithmeticExpr->token,17);
 						arithmeticExpr->widthInfo = (int*)malloc(sizeof(int));
@@ -478,7 +479,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 			}
 			else
 			{
-				arithmeticExpr = EPSILON;	
+				arithmeticExpr->type = EPSILON;	
 			}
 		}
 	}
@@ -498,14 +499,14 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 	else if(arithmeticExpr->op == MATRIX)
 	{
 		arithmeticExpr->type = MATRIX;
-		arithmeticExpr->widthInfo = extractMatrixSize(arithmeticExpr);	
+		arithmeticExpr->widthInfo = extractMatrixSize(arithmeticExpr,typeCheckingErrorsHead);	
 	}
 	else
 	{
 		ASTNode* child = arithmeticExpr->children;
 		while(child != NULL)
 		{
-			typeCheckArithmeticExpr(child);
+			typeCheckArithmeticExpr(child,symTable,typeCheckingErrorsHead);
 			child = child->nextSibling;
 		}
 		SYMBOL_NAME child1Type = arithmeticExpr->children->type;
@@ -549,7 +550,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 				insertError(typeCheckingErrorsHead,arithmeticExpr->token,6);
 			}
 		}
-		else if(arithmeticExpr == MINUS)
+		else if(arithmeticExpr->op == MINUS)
 		{
 			if(child1Type == INT && child2Type == INT)
 			{
@@ -580,7 +581,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 				insertError(typeCheckingErrorsHead,arithmeticExpr->token,6);
 			}
 		}
-		else if(arithmeticExpr == MUL)
+		else if(arithmeticExpr->op == MUL)
 		{
 			if(child1Type == INT && child2Type == INT)
 			{
@@ -596,7 +597,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 				insertError(typeCheckingErrorsHead,arithmeticExpr->token,6);
 			}
 		}
-		else if(arithmeticExpr == DIV)
+		else if(arithmeticExpr->op == DIV)
 		{
 			if((child1Type == INT || child1Type == REAL) && (child2Type == INT || child2Type == REAL))
 			{

@@ -25,8 +25,6 @@ struct funcInfo
 struct symbolTableEntry
 {
 	char* idFuncLexeme;
-	char* scopeName;
-	int currOffset;
 	int isID;
 	struct idInfo* idInfoPtr;
 	struct funcInfo* funcInfoPtr;
@@ -38,6 +36,8 @@ struct SymbolTable
 {
 	struct symbolTableEntry** arrOfSymbols;
 	struct SymbolTable* ptrToParentST;
+	char* scopeName;
+	int currOffset;
 	int numEntries;
 	int tableSize;
 };
