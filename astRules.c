@@ -9,6 +9,7 @@ ASTNode* createASTNode(SYMBOL_NAME op,Token* token,ASTNode* children)
 	tnode->children = children;
 	tnode->ptrToSymTableEntry = NULL;
 	tnode->token = token;
+	tnode->widthInfo = NULL;
 	return tnode;
 }
 

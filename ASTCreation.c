@@ -365,19 +365,19 @@ void doInOrderTraversalAST(ASTNode* ast,FILE* fp)
 		Token* tok = ast->token;
 		if(tok == NULL)
 		{
-			fprintf(fp, "%d - - %d\n",(int)ast->op,(int)ast->parent->op);
+			fprintf(fp, "%s - - %s\n",grammar_var_mapping[(int)ast->op].sym_str,grammar_var_mapping[(int)ast->parent->op].sym_str);
 		}
 		else if(tok->t_name == NUM)
 		{
-			fprintf(fp,"%d %s %d %d\n",(int)ast->op,tok->lexeme,(tok->value).int_value,(int)ast->parent->op);
+			fprintf(fp,"%s %s %d %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,(tok->value).int_value,grammar_var_mapping[(int)ast->parent->op].sym_str);
 		}
 		else if(tok->t_name == RNUM)
 		{
-			fprintf(fp,"%d %s %lf %d\n",(int)ast->op,tok->lexeme,(tok->value).real_value,(int)ast->parent->op);
+			fprintf(fp,"%s %s %lf %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,(tok->value).real_value,grammar_var_mapping[(int)ast->parent->op].sym_str);
 		}
 		else
 		{
-			fprintf(fp,"%d %s - %d\n",(int)ast->op,tok->lexeme,(int)ast->parent->op);
+			fprintf(fp,"%s %s - %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,grammar_var_mapping[(int)ast->parent->op].sym_str);
 		}
 	}
 	else
@@ -389,16 +389,16 @@ void doInOrderTraversalAST(ASTNode* ast,FILE* fp)
 		{	
 			if(tok == NULL)
 			{
-				fprintf(fp, "%d - - %d\n",(int)ast->op,(int)ast->parent->op);
+				fprintf(fp, "%s - - %s\n",grammar_var_mapping[(int)ast->op].sym_str,grammar_var_mapping[(int)ast->parent->op].sym_str);
 			}
 			else
 			{
-				fprintf(fp,"%d %s - %d\n",(int)ast->op,tok->lexeme,(int)ast->parent->op);
+				fprintf(fp,"%s %s - %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,grammar_var_mapping[(int)ast->parent->op].sym_str);
 			}
 		}
 		else
 		{
-			fprintf(fp,"%d %s - -\n",(int)ast->op,tok->lexeme);
+			fprintf(fp,"%s %s - -\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme);
 		}
 		ASTNode* otherChildren = leftMostChild->nextSibling;
 		while(otherChildren != NULL)

@@ -105,6 +105,7 @@ void processFunCallStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableE
 	{
 		insertError(symTableErrorListHead,stmt->token,4);	
 	}
+	stmt->ptrToSymTableEntry = entry;
 	ASTNode* parameter = stmt->children;
 	while(parameter != NULL)
 	{
@@ -142,6 +143,7 @@ void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTable
 		while(temp != NULL)
 		{
 			numParams++;
+			insertIDorFunID(entry->ptrToNewScopeST,temp->children->token,temp->op);
 			temp = temp->nextSibling;	
 		}
 		entry->funcInfoPtr->numIpParameters = numParams;
@@ -150,6 +152,7 @@ void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTable
 		while(temp != NULL)
 		{
 			numParams++;
+			insertIDorFunID(entry->ptrToNewScopeST,temp->children->token,temp->op);
 			temp = temp->nextSibling;	
 		}
 		entry->funcInfoPtr->numOpParameters = numParams;
@@ -166,6 +169,10 @@ void processBooleanExpr(ASTNode* expr, SymbolTable* symTable,errorHead* symTable
 		if(entry == NULL)
 		{
 			insertError(symTableErrorListHead,expr->token,1);
+		}
+		else
+		{
+			expr->ptrToSymTableEntry = entry;
 		}
 		return;
 	}
@@ -188,6 +195,10 @@ void processArithmeticExprST(ASTNode* expr, SymbolTable* symTable,errorHead* sym
 		if(entry == NULL)
 		{
 			insertError(symTableErrorListHead,expr->token,1);
+		}
+		else
+		{
+			expr->ptrToSymTableEntry = entry;
 		}
 		return;
 	}

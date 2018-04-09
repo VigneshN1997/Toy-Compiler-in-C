@@ -3,6 +3,8 @@
 SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead)
 {
 	SymbolTable* symTable = createNewSymbolTable(SYMBOL_TABLE_SIZE);
+	symTable->scopeName = (char*)malloc(6*sizeof(char));
+	strcpy(symTable->scopeName,"_main");
 	populateSymbolTable(asTree,symTable,symTableErrorListHead);
 	return symTable;
 }
@@ -49,11 +51,15 @@ symbolTableEntry* insertIDorFunID(SymbolTable* symTable, Token* token,SYMBOL_NAM
 	{
 		if(type == INT)
 		{
-			entry = createSymbolTableEntry(token,1,4,INT); //check width
+			entry = createSymbolTableEntry(token,1,2,INT); //check width
+			entry->idInfoPtr->offset = symTable->currOffset;
+			symTable->currOffset += 2;
 		}
 		else if(type == REAL)
 		{
 			entry = createSymbolTableEntry(token,1,4,REAL);
+			entry->idInfoPtr->offset = symTable->currOffset;
+			symTable->currOffset += 4;
 		}
 		else if(type == STRING)
 		{
@@ -84,6 +90,7 @@ symbolTableEntry* insertIDorFunID(SymbolTable* symTable, Token* token,SYMBOL_NAM
 	if(token->t_name == FUNID)
 	{
 		SymbolTable* ptrToNewScopeST = createNewSymbolTable(symTable->tableSize);
+		ptrToNewScopeST->scopeName = entry->idFuncLexeme;
 		entry->ptrToNewScopeST = ptrToNewScopeST;
 		ptrToNewScopeST->ptrToParentST = symTable;
 	}
@@ -101,6 +108,8 @@ SymbolTable* createNewSymbolTable(int size)
 	symTable->ptrToParentST = NULL;
 	symTable->numEntries = 0;
 	symTable->tableSize = size;
+	symTable->scopeName = NULL;
+	symTable->currOffset = 0;
 	return symTable;
 }
 
@@ -224,7 +233,7 @@ void printErrors(errorHead* h)
 	errorList* temp = h->first;
 	while(temp != NULL)
 	{
-		printf("%d %s %s\n",temp->err->error_no,temp->err->errorMsg,temp->token->lexeme);
+		printf("(%d)%d %s %s\n",temp->token->line_no,temp->err->error_no,temp->err->errorMsg,temp->token->lexeme);
 		temp = temp->next;
 	}
 }
