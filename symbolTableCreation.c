@@ -198,42 +198,43 @@ ASTNode* getListOfStmts(ASTNode* asTree)
 	}
 }
 
-void printFirstSymbolTable(SymbolTable* symTable)
+void printSymbolTable(SymbolTable* symTable)
+{
+	printf("Indentifier name     |scope               |type              |offset    |\n");
+	printSymbolTableRecursive(symTable);
+}
+
+void printSymbolTableRecursive(SymbolTable* symTable)
 {
 	symbolTableEntry** syms = symTable->arrOfSymbols;
 	for(int i = 0 ; i < symTable->tableSize; i++)
 	{
-		if(syms[i] == NULL)
-		{
-			printf("NULL\n");
-		}
-		else
+		if(syms[i] != NULL)
 		{
 			symbolTableEntry* entry = syms[i];
 			while(entry != NULL)
 			{
 				if(entry->isID)
 				{
-					printf("(lexeme:%s width:%d type:%d )",entry->idFuncLexeme,entry->idInfoPtr->widthInfo[0],(int)entry->idInfoPtr->type);
+					if(entry->idInfoPtr->type == MATRIX)
+					{
+						printf("%-21s|%-20s|%-14s,%d,%d |%-10d \n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->widthInfo[1],entry->idInfoPtr->offset);
+					}
+					else if(entry->idInfoPtr->type == STRING)
+					{
+						printf("%-21s|%-20s|%15s,%d|%-10d\n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->offset);
+					}
+					else
+					{
+						printf("%-21s|%-20s|%-18s|%-10d\n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->offset);
+					}
 				}
 				else
 				{
-					printf("(lexeme:%s nin:%d nout:%d",entry->idFuncLexeme,entry->funcInfoPtr->numIpParameters,entry->funcInfoPtr->numOpParameters);	
+					printSymbolTableRecursive(entry->ptrToNewScopeST);
 				}
-				printf("---->\n");
 				entry = entry->nextEntry;
 			}
-			printf("\n");
 		}
-	}
-}
-
-void printErrors(errorHead* h)
-{
-	errorList* temp = h->first;
-	while(temp != NULL)
-	{
-		printf("(%d)%d %s %s\n",temp->token->line_no,temp->err->error_no,temp->err->errorMsg,temp->token->lexeme);
-		temp = temp->next;
 	}
 }

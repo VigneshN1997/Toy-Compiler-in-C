@@ -47,3 +47,34 @@ errorSem* createNewError(int error_no)
 	return err;
 }
 
+void printErrors(errorHead* symTableErrorHead,errorHead* typeCheckingErrorHead)
+{
+	FILE* fp;
+	fp = fopen("errors.txt","w");
+	errorList* symTableError = symTableErrorHead->first;
+	errorList* typeCheckingError = typeCheckingErrorHead->first;		
+	while(symTableError != NULL && typeCheckingError != NULL)
+	{
+		if(symTableError->token->line_no <= typeCheckingError->token->line_no)
+		{
+			fprintf(fp,"%d : %s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+			symTableError = symTableError->next;
+		}
+		else
+		{
+			fprintf(fp,"%d : %s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+			typeCheckingError = typeCheckingError->next;
+		}
+	} 
+	while(symTableError != NULL)
+	{
+		fprintf(fp,"%d : %s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+		symTableError = symTableError->next;
+	}
+	while(typeCheckingError != NULL)
+	{
+		fprintf(fp,"%d : %s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+		typeCheckingError = typeCheckingError->next;
+	}
+	fclose(fp);
+}

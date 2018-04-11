@@ -23,6 +23,7 @@ int main(int argc, char* argv[])
 	ParseTree ptree = NULL;
 	ASTNode* asTree = NULL;
 	errorHead* symTableErrorListHead = initializeErrorHead();
+	errorHead* typeCheckingErrorsHead = initializeErrorHead();
 	SymbolTable* symTable = NULL;
 	// printGrammar(g);
 	// printGrammarRulesReverse(g);
@@ -39,8 +40,8 @@ int main(int argc, char* argv[])
 		printf("4. Print the parse tree to file\n");
 		printf("5. Create AST\n");
 		printf("6. Print AST\n");
-		printf("7. Create Symbol table\n");
-		printf("8. Print ST,erors\n");
+		printf("7. Create Symbol table and do type checking\n");
+		printf("8. Print ST, semantic erors\n");
 		printf("9. Exit\n");
 		printf("Option:");
 		int c;
@@ -104,11 +105,12 @@ int main(int argc, char* argv[])
 		else if(c == 7)
 		{
 			symTable = createSymbolTable(asTree,symTableErrorListHead);
+			doTypeChecking(asTree, symTable,typeCheckingErrorsHead);
 		}
 		else if(c == 8)
 		{
-			printFirstSymbolTable(symTable);
-			printErrors(symTableErrorListHead);
+			printSymbolTable(symTable);
+			printErrors(symTableErrorListHead,typeCheckingErrorsHead);
 		}
 		else
 		{

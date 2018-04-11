@@ -151,38 +151,42 @@ void typeCheckAssignmentStmtListVar(ASTNode* assgnStmt,SymbolTable* symTable, er
 	if(rhs->op == SIZE)
 	{
 		ASTNode* sizeVar = rhs->children;
-		SYMBOL_NAME sizeVarType = ((symbolTableEntry*)sizeVar->ptrToSymTableEntry)->idInfoPtr->type;
-		if(sizeVar->ptrToSymTableEntry != NULL && sizeVarType != STRING && sizeVarType != MATRIX)
+		if(sizeVar->ptrToSymTableEntry != NULL)
 		{
-			// error
-			insertError(typeCheckingErrorsHead,sizeVar->token,12);
-		}
-		else if(sizeVarType == STRING)
-		{
-			if(numLHSVars != 1)
+			SYMBOL_NAME sizeVarType = ((symbolTableEntry*)sizeVar->ptrToSymTableEntry)->idInfoPtr->type;
+			if(sizeVarType != STRING && sizeVarType != MATRIX)
 			{
-				insertError(typeCheckingErrorsHead,sizeVar->token,13);
+				// error
+				insertError(typeCheckingErrorsHead,sizeVar->token,12);
 			}
-			else if(lhs->type != INT)
+			else if(sizeVarType == STRING)
 			{
-				insertError(typeCheckingErrorsHead,lhs->token,6);	
-			}
-		}
-		else if(sizeVarType == MATRIX)
-		{
-			if(numLHSVars != 2)
-			{
-				insertError(typeCheckingErrorsHead,sizeVar->token,13);	
-			}
-			else if(lhs->type != INT)
-			{
-				insertError(typeCheckingErrorsHead,lhs->token,6);
-				if(lhs->nextSibling->type != INT)
+				if(numLHSVars != 1)
 				{
-					insertError(typeCheckingErrorsHead,lhs->nextSibling->token,6);
-				}	
+					insertError(typeCheckingErrorsHead,sizeVar->token,13);
+				}
+				else if(lhs->type != INT)
+				{
+					insertError(typeCheckingErrorsHead,lhs->token,6);	
+				}
 			}
+			else if(sizeVarType == MATRIX)
+			{
+				if(numLHSVars != 2)
+				{
+					insertError(typeCheckingErrorsHead,sizeVar->token,13);	
+				}
+				else if(lhs->type != INT)
+				{
+					insertError(typeCheckingErrorsHead,lhs->token,6);
+					if(lhs->nextSibling->type != INT)
+					{
+						insertError(typeCheckingErrorsHead,lhs->nextSibling->token,6);
+					}	
+				}
+			}	
 		}
+		
 	}
 	else if(rhs->op == FUNID)
 	{
@@ -230,12 +234,29 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 					ASTNode* formalParam = formalParameterList;
 					while(temp != NULL)
 					{
-						if(((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type != formalParam->op)
+						if(temp->ptrToSymTableEntry != NULL)
 						{
-							insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
+							if(((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type != formalParam->op)
+							{
+								insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
+							}
 						}
 						temp = temp->nextSibling;
 						formalParam = formalParam->nextSibling;
+					}
+					temp = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->opParameterList;
+					ASTNode* lhsvar = lhs;
+					while(lhsvar != NULL)
+					{
+						if(lhsvar->ptrToSymTableEntry != NULL)
+						{
+							if(temp->op != ((symbolTableEntry*)lhsvar->ptrToSymTableEntry)->idInfoPtr->type)
+							{
+								insertError(typeCheckingErrorsHead,lhsvar->token,20); // should I break here ?
+							}
+						}
+						temp = temp->nextSibling;
+						lhsvar = lhsvar->nextSibling;
 					}
 				}
 			}
@@ -269,13 +290,14 @@ int recursionPresent(ASTNode* funCallStmt, SymbolTable* symTable)
 void typeCheckFunction(ASTNode* func, SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* funcStmts = func->children->nextSibling->nextSibling->children;
-	int* assigned = (int*)malloc((((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters)*sizeof(int));
-	for(int i = 0; i < ((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters; i++)
+	int numOpParameters = ((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters;
+	int* assigned = (int*)malloc(numOpParameters*sizeof(int));
+	for(int i = 0; i < numOpParameters; i++)
 	{
 		assigned[i] = 0;
 	}
 	checkOuputParametersAssignment(funcStmts,((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->opParameterList,assigned,0,symTable,symTable);
-	for(int i = 0; i < ((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters; i++)
+	for(int i = 0; i < numOpParameters; i++)
 	{
 		if(assigned[i] == 0)
 		{
