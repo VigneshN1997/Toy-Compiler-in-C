@@ -218,7 +218,7 @@ void printSymbolTableRecursive(SymbolTable* symTable)
 				{
 					if(entry->idInfoPtr->type == MATRIX)
 					{
-						printf("%-21s|%-20s|%-14s,%d,%d |%-10d \n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->widthInfo[1],entry->idInfoPtr->offset);
+						printf("%-21s|%-20s|%-12s,%d,%d |%-10d \n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->widthInfo[1],entry->idInfoPtr->offset);
 					}
 					else if(entry->idInfoPtr->type == STRING)
 					{

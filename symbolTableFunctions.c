@@ -29,6 +29,10 @@ void processAssignmentStmtSingleVar(ASTNode* stmt,SymbolTable* symTable,errorHea
 	{
 		insertError(symTableErrorListHead,lhs->token,1);
 	}
+	else
+	{
+		lhs->ptrToSymTableEntry = entry;
+	}
 	if(rhs->op == SIZE)
 	{
 		ASTNode* id = rhs->children;
@@ -36,6 +40,10 @@ void processAssignmentStmtSingleVar(ASTNode* stmt,SymbolTable* symTable,errorHea
 		if(entry == NULL)
 		{
 			insertError(symTableErrorListHead,lhs->token,1);		
+		}
+		else
+		{
+			id->ptrToSymTableEntry = entry;
 		}
 		// handle string type variables(if they have not been assigned thier size will be 0)
 	}
@@ -61,6 +69,10 @@ void processAssignmentStmtListVar(ASTNode* stmt,SymbolTable* symTable,errorHead*
 		{
 			insertError(symTableErrorListHead,lhs->token,1);
 		}
+		else
+		{
+			lhs->ptrToSymTableEntry = entry;
+		}
 		lhs = lhs->nextSibling;
 	}
 	if(rhs->op == SIZE)
@@ -70,6 +82,10 @@ void processAssignmentStmtListVar(ASTNode* stmt,SymbolTable* symTable,errorHead*
 		if(entry == NULL)
 		{
 			insertError(symTableErrorListHead,lhs->token,1);		
+		}
+		else
+		{
+			id->ptrToSymTableEntry = entry;
 		}
 		// handle matrix type variables(if they have not been assigned thier size will be 0)
 	}
@@ -96,6 +112,10 @@ void processIOStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorL
 	{
 		insertError(symTableErrorListHead,var->token,1);
 	}
+	else
+	{
+		var->ptrToSymTableEntry = entry;
+	}
 }
 
 void processFunCallStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead)
@@ -116,6 +136,7 @@ void processFunCallStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableE
 			{
 				insertError(symTableErrorListHead,parameter->token,1);			
 			}
+			parameter->ptrToSymTableEntry = entry;
 		}
 		parameter = parameter->nextSibling;
 	}

@@ -68,57 +68,60 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 			insertError(typeCheckingErrorsHead,lhs->token,6);
 		}
 		// do matrix/string size assignment in symbolTable
-		if(lhs->ptrToSymTableEntry != NULL)
+		else
 		{
-			if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->type == MATRIX)
+			if(lhs->ptrToSymTableEntry != NULL)
 			{
-				if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
-				{
-					if(rhs->widthInfo != NULL)
-					{
-						if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0] || ((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] != rhs->widthInfo[1])
-						{
-							insertError(typeCheckingErrorsHead,lhs->token,18);
-						}
-					}
-				}
-				else
-				{
-					if(rhs->widthInfo != NULL)
-					{
-						((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
-						((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = rhs->widthInfo[1];
-						if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
-						{
-							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
-							symTable->currOffset += (rhs->widthInfo[0]*rhs->widthInfo[1]*2);
-						}
-					}
-				}
-			}
-			else if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->type == STRING)
-			{
-				if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
+				if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->type == MATRIX)
 				{
 					if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
 					{
 						if(rhs->widthInfo != NULL)
 						{
-							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0])
+							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0] || ((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] != rhs->widthInfo[1])
 							{
-								insertError(typeCheckingErrorsHead,lhs->token,19);
+								insertError(typeCheckingErrorsHead,lhs->token,18);
 							}
 						}
 					}
 					else
 					{
-						if(rhs->widthInfo != NULL)
+						if(rhs->widthInfo != NULL && rhs->widthInfo[0] != 0)
 						{
 							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
+							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = rhs->widthInfo[1];
 							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
 							{
 								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
-								symTable->currOffset += rhs->widthInfo[0];
+								symTable->currOffset += (rhs->widthInfo[0]*rhs->widthInfo[1]*2);
+							}
+						}
+					}
+				}
+				else if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->type == STRING)
+				{
+					if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
+					{
+						if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
+						{
+							if(rhs->widthInfo != NULL)
+							{
+								if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0])
+								{
+									insertError(typeCheckingErrorsHead,lhs->token,19);
+								}
+							}
+						}
+						else
+						{
+							if(rhs->widthInfo != NULL && rhs->widthInfo[0] != 0)
+							{
+								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
+								if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
+								{
+									((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
+									symTable->currOffset += rhs->widthInfo[0];
+								}
 							}
 						}
 					}
@@ -297,12 +300,14 @@ void typeCheckFunction(ASTNode* func, SymbolTable* symTable,errorHead* typeCheck
 		assigned[i] = 0;
 	}
 	checkOuputParametersAssignment(funcStmts,((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->opParameterList,assigned,0,symTable,symTable);
+	ASTNode* opParam = func->children->nextSibling->children;
 	for(int i = 0; i < numOpParameters; i++)
 	{
 		if(assigned[i] == 0)
 		{
-			insertError(typeCheckingErrorsHead,func->token,8);
+			insertError(typeCheckingErrorsHead,opParam->children->token,8);
 		}
+		opParam = opParam->nextSibling;
 	}
 	doTypeChecking(func,((symbolTableEntry*)func->ptrToSymTableEntry)->ptrToNewScopeST,typeCheckingErrorsHead);
 }
@@ -488,6 +493,12 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 						arithmeticExpr->widthInfo[0] = 0;
 						arithmeticExpr->widthInfo[1] = 0;
 					}
+					else
+					{
+						arithmeticExpr->widthInfo = (int*)malloc(2*sizeof(int));
+						arithmeticExpr->widthInfo[0] = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
+						arithmeticExpr->widthInfo[1] = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
+					}
 				}	
 				else if(arithmeticExpr->type == STRING)
 				{
@@ -496,6 +507,11 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 						insertError(typeCheckingErrorsHead,arithmeticExpr->token,17);
 						arithmeticExpr->widthInfo = (int*)malloc(sizeof(int));
 						arithmeticExpr->widthInfo[0] = 0;
+					}
+					else
+					{
+						arithmeticExpr->widthInfo = (int*)malloc(sizeof(int));
+						arithmeticExpr->widthInfo[0] = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
 					}
 				}		
 			}
