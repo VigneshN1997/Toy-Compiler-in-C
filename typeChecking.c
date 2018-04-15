@@ -293,23 +293,26 @@ int recursionPresent(ASTNode* funCallStmt, SymbolTable* symTable)
 void typeCheckFunction(ASTNode* func, SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* funcStmts = func->children->nextSibling->nextSibling->children;
-	int numOpParameters = ((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters;
-	int* assigned = (int*)malloc(numOpParameters*sizeof(int));
-	for(int i = 0; i < numOpParameters; i++)
+	if((symbolTableEntry*)func->ptrToSymTableEntry != NULL) // DO WE NEED TO CHECK FOR OVERLOADED FUNCTIONS?
 	{
-		assigned[i] = 0;
-	}
-	checkOuputParametersAssignment(funcStmts,((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->opParameterList,assigned,0,symTable,symTable);
-	ASTNode* opParam = func->children->nextSibling->children;
-	for(int i = 0; i < numOpParameters; i++)
-	{
-		if(assigned[i] == 0)
+		int numOpParameters = ((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->numOpParameters;
+		int* assigned = (int*)malloc(numOpParameters*sizeof(int));
+		for(int i = 0; i < numOpParameters; i++)
 		{
-			insertError(typeCheckingErrorsHead,opParam->children->token,8);
+			assigned[i] = 0;
 		}
-		opParam = opParam->nextSibling;
+		checkOuputParametersAssignment(funcStmts,((symbolTableEntry*)func->ptrToSymTableEntry)->funcInfoPtr->opParameterList,assigned,0,symTable,symTable);
+		ASTNode* opParam = func->children->nextSibling->children;
+		for(int i = 0; i < numOpParameters; i++)
+		{
+			if(assigned[i] == 0)
+			{
+				insertError(typeCheckingErrorsHead,opParam->children->token,8);
+			}
+			opParam = opParam->nextSibling;
+		}
+		doTypeChecking(func,((symbolTableEntry*)func->ptrToSymTableEntry)->ptrToNewScopeST,typeCheckingErrorsHead);
 	}
-	doTypeChecking(func,((symbolTableEntry*)func->ptrToSymTableEntry)->ptrToNewScopeST,typeCheckingErrorsHead);
 }
 
 void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,int* assigned,int level,SymbolTable* funcSymTable,SymbolTable* currSymTable)

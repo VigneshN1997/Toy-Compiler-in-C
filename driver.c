@@ -1,6 +1,6 @@
 // ID: 2015A7PS0355P
 // Name: Vignesh N
-#include "typeChecking.c"
+#include "intCodeGen.c"
 int main(int argc, char* argv[])
 {
 	if(argc != 3)
@@ -42,7 +42,8 @@ int main(int argc, char* argv[])
 		printf("6. Print AST\n");
 		printf("7. Create Symbol table and do type checking\n");
 		printf("8. Print ST, semantic erors\n");
-		printf("9. Exit\n");
+		printf("9. Generate IntCode and print it\n");
+		printf("10. Exit\n");
 		printf("Option:");
 		int c;
 		scanf("%d",&c);
@@ -111,6 +112,16 @@ int main(int argc, char* argv[])
 		{
 			printSymbolTable(symTable);
 			printErrors(symTableErrorListHead,typeCheckingErrorsHead);
+		}
+		else if(c == 9)
+		{
+			int* tempVarNum = (int*)malloc(sizeof(int));
+			int* labelVarNum = (int*)malloc(sizeof(int));
+			*tempVarNum = 0;
+			*labelVarNum = 0;
+			createIntermediateCode(asTree,symTable,tempVarNum,labelVarNum);
+			appendAllStatements(asTree);
+			printIntCode(asTree->code);
 		}
 		else
 		{

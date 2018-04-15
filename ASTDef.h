@@ -10,6 +10,10 @@ struct ASTNode
 	SYMBOL_NAME type;
 	int* widthInfo; // for matrices and strings
 	Token* token;
+	struct ASTNode* tempVar; // for intermediate code generation
+	void* code;
+	void* attrBool;				// true false attributes in boolean expression
+	struct ASTNode* nextLabel; // for labels in if stmts
 };
 
 typedef struct ASTNode ASTNode;
