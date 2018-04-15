@@ -406,9 +406,9 @@ void generateCodeFor_MatrixElementValue(ASTNode* matId, int* tempVarNum,SymbolTa
 	(tok->value).int_value = pos;
 	snprintf(tok->lexeme,4,"%d",pos);
 	ASTNode* posNode = createASTNode(NUM,tok,NULL);
-	ASTNode* temp1 = newTempVar(tempVarNum,symTable,INT);
+	ASTNode* temp1 = newTempVar(tempVarNum,symTable,REAL);
 	codeNode* line1 = generateThreeAddrCode(temp1,ADDR_OP,matId,NULL);
-	ASTNode* temp2 = newTempVar(tempVarNum,symTable,INT);
+	ASTNode* temp2 = newTempVar(tempVarNum,symTable,REAL);
 	codeNode* line2 = generateThreeAddrCode(temp2,PLUS_OP,temp1,posNode);
 	codeNode* line3 = generateThreeAddrCode((ASTNode*)matId->tempVar,VALUE_AT_OP,temp2,NULL);
 	codeNode* tempCode = appendCodes(line2,line3);
@@ -509,7 +509,7 @@ void printIntCode(codeNode* c)
 		}
 		else if(temp->code->op == READ_OP || temp->code->op == PRINT_OP)
 		{
-			fprintf(fp, "%s %s\n",temp->code->var1->token->lexeme,operator_mapping[temp->code->op].op_str);
+			fprintf(fp, "%s %s\n",operator_mapping[temp->code->op].op_str,temp->code->var1->token->lexeme);
 		}
 		else if(temp->code->op == ADDR_OP || temp->code->op == VALUE_AT_OP)
 		{

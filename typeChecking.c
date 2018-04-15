@@ -51,7 +51,7 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 		}
 		else if(lhs->type != INT)
 		{
-			insertError(typeCheckingErrorsHead,sizeVar->token,6);
+			insertError(typeCheckingErrorsHead,lhs->token,6);
 		}
 	}
 	else if(rhs->op == FUNID)
@@ -176,9 +176,12 @@ void typeCheckAssignmentStmtListVar(ASTNode* assgnStmt,SymbolTable* symTable, er
 				{
 					insertError(typeCheckingErrorsHead,sizeVar->token,13);	
 				}
-				else if(lhs->type != INT)
+				else if(lhs->type != INT || lhs->nextSibling->type != INT)
 				{
-					insertError(typeCheckingErrorsHead,lhs->token,6);
+					if(lhs->type != INT)
+					{
+						insertError(typeCheckingErrorsHead,lhs->token,6);
+					}
 					if(lhs->nextSibling->type != INT)
 					{
 						insertError(typeCheckingErrorsHead,lhs->nextSibling->token,6);

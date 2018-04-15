@@ -1,6 +1,6 @@
 // ID: 2015A7PS0355P
 // Name: Vignesh N
-#include "intCodeGen.c"
+#include "codeGenerator.c"
 int main(int argc, char* argv[])
 {
 	if(argc != 3)
@@ -43,7 +43,8 @@ int main(int argc, char* argv[])
 		printf("7. Create Symbol table and do type checking\n");
 		printf("8. Print ST, semantic erors\n");
 		printf("9. Generate IntCode and print it\n");
-		printf("10. Exit\n");
+		printf("10. Generate code.\n");
+		printf("11. Exit\n");
 		printf("Option:");
 		int c;
 		scanf("%d",&c);
@@ -122,6 +123,12 @@ int main(int argc, char* argv[])
 			createIntermediateCode(asTree,symTable,tempVarNum,labelVarNum);
 			appendAllStatements(asTree);
 			printIntCode(asTree->code);
+		}
+		else if(c == 10)
+		{
+			FILE* codeFile = fopen("code.asm","w");
+			generateCode((codeNode*)asTree->code,symTable,codeFile);
+			fclose(codeFile);
 		}
 		else
 		{
