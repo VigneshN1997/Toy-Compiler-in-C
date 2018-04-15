@@ -102,26 +102,23 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 				{
 					if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
 					{
-						if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
+						if(rhs->widthInfo != NULL)
 						{
-							if(rhs->widthInfo != NULL)
+							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0])
 							{
-								if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != rhs->widthInfo[0])
-								{
-									insertError(typeCheckingErrorsHead,lhs->token,19);
-								}
+								insertError(typeCheckingErrorsHead,lhs->token,19);
 							}
 						}
-						else
+					}
+					else
+					{
+						if(rhs->widthInfo != NULL && rhs->widthInfo[0] != 0)
 						{
-							if(rhs->widthInfo != NULL && rhs->widthInfo[0] != 0)
+							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
+							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
 							{
-								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
-								if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
-								{
-									((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
-									symTable->currOffset += rhs->widthInfo[0];
-								}
+								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
+								symTable->currOffset += rhs->widthInfo[0];
 							}
 						}
 					}
@@ -470,6 +467,14 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 				if(((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] != 0)
 				{
 					arithmeticExpr->type = INT;
+					int dim1 = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
+					int dim2 = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
+					int ind1 = (arithmeticExpr->children->token->value).int_value;
+					int ind2 = (arithmeticExpr->children->nextSibling->token->value).int_value;
+					if(ind1 >= dim1 || ind2 >= dim2)
+					{
+						insertError(typeCheckingErrorsHead,arithmeticExpr->token,22);
+					}
 				}
 				else
 				{
@@ -693,7 +698,21 @@ int* extractMatrixSize(ASTNode* matrixNode,errorHead* typeCheckingErrorsHead)
 		currRowSize = 0;
 		row = row->nextSibling;
 	}
-	width[0] = numRows;
-	width[1] = numElemsPerRow;
+
+	if(numRows > 10 || numElemsPerRow > 10)
+	{
+		Token* tok = (Token*)malloc(sizeof(Token));
+		tok->lexeme = (char*)malloc(10*sizeof(char));
+		tok->line_no = matrixNode->children->children->token->line_no;
+		snprintf(tok->lexeme,10,"%dx%d",width[0],width[1]);
+		insertError(typeCheckingErrorsHead,tok,21);
+		width[0] = 0;
+		width[1] = 0;
+	}
+	else
+	{
+		width[0] = numRows;
+		width[1] = numElemsPerRow;
+	}
 	return width;
 }

@@ -43,7 +43,9 @@ errorSem semantic_error_msg_mapping[] = {
 	{17,"string used before value is assigned to it"},
 	{18,"matrix already assigned(new assignment cannot be of different size)"}, // line 81
 	{19,"string already assigned(new assignment cannot be of different size)"}, // line 109
-	{20, "lhs variable type and output parameter type mismatch"} // line 255
+	{20, "lhs variable type and output parameter type mismatch"}, // line 255
+	{21, "matrix size cannot be greater than 10X10"},
+	{22, "matrix element index out of bounds"}
 };
 
 

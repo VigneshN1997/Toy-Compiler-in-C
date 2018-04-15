@@ -3,7 +3,8 @@
 enum OPERATOR
 {
 	PLUS_OP,MINUS_OP,MUL_OP,DIV_OP,ASSIGN_OP,LABEL,
-	LT_OP,LE_OP,EQ_OP,GT_OP,GE_OP,NE_OP,GOTO
+	LT_OP,LE_OP,EQ_OP,GT_OP,GE_OP,NE_OP,GOTO,
+	READ_OP,PRINT_OP,ADDR_OP,VALUE_AT_OP
 };
 
 struct threeAddrCode
@@ -51,5 +52,9 @@ operator operator_mapping[] = {
 	{GT_OP,">"},
 	{GE_OP,">="},
 	{NE_OP,"!="},
-	{GOTO,"goto:"}
+	{GOTO,"goto:"},
+	{READ_OP,"read:"},
+	{PRINT_OP,"print:"},
+	{ADDR_OP,"addr_of:"},
+	{VALUE_AT_OP,"value_at:"}
 };
