@@ -36,6 +36,7 @@ STACK* initializeStackforParsing(void* ptr_to_ParseTreeNode)
 	grammar_var* main_variable = (grammar_var*)malloc(sizeof(grammar_var));
 	main_variable->sym_str = (char*)malloc(20*sizeof(char));
 	strcpy(main_variable->sym_str,"mainFunction");
+	main_variable->sym_str[strlen(main_variable->sym_str)] = '\0';
 	main_variable->sym_name = MAIN_FUNCTION;
 	main_variable->sym_type = NT;
 	node_data* n2 = createNodeData(NULL,main_variable,ptr_to_ParseTreeNode);

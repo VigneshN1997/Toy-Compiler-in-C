@@ -5,6 +5,7 @@ SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead)
 	SymbolTable* symTable = createNewSymbolTable(SYMBOL_TABLE_SIZE);
 	symTable->scopeName = (char*)malloc(6*sizeof(char));
 	strcpy(symTable->scopeName,"_main");
+	symTable->scopeName[strlen(symTable->scopeName)] = '\0';
 	populateSymbolTable(asTree,symTable,symTableErrorListHead);
 	return symTable;
 }
@@ -36,6 +37,7 @@ symbolTableEntry* createSymbolTableEntry(Token* token,int isID,int width,SYMBOL_
 		entry->idInfoPtr->type = type;
 		entry->idInfoPtr->offset = -1;	
 	}
+	entry->ptrToCurrSymTable = NULL;
 	entry->ptrToNewScopeST = NULL;
 	entry->nextEntry = NULL;
 	return entry;
@@ -74,7 +76,7 @@ symbolTableEntry* insertIDorFunID(SymbolTable* symTable, Token* token,SYMBOL_NAM
 	{
 		entry = createSymbolTableEntry(token,0,-1,FUNID);
 	}
-
+	entry->ptrToCurrSymTable = symTable;
 	symbolTableEntry** table = symTable->arrOfSymbols;
 	if(table[index] == NULL)
 	{

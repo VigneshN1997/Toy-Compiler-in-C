@@ -28,6 +28,7 @@ struct symbolTableEntry
 	int isID;
 	struct idInfo* idInfoPtr;
 	struct funcInfo* funcInfoPtr;
+	struct SymbolTable* ptrToCurrSymTable;
 	struct SymbolTable* ptrToNewScopeST;
 	struct symbolTableEntry* nextEntry; // entries hashed to same location will be stored using separate chaining technique
 };

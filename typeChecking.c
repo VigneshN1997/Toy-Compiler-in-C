@@ -92,8 +92,8 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = rhs->widthInfo[1];
 							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
 							{
-								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
-								symTable->currOffset += (rhs->widthInfo[0]*rhs->widthInfo[1]*2);
+								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)lhs->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
+								((symbolTableEntry*)lhs->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += (rhs->widthInfo[0]*rhs->widthInfo[1]*2);
 							}
 						}
 					}
@@ -117,8 +117,8 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 							((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = rhs->widthInfo[0];
 							if(((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset == -1)
 							{
-								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = symTable->currOffset;	
-								symTable->currOffset += rhs->widthInfo[0];
+								((symbolTableEntry*)lhs->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)lhs->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
+								((symbolTableEntry*)lhs->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += rhs->widthInfo[0];
 							}
 						}
 					}
@@ -216,56 +216,79 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 		}
 		else
 		{	
-			if(!recursionPresent(funCallStmt,symTable))
+			if(recursionPresent(funCallStmt,symTable))
 			{
-				ASTNode* inputParameterList = funCallStmt->children;
-				int numParams = 0;
-				ASTNode* temp = inputParameterList;
-				while(temp != NULL)
-				{
-					numParams++;
-					temp = temp->nextSibling;
-				}
-				if(numParams != ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->numIpParameters)
-				{
-					insertError(typeCheckingErrorsHead,funCallStmt->token,9);		
-				}
-				else
-				{
-					temp = inputParameterList;
-					ASTNode* formalParameterList = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->ipParameterList;
-					ASTNode* formalParam = formalParameterList;
-					while(temp != NULL)
-					{
-						if(temp->ptrToSymTableEntry != NULL)
-						{
-							if(((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type != formalParam->op)
-							{
-								insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
-							}
-						}
-						temp = temp->nextSibling;
-						formalParam = formalParam->nextSibling;
-					}
-					temp = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->opParameterList;
-					ASTNode* lhsvar = lhs;
-					while(lhsvar != NULL)
-					{
-						if(lhsvar->ptrToSymTableEntry != NULL)
-						{
-							if(temp->op != ((symbolTableEntry*)lhsvar->ptrToSymTableEntry)->idInfoPtr->type)
-							{
-								insertError(typeCheckingErrorsHead,lhsvar->token,20); // should I break here ?
-							}
-						}
-						temp = temp->nextSibling;
-						lhsvar = lhsvar->nextSibling;
-					}
-				}
+				insertError(typeCheckingErrorsHead,funCallStmt->token,11);
+			}
+			ASTNode* inputParameterList = funCallStmt->children;
+			int numParams = 0;
+			ASTNode* temp = inputParameterList;
+			while(temp != NULL)
+			{
+				numParams++;
+				temp = temp->nextSibling;
+			}
+			if(numParams != ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->numIpParameters)
+			{
+				insertError(typeCheckingErrorsHead,funCallStmt->token,9);		
 			}
 			else
 			{
-				insertError(typeCheckingErrorsHead,funCallStmt->token,11);
+				temp = inputParameterList;
+				ASTNode* formalParameterList = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->ipParameterList;
+				ASTNode* formalParam = formalParameterList;
+				while(temp != NULL)
+				{
+					if(temp->ptrToSymTableEntry != NULL)
+					{
+						if(temp->op == ID && temp->children != NULL)
+						{
+							int dim1 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
+							int dim2 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
+							int ind1 = (temp->children->token->value).int_value;
+							int ind2 = (temp->children->nextSibling->token->value).int_value;
+							if(ind1 >= dim1 || ind2 >= dim2)
+							{
+								insertError(typeCheckingErrorsHead,temp->token,22);
+							}
+							if(formalParam->op != INT)
+							{
+								insertError(typeCheckingErrorsHead,temp->token,10);		
+							}
+						}
+						else if(((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type != formalParam->op)
+						{
+							insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
+						}
+					}
+					else if(temp->op == NUM || temp->op == RNUM || temp->op == MATRIX)
+					{
+						if(temp->op != formalParam->op)
+						{
+							insertError(typeCheckingErrorsHead,temp->token,10);
+						}
+					}
+					else if(temp->op == STR && formalParam->op != STRING)
+					{
+						insertError(typeCheckingErrorsHead,temp->token,10);
+					}
+					temp = temp->nextSibling;
+					formalParam = formalParam->nextSibling;
+				}
+			}
+			temp = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->opParameterList;
+			ASTNode* lhsvar = lhs;
+			while(lhsvar != NULL)
+			{
+				if(lhsvar->ptrToSymTableEntry != NULL)
+				{
+					if(temp->op != ((symbolTableEntry*)lhsvar->ptrToSymTableEntry)->idInfoPtr->type)
+					{
+						insertError(typeCheckingErrorsHead,lhsvar->token,20); // should I break here ?
+					}
+				}
+				temp = temp->nextSibling;
+				lhsvar = lhsvar->nextSibling;
 			}
 		}
 	}
@@ -441,7 +464,11 @@ void typeCheckBooleanExpr(ASTNode* boolExpr,SymbolTable* symTable,errorHead* typ
 		{
 			child1Type = boolExpr->children->type;
 			child2Type = boolExpr->children->nextSibling->type;
-			if((child1Type == INT || child1Type == REAL) && (child2Type == INT || child2Type == REAL))
+			if((child1Type == INT) && (child2Type == INT))
+			{
+				boolExpr->type = BOOL_EXPR;
+			}
+			else if((child1Type == REAL) && (child2Type == REAL))
 			{
 				boolExpr->type = BOOL_EXPR;
 			}

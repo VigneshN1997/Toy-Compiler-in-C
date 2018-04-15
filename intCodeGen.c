@@ -280,6 +280,10 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 			else if(child1Type == STRING && child2Type == STRING)
 			{
 				arithmeticExpr->tempVar = newTempVar(tempVarNum,symTable,STRING);
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += arithmeticExpr->widthInfo[0];
+
 				codeNode* line = generateThreeAddrCode(arithmeticExpr->tempVar,PLUS_OP,arithmeticExpr->children->tempVar,arithmeticExpr->children->nextSibling->tempVar);
 				codeNode* tempCode = appendCodes((codeNode*)arithmeticExpr->children->nextSibling->code,line);
 				arithmeticExpr->code = appendCodes(arithmeticExpr->children->code,tempCode);
@@ -288,6 +292,12 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 			else if(child1Type == MATRIX && child2Type == MATRIX)
 			{
 				arithmeticExpr->tempVar = newTempVar(tempVarNum,symTable,MATRIX);
+				
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = arithmeticExpr->widthInfo[1];
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += (arithmeticExpr->widthInfo[0]*arithmeticExpr->widthInfo[1]*2);
+
 				codeNode* line = generateThreeAddrCode(arithmeticExpr->tempVar,PLUS_OP,arithmeticExpr->children->tempVar,arithmeticExpr->children->nextSibling->tempVar);
 				codeNode* tempCode = appendCodes((codeNode*)arithmeticExpr->children->nextSibling->code,line);
 				arithmeticExpr->code = appendCodes(arithmeticExpr->children->code,tempCode);
@@ -313,6 +323,12 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 			else if(child1Type == MATRIX && child2Type == MATRIX)
 			{
 				arithmeticExpr->tempVar = newTempVar(tempVarNum,symTable,MATRIX);
+				
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = arithmeticExpr->widthInfo[1];
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
+				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += (arithmeticExpr->widthInfo[0]*arithmeticExpr->widthInfo[1]*2);
+				
 				codeNode* line = generateThreeAddrCode(arithmeticExpr->tempVar,MINUS_OP,arithmeticExpr->children->tempVar,arithmeticExpr->children->nextSibling->tempVar);
 				codeNode* tempCode = appendCodes((codeNode*)arithmeticExpr->children->nextSibling->code,line);
 				arithmeticExpr->code = appendCodes(arithmeticExpr->children->code,tempCode);
@@ -370,6 +386,7 @@ ASTNode* newLabelVar(int* labelVarNum)
 	char* strTempLabelNum = (char*)malloc(3*sizeof(char));
 	snprintf(strTempLabelNum,3,"%d",*labelVarNum);
 	strcat(tok->lexeme,strTempLabelNum);
+	tok->lexeme[strlen(tok->lexeme)] = '\0';
 	ASTNode* labelVar = createASTNode(ID,tok,NULL);
 	*labelVarNum = *labelVarNum + 1;
 	return labelVar;
@@ -385,6 +402,7 @@ ASTNode* newTempVar(int* tempVarNum,SymbolTable* symTable, SYMBOL_NAME type)
 	char* strTempVarNum = (char*)malloc(3*sizeof(char));
 	snprintf(strTempVarNum,3,"%d",*tempVarNum);
 	strcat(tok->lexeme,strTempVarNum);
+	tok->lexeme[strlen(tok->lexeme)] = '\0';
 	ASTNode* tempVar = createASTNode(ID,tok,NULL);
 	tempVar->ptrToSymTableEntry = insertIDorFunID(symTable,tok,type);
 	*tempVarNum = *tempVarNum + 1;

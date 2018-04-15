@@ -22,6 +22,7 @@ ParseTree initializeTree()
 	grammar_var* variable = (grammar_var*)malloc(sizeof(grammar_var));
 	variable->sym_str = (char*)malloc(20*sizeof(char));
 	strcpy(variable->sym_str,"mainFunction");
+	variable->sym_str[strlen(variable->sym_str)] = '\0';
 	variable->sym_name = MAIN_FUNCTION;
 	variable->sym_type = NT;
 	node_data* nodeVal = createNodeData(NULL,variable,NULL);
@@ -260,6 +261,7 @@ node_data* createStackNode(rhs_node* r_node,treeNode* tree_node)
 	grammar_var* variable = (grammar_var*)malloc(sizeof(grammar_var));
 	variable->sym_str = (char*)malloc(30*sizeof(char));
 	strcpy(variable->sym_str,r_node->sym->sym_str);
+	variable->sym_str[strlen(variable->sym_str)] = '\0';
 	variable->sym_name = r_node->sym->sym_name;
 	variable->sym_type = r_node->sym->sym_type;
 	node_data* data = createNodeData(NULL,variable,tree_node);

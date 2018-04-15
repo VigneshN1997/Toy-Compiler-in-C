@@ -123,6 +123,7 @@ int main(int argc, char* argv[])
 			createIntermediateCode(asTree,symTable,tempVarNum,labelVarNum);
 			appendAllStatements(asTree);
 			printIntCode(asTree->code);
+			printSymbolTable(symTable);
 		}
 		else if(c == 10)
 		{
