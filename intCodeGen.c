@@ -248,34 +248,32 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 	{
 		ASTNode* tempVar = newTempVar(tempVarNum,symTable,INT);
 		arithmeticExpr->tempVar = tempVar;
-		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);	
+		arithmeticExpr->code = generateThreeAddrCode(arithmeticExpr->tempVar,ASSIGN_OP,arithmeticExpr,NULL);	
 	}
 	else if(arithmeticExpr->op == RNUM)
 	{
 		ASTNode* tempVar = newTempVar(tempVarNum,symTable,REAL);
 		arithmeticExpr->tempVar = tempVar;
-		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);
+		arithmeticExpr->code = generateThreeAddrCode(arithmeticExpr->tempVar,ASSIGN_OP,arithmeticExpr,NULL);
 	}
 	else if(arithmeticExpr->op == STR)
 	{
-		ASTNode* tempVar = newTempVar(tempVarNum,symTable,STRING);
+		arithmeticExpr->tempVar = newTempVar(tempVarNum,symTable,STRING);
 
 		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
 		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += arithmeticExpr->widthInfo[0];
-	
-		arithmeticExpr->tempVar = tempVar;
-		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);
+
+		arithmeticExpr->code = generateThreeAddrCode(arithmeticExpr->tempVar,ASSIGN_OP,arithmeticExpr,NULL);
 	}
 	else if(arithmeticExpr->op == MATRIX)
 	{
-		ASTNode* tempVar = newTempVar(tempVarNum,symTable,MATRIX);
+		arithmeticExpr->tempVar = newTempVar(tempVarNum,symTable,MATRIX);
 
 		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
 		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = arithmeticExpr->widthInfo[1];
 		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += (arithmeticExpr->widthInfo[0]*arithmeticExpr->widthInfo[1]*2);
-				
-		arithmeticExpr->tempVar = tempVar;
-		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);
+
+		arithmeticExpr->code = generateThreeAddrCode(arithmeticExpr->tempVar,ASSIGN_OP,arithmeticExpr,NULL);
 	}
 	else
 	{

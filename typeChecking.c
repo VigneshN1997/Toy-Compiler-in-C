@@ -602,8 +602,8 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 			else if(child1Type == STRING && child2Type == STRING)
 			{
 				arithmeticExpr->type = STRING;
-				child1Width[0] = child1Width[0] + child2Width[0];
-				arithmeticExpr->widthInfo = child1Width;
+				arithmeticExpr->widthInfo = (int*)malloc(sizeof(int));
+				arithmeticExpr->widthInfo[0] = child1Width[0] + child2Width[0];
 			}
 			else if(child1Type == MATRIX && child2Type == MATRIX)
 			{

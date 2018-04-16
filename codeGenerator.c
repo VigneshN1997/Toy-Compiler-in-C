@@ -2,16 +2,19 @@
 
 void initializeFile(FILE* codeFile)
 {
+	fprintf(codeFile, "%cinclude 'printing_reading.asm'\n",'%');
 	fprintf(codeFile, "section .data\n");
+	fprintf(codeFile, "nline db 0AH\n");
 	fprintf(codeFile, "section .bss\n");
-	// fprintf(codeFile, "temp1\tRESB\t20\n");
+	fprintf(codeFile, "tempIp\tRESB\t20\n");
+	fprintf(codeFile, "\n");
 	// fprintf(codeFile, "temp2\tRESB\t20\n");
 	// fprintf(codeFile, "tempmat1\tRESW\t100\n");
 	// fprintf(codeFile, "tempmat2\tRESW\t100\n");
 	fprintf(codeFile, "section .text\n");
 	fprintf(codeFile, "global _start\n");
 	fprintf(codeFile, "_start:\n");
-
+	fprintf(codeFile, "MOV EBP,ESP\n");
 }
 
 void writeExitCode(FILE* codeFile)
@@ -33,17 +36,22 @@ void generateCode(codeNode* codeLines,SymbolTable* symTable,FILE* codeFile)
 		{
 			case ASSIGN_OP:
 				createCodeFor_AssignOp(tac,codeFile);
+				fprintf(codeFile, "\n");
 				break;
 			case PLUS_OP:
 				createCodeFor_Plus(tac,codeFile);
+				fprintf(codeFile, "\n");
 				break;
 			case MINUS_OP:
 				createCodeFor_Minus(tac,codeFile);
+				fprintf(codeFile, "\n");
 				break;
 			case MUL_OP:
 				createCodeFor_Multiply(tac,codeFile);
+				fprintf(codeFile, "\n");
 				break;
 			case DIV_OP:
+				fprintf(codeFile, "\n");
 				break;
 			case LABEL:
 				fprintf(codeFile, "%s:\n",tac->resVar->token->lexeme);
@@ -68,25 +76,100 @@ void generateCode(codeNode* codeLines,SymbolTable* symTable,FILE* codeFile)
 				break;
 			case GOTO:
 				fprintf(codeFile, "JMP %s\n",tac->resVar->token->lexeme);
+				fprintf(codeFile, "\n");
 				break;
 			case READ_OP:
+				createCodeFor_Read(tac,codeFile);
+				fprintf(codeFile, "\n");
 				break;
 			case PRINT_OP:
+				createCodeFor_Print(tac,codeFile);
+				fprintf(codeFile, "\n");
 				break;
 			case ADDR_OP:
 				fprintf(codeFile, "MOV EBX,EBP\n");
 				fprintf(codeFile, "ADD EBX,%d\n",((symbolTableEntry*)(tac->var1->ptrToSymTableEntry))->idInfoPtr->offset);
 				fprintf(codeFile, "MOV [EBP + %d],EBX \n",((symbolTableEntry*)(tac->resVar->ptrToSymTableEntry))->idInfoPtr->offset);
+				fprintf(codeFile, "\n");
 				break;
 			case VALUE_AT_OP:
 				fprintf(codeFile, "MOV EBX,[EBP + %d]\n",((symbolTableEntry*)(tac->var1->ptrToSymTableEntry))->idInfoPtr->offset);
 				fprintf(codeFile, "MOV AX,[EBX]\n");
 				fprintf(codeFile, "MOV [EBP + %d], AX\n",((symbolTableEntry*)(tac->resVar->ptrToSymTableEntry))->idInfoPtr->offset);
+				fprintf(codeFile, "\n");
 				break;
 		}
 		intermediateCodeLine = intermediateCodeLine->nextLine;
 	}
 	writeExitCode(codeFile);
+}
+
+void createCodeFor_Read(threeAddrCode* tac, FILE* codeFile)
+{
+	symbolTableEntry* symEntry = ((symbolTableEntry*)tac->var1->ptrToSymTableEntry);
+	if(symEntry->idInfoPtr->type == INT)
+	{
+		fprintf(codeFile, "MOV EDX,20\n");
+		fprintf(codeFile, "MOV ECX,tempIp\n");
+		fprintf(codeFile, "MOV EBX,0\n");
+		fprintf(codeFile, "MOV EAX,3\n");
+		fprintf(codeFile, "INT 80H\n");
+
+		fprintf(codeFile, "MOV EAX,tempIp\n");
+		fprintf(codeFile, "CALL atoi\n");
+		fprintf(codeFile, "MOV [EBP + %d],AX\n",symEntry->idInfoPtr->offset);
+	}
+	else if(symEntry->idInfoPtr->type == REAL)
+	{
+
+	}
+}
+
+void createCodeFor_Print(threeAddrCode* tac,FILE* codeFile)
+{
+	symbolTableEntry* symEntry = ((symbolTableEntry*)tac->var1->ptrToSymTableEntry);
+	if(symEntry->idInfoPtr->type == INT)
+	{
+		printInteger(symEntry->idInfoPtr->offset,codeFile);
+		// fprintf(codeFile, "MOV BX,[EBP + %d]\n",symEntry->idInfoPtr->offset);
+	}
+	else if(symEntry->idInfoPtr->type == REAL)
+	{
+
+	}
+	else if(symEntry->idInfoPtr->type == STRING)
+	{
+		fprintf(codeFile, "MOV EDX,%d\n",symEntry->idInfoPtr->widthInfo[0]);
+		fprintf(codeFile, "MOV ECX,EBP\n");
+		fprintf(codeFile, "ADD ECX,%d\n",symEntry->idInfoPtr->offset);
+		fprintf(codeFile, "MOV EBX,1\n");
+		fprintf(codeFile, "MOV EAX,4\n");
+		fprintf(codeFile, "INT 80H\n");
+
+		fprintf(codeFile, "MOV EDX,1\n");
+		fprintf(codeFile, "MOV ECX,nline\n");
+		fprintf(codeFile, "MOV EBX,1\n");
+		fprintf(codeFile, "MOV EAX,4\n");
+		fprintf(codeFile, "INT 80H\n");
+	}
+	else if(symEntry->idInfoPtr->type == MATRIX)
+	{
+		int dim1 = symEntry->idInfoPtr->widthInfo[0];
+		int dim2 = symEntry->idInfoPtr->widthInfo[1];
+		int offset = symEntry->idInfoPtr->offset;
+		for(int i = 0; i < dim1*dim2; i++)
+		{
+			printInteger(offset,codeFile);
+			offset += 2;
+		}
+	}
+}
+
+void printInteger(int offset,FILE* codeFile)
+{
+	fprintf(codeFile, "XOR EAX,EAX\n");
+	fprintf(codeFile, "MOV AX,[EBP + %d]\n",offset);
+	fprintf(codeFile, "CALL iprintLF\n");
 }
 
 void createCodeFor_Comparison(threeAddrCode* tac,FILE* codeFile, char* jmpVariant)
@@ -168,8 +251,14 @@ void createCodeFor_Plus(threeAddrCode* tac,FILE* codeFile)
 	symbolTableEntry* symEntry1 = (symbolTableEntry*)tac->var1->ptrToSymTableEntry;
 	symbolTableEntry* symEntry2 = (symbolTableEntry*)tac->var2->ptrToSymTableEntry;
 	symbolTableEntry* resultEntry = (symbolTableEntry*)tac->resVar->ptrToSymTableEntry;
-
-	if(symEntry1->idInfoPtr->type == INT && symEntry2->idInfoPtr->type == INT)
+	if(symEntry1->idInfoPtr->type == REAL && tac->var2->op == NUM) // matrix address computation
+	{
+		fprintf(codeFile, "MOV EAX,[EBP+%d]\n",symEntry1->idInfoPtr->offset);
+		fprintf(codeFile, "MOV EBX,%d\n",(tac->var2->token->value).int_value);
+		fprintf(codeFile, "ADD EAX,EBX\n");
+		fprintf(codeFile, "MOV [EBP+%d],EAX\n",resultEntry->idInfoPtr->offset);	
+	}
+	else if(symEntry1->idInfoPtr->type == INT && symEntry2->idInfoPtr->type == INT)
 	{
 		fprintf(codeFile, "MOV AX,[EBP+%d]\n",symEntry1->idInfoPtr->offset);
 		fprintf(codeFile, "MOV BX,[EBP+%d]\n",symEntry2->idInfoPtr->offset);
