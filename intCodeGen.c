@@ -244,10 +244,38 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 			arithmeticExpr->code = NULL;
 		}
 	}
-	else if(arithmeticExpr->op == NUM || arithmeticExpr->op == RNUM || arithmeticExpr->op == STR || arithmeticExpr->op == MATRIX)
+	else if(arithmeticExpr->op == NUM)
 	{
-		arithmeticExpr->tempVar = arithmeticExpr;
-		arithmeticExpr->code = NULL;	
+		ASTNode* tempVar = newTempVar(tempVarNum,symTable,INT);
+		arithmeticExpr->tempVar = tempVar;
+		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);	
+	}
+	else if(arithmeticExpr->op == RNUM)
+	{
+		ASTNode* tempVar = newTempVar(tempVarNum,symTable,REAL);
+		arithmeticExpr->tempVar = tempVar;
+		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);
+	}
+	else if(arithmeticExpr->op == STR)
+	{
+		ASTNode* tempVar = newTempVar(tempVarNum,symTable,STRING);
+
+		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
+		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += arithmeticExpr->widthInfo[0];
+	
+		arithmeticExpr->tempVar = tempVar;
+		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);
+	}
+	else if(arithmeticExpr->op == MATRIX)
+	{
+		ASTNode* tempVar = newTempVar(tempVarNum,symTable,MATRIX);
+
+		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
+		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = arithmeticExpr->widthInfo[1];
+		((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += (arithmeticExpr->widthInfo[0]*arithmeticExpr->widthInfo[1]*2);
+				
+		arithmeticExpr->tempVar = tempVar;
+		arithmeticExpr->code = generateThreeAddrCode(tempVar,ASSIGNOP,arithmeticExpr,NULL);
 	}
 	else
 	{
@@ -281,7 +309,6 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 			{
 				arithmeticExpr->tempVar = newTempVar(tempVarNum,symTable,STRING);
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
-				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += arithmeticExpr->widthInfo[0];
 
 				codeNode* line = generateThreeAddrCode(arithmeticExpr->tempVar,PLUS_OP,arithmeticExpr->children->tempVar,arithmeticExpr->children->nextSibling->tempVar);
@@ -295,13 +322,11 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 				
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = arithmeticExpr->widthInfo[1];
-				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += (arithmeticExpr->widthInfo[0]*arithmeticExpr->widthInfo[1]*2);
-
+				
 				codeNode* line = generateThreeAddrCode(arithmeticExpr->tempVar,PLUS_OP,arithmeticExpr->children->tempVar,arithmeticExpr->children->nextSibling->tempVar);
 				codeNode* tempCode = appendCodes((codeNode*)arithmeticExpr->children->nextSibling->code,line);
 				arithmeticExpr->code = appendCodes(arithmeticExpr->children->code,tempCode);
-			
 			}
 		}
 		else if(arithmeticExpr->op == MINUS)
@@ -326,7 +351,6 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 				
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[0] = arithmeticExpr->widthInfo[0];
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->widthInfo[1] = arithmeticExpr->widthInfo[1];
-				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;	
 				((symbolTableEntry*)arithmeticExpr->tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset += (arithmeticExpr->widthInfo[0]*arithmeticExpr->widthInfo[1]*2);
 				
 				codeNode* line = generateThreeAddrCode(arithmeticExpr->tempVar,MINUS_OP,arithmeticExpr->children->tempVar,arithmeticExpr->children->nextSibling->tempVar);
@@ -405,6 +429,14 @@ ASTNode* newTempVar(int* tempVarNum,SymbolTable* symTable, SYMBOL_NAME type)
 	tok->lexeme[strlen(tok->lexeme)] = '\0';
 	ASTNode* tempVar = createASTNode(ID,tok,NULL);
 	tempVar->ptrToSymTableEntry = insertIDorFunID(symTable,tok,type);
+	if(type == STRING)
+	{	
+		((symbolTableEntry*)tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;
+	}
+	else if(type == MATRIX)
+	{
+		((symbolTableEntry*)tempVar->ptrToSymTableEntry)->idInfoPtr->offset = ((symbolTableEntry*)tempVar->ptrToSymTableEntry)->ptrToCurrSymTable->currOffset;
+	}
 	*tempVarNum = *tempVarNum + 1;
 	return tempVar;
 }
@@ -482,36 +514,7 @@ void printIntCode(codeNode* c)
 		}
 		else if(temp->code->op == PLUS_OP || temp->code->op == MINUS_OP || temp->code->op == MUL_OP || temp->code->op == DIV_OP)
 		{
-			if(temp->code->var1->op == MATRIX || temp->code->var2->op == MATRIX)
-			{
-				if(temp->code->var1->op == MATRIX)
-				{
-					fprintf(fp,"%s = ",temp->code->resVar->token->lexeme);
-					printMatrix(temp->code->var1,fp);
-					fprintf(fp," %s ",operator_mapping[temp->code->op].op_str);
-				}
-				else
-				{
-					fprintf(fp,"%s = %s %s ",temp->code->resVar->token->lexeme,operator_mapping[temp->code->op].op_str,temp->code->var1->token->lexeme);
-				}
-				if(temp->code->var2->op == MATRIX)
-				{
-					printMatrix(temp->code->var2,fp);
-					fprintf(fp,"\n");	
-				}
-				else
-				{
-					fprintf(fp,"%s\n",temp->code->var2->token->lexeme);	
-				}
-			}
-			else if(temp->code->var1->op == STR)
-			{
-				fprintf(fp,"%s = %s %s %s\n",temp->code->resVar->token->lexeme,temp->code->var1->token->lexeme,operator_mapping[temp->code->op].op_str,temp->code->var2->token->lexeme);
-			}
-			else
-			{
-				fprintf(fp,"%s = %s %s %s\n",temp->code->resVar->token->lexeme,temp->code->var1->token->lexeme,operator_mapping[temp->code->op].op_str,temp->code->var2->token->lexeme);
-			}
+			fprintf(fp,"%s = %s %s %s\n",temp->code->resVar->token->lexeme,temp->code->var1->token->lexeme,operator_mapping[temp->code->op].op_str,temp->code->var2->token->lexeme);
 		}
 		else if(temp->code->op == LABEL)
 		{
