@@ -247,7 +247,7 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 							int dim2 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
 							int ind1 = (temp->children->token->value).int_value;
 							int ind2 = (temp->children->nextSibling->token->value).int_value;
-							if(ind1 >= dim1 || ind2 >= dim2)
+							if(ind1 > dim1 || ind2 > dim2)
 							{
 								insertError(typeCheckingErrorsHead,temp->token,22);
 							}
@@ -501,7 +501,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 					int dim2 = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
 					int ind1 = (arithmeticExpr->children->token->value).int_value;
 					int ind2 = (arithmeticExpr->children->nextSibling->token->value).int_value;
-					if(ind1 >= dim1 || ind2 >= dim2)
+					if(ind1 > dim1 || ind2 > dim2)
 					{
 						insertError(typeCheckingErrorsHead,arithmeticExpr->token,22);
 					}

@@ -446,7 +446,7 @@ void generateCodeFor_MatrixElementValue(ASTNode* matId, int* tempVarNum,SymbolTa
 	int dim2 = ((symbolTableEntry*)matId->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
 	ASTNode* ind1 = matId->children;
 	ASTNode* ind2 = matId->children->nextSibling;
-	int pos = (((ind2->token->value).int_value)*dim1 + ((ind1->token->value).int_value))*2; // *2 coz one int -> 2 bytes
+	int pos = (((ind2->token->value).int_value - 1)*dim1 + ((ind1->token->value).int_value - 1))*2; // *2 coz one int -> 2 bytes
 	Token* tok = (Token*)malloc(sizeof(Token));
 	tok->line_no = -1;
 	tok->t_name = NUM;
