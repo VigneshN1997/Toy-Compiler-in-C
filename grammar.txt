@@ -25,9 +25,9 @@ funCallStmt===>FUNID OP inputParameterList CL
 inputParameterList===>var listVar | EPSILON
 listVar===>COMMA inputParameterList | EPSILON
 arithmeticExpression===>arithmeticTerm arithmeticExprLF
-arithmeticExprLF===>operator_lowPrecedence arithmeticExpression | EPSILON
+arithmeticExprLF===>operator_lowPrecedence arithmeticTerm arithmeticExprLF | EPSILON
 arithmeticTerm===>factor arithmeticTermLF
-arithmeticTermLF===>operator_highPrecedence arithmeticTerm | EPSILON
+arithmeticTermLF===>operator_highPrecedence factor arithmeticTermLF | EPSILON
 factor===>OP arithmeticExpression CL | var
 operator_lowPrecedence===>PLUS | MINUS
 operator_highPrecedence===>MUL | DIV

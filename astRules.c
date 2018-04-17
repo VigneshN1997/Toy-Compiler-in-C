@@ -290,12 +290,7 @@ void applyRuleFor_arithmeticExpression(treeNode* tnode)
 
 void applyRuleFor_arithmeticExpressionLF1(treeNode* tnode)
 {
-	treeNode* operator_lowPrecedence = tnode->children;
-	treeNode* arithmeticExpression = operator_lowPrecedence->nextSibling;
-	// printf("arithmeticExpressionLF\n");
-	ASTNode* children = concat((ASTNode*)tnode->inh_addr,(ASTNode*)arithmeticExpression->ptrToASTNode);
-	((ASTNode*)operator_lowPrecedence->ptrToASTNode)->children = children;
-	tnode->ptrToASTNode = operator_lowPrecedence->ptrToASTNode;
+	tnode->ptrToASTNode = tnode->children->nextSibling->nextSibling->ptrToASTNode;
 }
 
 void applyRuleFor_arithmeticExpressionLF2(treeNode* tnode)
@@ -311,12 +306,7 @@ void applyRuleFor_arithmeticTerm(treeNode* tnode)
 
 void applyRuleFor_arithmeticTermLF1(treeNode* tnode)
 {
-	treeNode* operator_highPrecedence = tnode->children;
-	treeNode* arithmeticTerm = operator_highPrecedence->nextSibling;
-	// printf("arithmeticTermLF\n");
-	ASTNode* children = concat((ASTNode*)tnode->inh_addr,(ASTNode*)arithmeticTerm->ptrToASTNode);
-	((ASTNode*)operator_highPrecedence->ptrToASTNode)->children = children;
-	tnode->ptrToASTNode = operator_highPrecedence->ptrToASTNode;
+	tnode->ptrToASTNode = tnode->children->nextSibling->nextSibling->ptrToASTNode;
 }
 
 void applyRuleFor_arithmeticTermLF2(treeNode* tnode)

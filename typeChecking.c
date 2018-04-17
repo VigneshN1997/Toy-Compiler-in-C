@@ -1,34 +1,5 @@
 #include "typeChecking.h"
 
-void doTypeChecking(ASTNode* asTree, SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
-{
-	ASTNode* stmts = getListOfStmts(asTree);
-	while(stmts != NULL)
-	{
-		if(stmts->op == ASSIGNOP && stmts->children->op == LHS_SINGLE_VAR)
-		{
-			typeCheckAssignmentStmtSingleVar(stmts,symTable,typeCheckingErrorsHead);
-		}
-		else if(stmts->op == ASSIGNOP && stmts->children->op == LHS_LIST_VAR)
-		{
-			typeCheckAssignmentStmtListVar(stmts,symTable,typeCheckingErrorsHead);
-		}
-		else if(stmts->op == IF)
-		{
-			typeCheckIfStmt(stmts,symTable,typeCheckingErrorsHead);
-		}
-		else if(stmts->op == FUNID)
-		{
-			typeCheckFunCallStmt(NULL,0,stmts,symTable,typeCheckingErrorsHead);
-		}
-		else if(stmts->op == FUNCTION)
-		{
-			typeCheckFunction(stmts,symTable,typeCheckingErrorsHead);
-		}
-		stmts = stmts->nextSibling;
-	}
-}
-
 void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* lhs = assgnStmt->children->children;
@@ -189,21 +160,11 @@ void typeCheckAssignmentStmtListVar(ASTNode* assgnStmt,SymbolTable* symTable, er
 				}
 			}	
 		}
-		
 	}
 	else if(rhs->op == FUNID)
 	{
 		typeCheckFunCallStmt(lhs,numLHSVars,rhs,symTable,typeCheckingErrorsHead);
 	}
-}
-
-void typeCheckIfStmt(ASTNode* ifStmt,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
-{
-	ASTNode* boolExpr = ifStmt->children;
-	ASTNode* elseStmt = ifStmt->children->nextSibling->nextSibling;
-	typeCheckBooleanExpr(boolExpr,symTable,typeCheckingErrorsHead);
-	doTypeChecking(ifStmt,symTable,typeCheckingErrorsHead);
-	doTypeChecking(elseStmt,symTable,typeCheckingErrorsHead);
 }
 
 void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
@@ -247,7 +208,7 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 							int dim2 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
 							int ind1 = (temp->children->token->value).int_value;
 							int ind2 = (temp->children->nextSibling->token->value).int_value;
-							if(ind1 > dim1 || ind2 > dim2)
+							if(ind1 > dim1 || ind2 > dim2 || ind1 < 1 || ind2 < 1)
 							{
 								insertError(typeCheckingErrorsHead,temp->token,22);
 							}
@@ -261,16 +222,25 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 							insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
 						}
 					}
-					else if(temp->op == NUM || temp->op == RNUM || temp->op == MATRIX)
+					else if(temp->op == NUM && formalParam->op != INT)
 					{
-						if(temp->op != formalParam->op)
-						{
-							insertError(typeCheckingErrorsHead,temp->token,10);
-						}
+						insertError(typeCheckingErrorsHead,temp->token,10);
+					}
+					else if(temp->op == RNUM && formalParam->op != REAL)
+					{
+						insertError(typeCheckingErrorsHead,temp->token,10);
+					}
+					else if(temp->op == MATRIX && formalParam->op != MATRIX)
+					{
+						insertError(typeCheckingErrorsHead,temp->token,10);
 					}
 					else if(temp->op == STR && formalParam->op != STRING)
 					{
 						insertError(typeCheckingErrorsHead,temp->token,10);
+					}
+					else
+					{
+						insertError(typeCheckingErrorsHead,temp->token,10);	
 					}
 					temp = temp->nextSibling;
 					formalParam = formalParam->nextSibling;
@@ -334,7 +304,6 @@ void typeCheckFunction(ASTNode* func, SymbolTable* symTable,errorHead* typeCheck
 			}
 			opParam = opParam->nextSibling;
 		}
-		doTypeChecking(func,((symbolTableEntry*)func->ptrToSymTableEntry)->ptrToNewScopeST,typeCheckingErrorsHead);
 	}
 }
 
@@ -501,7 +470,7 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 					int dim2 = ((symbolTableEntry*)arithmeticExpr->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
 					int ind1 = (arithmeticExpr->children->token->value).int_value;
 					int ind2 = (arithmeticExpr->children->nextSibling->token->value).int_value;
-					if(ind1 > dim1 || ind2 > dim2)
+					if(ind1 > dim1 || ind2 > dim2 || ind1 < 1 || ind2 < 1)
 					{
 						insertError(typeCheckingErrorsHead,arithmeticExpr->token,22);
 					}
@@ -675,7 +644,11 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 		}
 		else if(arithmeticExpr->op == DIV)
 		{
-			if((child1Type == INT || child1Type == REAL) && (child2Type == INT || child2Type == REAL))
+			if(child1Type == INT && child2Type == INT)
+			{
+				arithmeticExpr->type = REAL;
+			}
+			else if(child1Type == REAL && child2Type == REAL)
 			{
 				arithmeticExpr->type = REAL;
 			}
@@ -745,4 +718,20 @@ int* extractMatrixSize(ASTNode* matrixNode,errorHead* typeCheckingErrorsHead)
 		width[1] = numElemsPerRow;
 	}
 	return width;
+}
+
+void typeCheckIOStmt(ASTNode* ioStmt,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
+{
+	symbolTableEntry* entry = ((symbolTableEntry*)ioStmt->children->ptrToSymTableEntry);
+	SYMBOL_NAME operation = ioStmt->op;
+	if(entry != NULL)
+	{
+		if(operation == READ)
+		{
+			if(entry->idInfoPtr->type == STRING || entry->idInfoPtr->type == MATRIX)
+			{
+				insertError(typeCheckingErrorsHead,ioStmt->children->token,6);
+			}
+		}
+	}
 }

@@ -106,8 +106,7 @@ int main(int argc, char* argv[])
 		}
 		else if(c == 7)
 		{
-			symTable = createSymbolTable(asTree,symTableErrorListHead);
-			doTypeChecking(asTree, symTable,typeCheckingErrorsHead);
+			symTable = createSymbolTable(asTree,symTableErrorListHead,typeCheckingErrorsHead);
 		}
 		else if(c == 8)
 		{

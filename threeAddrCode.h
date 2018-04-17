@@ -1,4 +1,4 @@
-#include "typeChecking.c"
+#include "symbolTableCreation.c"
 
 enum OPERATOR
 {

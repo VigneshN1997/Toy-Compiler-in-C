@@ -95,13 +95,14 @@ void processAssignmentStmtListVar(ASTNode* stmt,SymbolTable* symTable,errorHead*
 	}
 }
 
-void processIfStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead)
+void processIfStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* booleanExpr = stmt->children;
 	ASTNode* elseStmt = stmt->children->nextSibling->nextSibling;
 	processBooleanExpr(booleanExpr,symTable,symTableErrorListHead);
-	populateSymbolTable(stmt,symTable,symTableErrorListHead);
-	populateSymbolTable(elseStmt,symTable,symTableErrorListHead);
+	typeCheckBooleanExpr(booleanExpr,symTable,typeCheckingErrorsHead);
+	populateSymbolTable(stmt,symTable,symTableErrorListHead,typeCheckingErrorsHead);
+	populateSymbolTable(elseStmt,symTable,symTableErrorListHead,typeCheckingErrorsHead);
 }
 
 void processIOStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead)
@@ -142,7 +143,7 @@ void processFunCallStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableE
 	}
 }
 
-void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTableErrorListHead)
+void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* parameterListIn = stmt->children->children;
 	ASTNode* parameterListOut = stmt->children->nextSibling->children;
@@ -178,7 +179,7 @@ void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTable
 		}
 		entry->funcInfoPtr->numOpParameters = numParams;
 
-		populateSymbolTable(stmt,entry->ptrToNewScopeST,symTableErrorListHead);
+		populateSymbolTable(stmt,entry->ptrToNewScopeST,symTableErrorListHead,typeCheckingErrorsHead);
 	}
 }
 

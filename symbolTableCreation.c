@@ -1,12 +1,12 @@
 #include "symbolTableFunctions.c"
 
-SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead)
+SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	SymbolTable* symTable = createNewSymbolTable(SYMBOL_TABLE_SIZE);
 	symTable->scopeName = (char*)malloc(6*sizeof(char));
 	strcpy(symTable->scopeName,"_main");
 	symTable->scopeName[strlen(symTable->scopeName)] = '\0';
-	populateSymbolTable(asTree,symTable,symTableErrorListHead);
+	populateSymbolTable(asTree,symTable,symTableErrorListHead,typeCheckingErrorsHead);
 	return symTable;
 }
 
@@ -143,7 +143,7 @@ symbolTableEntry* findIdorFuncName(char* findId,SymbolTable* symTable)
 	return NULL;
 }
 
-void populateSymbolTable(ASTNode* asTree,SymbolTable* symTable,errorHead* symTableErrorListHead)
+void populateSymbolTable(ASTNode* asTree,SymbolTable* symTable,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* stmts = getListOfStmts(asTree);
 	while(stmts != NULL)
@@ -155,26 +155,31 @@ void populateSymbolTable(ASTNode* asTree,SymbolTable* symTable,errorHead* symTab
 		else if(stmts->op == ASSIGNOP && stmts->children->op == LHS_SINGLE_VAR)
 		{
 			processAssignmentStmtSingleVar(stmts,symTable,symTableErrorListHead);
+			typeCheckAssignmentStmtSingleVar(stmts,symTable,typeCheckingErrorsHead);
 		}
 		else if(stmts->op == ASSIGNOP && stmts->children->op == LHS_LIST_VAR)
 		{
 			processAssignmentStmtListVar(stmts,symTable,symTableErrorListHead);
+			typeCheckAssignmentStmtListVar(stmts,symTable,typeCheckingErrorsHead);
 		}
 		else if(stmts->op == IF)
 		{
-			processIfStmt(stmts,symTable,symTableErrorListHead);	
+			processIfStmt(stmts,symTable,symTableErrorListHead,typeCheckingErrorsHead);
 		}
 		else if(stmts->op == READ || stmts->op == PRINT)
 		{
 			processIOStmt(stmts,symTable,symTableErrorListHead);
+			typeCheckIOStmt(stmts,symTable,typeCheckingErrorsHead);
 		}
 		else if(stmts->op == FUNID)
 		{
 			processFunCallStmt(stmts,symTable,symTableErrorListHead);
+			typeCheckFunCallStmt(NULL,0,stmts,symTable,typeCheckingErrorsHead);
 		}
 		else if(stmts->op == FUNCTION)
 		{
-			processFunctionDef(stmts,symTable,symTableErrorListHead);
+			processFunctionDef(stmts,symTable,symTableErrorListHead,typeCheckingErrorsHead);
+			typeCheckFunction(stmts,symTable,typeCheckingErrorsHead);
 		}
 		stmts = stmts->nextSibling;
 	}

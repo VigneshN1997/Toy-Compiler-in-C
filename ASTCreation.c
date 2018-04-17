@@ -48,12 +48,22 @@ void processArithmeticExpr(treeNode* node)
 	treeNode* child = node->children;
 	while(child != NULL)
 	{
-		if(child->nodeVal->token == NULL && child->nodeVal->variable->sym_name == ARITHMETIC_EXPR_LF)
+		if(child->nodeVal->token == NULL && child->nodeVal->variable->sym_name == ARITHMETIC_EXPR_LF && node->nodeVal->variable->sym_name == ARITHMETIC_EXPR)
 		{
 			child->inh_addr = node->children->ptrToASTNode;
 		}
-		else if(child->nodeVal->token == NULL && child->nodeVal->variable->sym_name == ARITHMETIC_TERM_LF)
+		else if(child->nodeVal->token == NULL && child->nodeVal->variable->sym_name == ARITHMETIC_EXPR_LF && node->nodeVal->variable->sym_name == ARITHMETIC_EXPR_LF)
+		{
+			((ASTNode*)node->children->ptrToASTNode)->children = concat((ASTNode*)node->inh_addr,(ASTNode*)node->children->nextSibling->ptrToASTNode);
+			child->inh_addr = node->children->ptrToASTNode;
+		}
+		else if(child->nodeVal->token == NULL && child->nodeVal->variable->sym_name == ARITHMETIC_TERM_LF && node->nodeVal->variable->sym_name == ARITHMETIC_TERM)
 		{	
+			child->inh_addr = node->children->ptrToASTNode;
+		}
+		else if(child->nodeVal->token == NULL && child->nodeVal->variable->sym_name == ARITHMETIC_TERM_LF && node->nodeVal->variable->sym_name == ARITHMETIC_TERM_LF)
+		{
+			((ASTNode*)node->children->ptrToASTNode)->children = concat((ASTNode*)node->inh_addr,(ASTNode*)node->children->nextSibling->ptrToASTNode);
 			child->inh_addr = node->children->ptrToASTNode;
 		}
 		if(child->nodeVal->token == NULL && child->nodeVal->variable->sym_name != EPSILON)
