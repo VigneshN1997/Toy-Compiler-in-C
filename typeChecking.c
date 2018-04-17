@@ -171,81 +171,19 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 {
 	if(((symbolTableEntry*)funCallStmt->ptrToSymTableEntry) != NULL)
 	{
+		if(recursionPresent(funCallStmt,symTable))
+		{
+			insertError(typeCheckingErrorsHead,funCallStmt->token,11);
+		}
+		ASTNode* inputParameterList = NULL;
+		int numParams = 0;
+		ASTNode* temp = NULL;
 		if(numLHSVars != ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->numOpParameters)
 		{
 			insertError(typeCheckingErrorsHead,funCallStmt->token,14);
 		}
 		else
-		{	
-			if(recursionPresent(funCallStmt,symTable))
-			{
-				insertError(typeCheckingErrorsHead,funCallStmt->token,11);
-			}
-			ASTNode* inputParameterList = funCallStmt->children;
-			int numParams = 0;
-			ASTNode* temp = inputParameterList;
-			while(temp != NULL)
-			{
-				numParams++;
-				temp = temp->nextSibling;
-			}
-			if(numParams != ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->numIpParameters)
-			{
-				insertError(typeCheckingErrorsHead,funCallStmt->token,9);		
-			}
-			else
-			{
-				temp = inputParameterList;
-				ASTNode* formalParameterList = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->ipParameterList;
-				ASTNode* formalParam = formalParameterList;
-				while(temp != NULL)
-				{
-					if(temp->ptrToSymTableEntry != NULL)
-					{
-						if(temp->op == ID && temp->children != NULL)
-						{
-							int dim1 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
-							int dim2 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
-							int ind1 = (temp->children->token->value).int_value;
-							int ind2 = (temp->children->nextSibling->token->value).int_value;
-							if(ind1 > dim1 || ind2 > dim2 || ind1 < 1 || ind2 < 1)
-							{
-								insertError(typeCheckingErrorsHead,temp->token,22);
-							}
-							if(formalParam->op != INT)
-							{
-								insertError(typeCheckingErrorsHead,temp->token,10);		
-							}
-						}
-						else if(((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type != formalParam->op)
-						{
-							insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
-						}
-					}
-					else if(temp->op == NUM && formalParam->op != INT)
-					{
-						insertError(typeCheckingErrorsHead,temp->token,10);
-					}
-					else if(temp->op == RNUM && formalParam->op != REAL)
-					{
-						insertError(typeCheckingErrorsHead,temp->token,10);
-					}
-					else if(temp->op == MATRIX && formalParam->op != MATRIX)
-					{
-						insertError(typeCheckingErrorsHead,temp->token,10);
-					}
-					else if(temp->op == STR && formalParam->op != STRING)
-					{
-						insertError(typeCheckingErrorsHead,temp->token,10);
-					}
-					else
-					{
-						insertError(typeCheckingErrorsHead,temp->token,10);	
-					}
-					temp = temp->nextSibling;
-					formalParam = formalParam->nextSibling;
-				}
-			}
+		{
 			temp = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->opParameterList;
 			ASTNode* lhsvar = lhs;
 			while(lhsvar != NULL)
@@ -261,6 +199,66 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 				lhsvar = lhsvar->nextSibling;
 			}
 		}
+		inputParameterList = funCallStmt->children;
+		temp = inputParameterList;
+		while(temp != NULL)
+		{
+			numParams++;
+			temp = temp->nextSibling;
+		}
+		if(numParams != ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->numIpParameters)
+		{
+			insertError(typeCheckingErrorsHead,funCallStmt->token,9);		
+		}
+		else
+		{
+			temp = inputParameterList;
+			ASTNode* formalParameterList = ((symbolTableEntry*)funCallStmt->ptrToSymTableEntry)->funcInfoPtr->ipParameterList;
+			ASTNode* formalParam = formalParameterList;
+			while(temp != NULL)
+			{
+				if(temp->ptrToSymTableEntry != NULL)
+				{
+					if(temp->op == ID && temp->children != NULL)
+					{
+						int dim1 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
+						int dim2 = ((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->widthInfo[1];
+						int ind1 = (temp->children->token->value).int_value;
+						int ind2 = (temp->children->nextSibling->token->value).int_value;
+						if(ind1 > dim1 || ind2 > dim2 || ind1 < 1 || ind2 < 1)
+						{
+							insertError(typeCheckingErrorsHead,temp->token,22);
+						}
+						if(formalParam->op != INT)
+						{
+							insertError(typeCheckingErrorsHead,temp->token,10);		
+						}
+					}
+					else if(((symbolTableEntry*)temp->ptrToSymTableEntry)->idInfoPtr->type != formalParam->op)
+					{
+						insertError(typeCheckingErrorsHead,temp->token,10); // should I break here ?
+					}
+				}
+				else if(temp->op == NUM && formalParam->op != INT)
+				{
+					insertError(typeCheckingErrorsHead,temp->token,10);
+				}
+				else if(temp->op == RNUM && formalParam->op != REAL)
+				{
+					insertError(typeCheckingErrorsHead,temp->token,10);
+				}
+				else if(temp->op == MATRIX && formalParam->op != MATRIX)
+				{
+					insertError(typeCheckingErrorsHead,temp->token,10);
+				}
+				else if(temp->op == STR && formalParam->op != STRING)
+				{
+					insertError(typeCheckingErrorsHead,temp->token,10);
+				}
+				temp = temp->nextSibling;
+				formalParam = formalParam->nextSibling;
+			}
+		}
 	}
 }
 
@@ -269,12 +267,12 @@ int recursionPresent(ASTNode* funCallStmt, SymbolTable* symTable)
 	SymbolTable* par = symTable;
 	while(par != NULL)
 	{
-		symbolTableEntry* entry = findIdorFuncName(funCallStmt->token->lexeme,symTable);
+		symbolTableEntry* entry = findIdorFuncName(funCallStmt->token->lexeme,par);
 		if(entry != NULL)
 		{
 			return 0;
 		}
-		else if(strcmp(symTable->scopeName,funCallStmt->token->lexeme) == 0)
+		else if(strcmp(par->scopeName,funCallStmt->token->lexeme) == 0)
 		{
 			return 1;
 		}
