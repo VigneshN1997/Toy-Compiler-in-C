@@ -31,7 +31,7 @@ ParseTree initializeTree()
 }
 
 // this function is used for parsing the input source code and report syntax errors
-ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTable)
+ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTable,errorHeadSyntactic* syntaxErrorsHead)
 {
 	HASH_TABLE* lookupTable = getLookupTable();
 	FILE* fp1 = fopen(fileName,"r");
@@ -81,7 +81,8 @@ ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTab
 	while(lookahead != NULL && lookahead->err != NULL)
 	{
 		error_come = 1;
-		printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+		// printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+		insertLexicalError(syntaxErrorsHead,lookahead);
 		lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable,end_file);
 	}
 	if(lookahead != NULL)
@@ -111,7 +112,8 @@ ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTab
 			{
 				// do error recovery
 				error_come = 1;
-				printf("%d: Syntax error:found token %s with lexeme %s\n",lookahead->line_no,grammar_var_mapping[lookahead->t_name].sym_str,lookahead->lexeme);
+				// printf("%d: Syntax error:found token %s with lexeme %s\n",lookahead->line_no,grammar_var_mapping[lookahead->t_name].sym_str,lookahead->lexeme);
+				insertSyntaxError(syntaxErrorsHead,lookahead,4,NULL,grammar_var_mapping[lookahead->t_name].sym_str);
 				Set* syncSet = getFollowSet(g,stackTopSym->sym_name);
 				int found = findTerminalinSyncSet(lookahead->t_name,syncSet);
 				while(found == 0 && lookahead != NULL)
@@ -119,7 +121,8 @@ ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTab
 					lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable,end_file);
 					while(lookahead != NULL && lookahead->err != NULL)
 					{
-						printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+						// printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+						insertLexicalError(syntaxErrorsHead,lookahead);
 						lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable,end_file);
 					}
 					if(lookahead != NULL)
@@ -149,7 +152,8 @@ ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTab
 				while(lookahead != NULL && lookahead->err != NULL)
 				{
 					error_come = 1;
-					printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+					// printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+					insertLexicalError(syntaxErrorsHead,lookahead);
 					lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable,end_file);
 				}
 				if(lookahead != NULL)
@@ -162,20 +166,23 @@ ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTab
 			{
 				// do error recovery
 				error_come = 1;
-				printf("pda stack empty\n");
+				// printf("pda stack empty\n");
+				insertSyntaxError(syntaxErrorsHead,NULL,6,NULL,NULL);
 				return tree;
 			}
 			else
 			{
 				error_come = 1;
-				printf("%d: Syntax error: The token %s for lexeme %s does not match at line %d. The expected token here is %s.\n",lookahead->line_no,grammar_var_mapping[lookahead->t_name].sym_str,lookahead->lexeme,lookahead->line_no,stackTopSym->sym_str);
+				// printf("%d: Syntax error: The token %s for lexeme %s does not match at line %d. The expected token here is %s.\n",lookahead->line_no,grammar_var_mapping[lookahead->t_name].sym_str,lookahead->lexeme,lookahead->line_no,stackTopSym->sym_str);
+				insertSyntaxError(syntaxErrorsHead,lookahead,5,stackTopSym->sym_str,grammar_var_mapping[lookahead->t_name].sym_str);
 				pop(stack);
 				free(stackTopData);
 				lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable,end_file);
 				while(lookahead != NULL && lookahead->err != NULL)
 				{
 					error_come = 1;
-					printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+					// printf("%d: Lexical error: %s (%s)\n",lookahead->line_no,error_msg_mapping[(lookahead->err->error_no) - 1].msg,lookahead->lexeme);
+					insertLexicalError(syntaxErrorsHead,lookahead);
 					lookahead = nextToken(&diff_buffer,&buffer_read_into,&lexemeBegin,&forward,&buffer1,&buffer2,fp1,buffer1_end,buffer2_end,&prvs_buff_end,&curr_buff_start,&flag,line_number,lookupTable,end_file);
 				}
 				if(lookahead != NULL)
@@ -189,12 +196,13 @@ ParseTree parseInput(Grammar* g,char* fileName,HEAD* tokenList,parsingTable pTab
 	}
 	if(lookahead == NULL && top(stack)->variable->sym_name != $)
 	{
-		printf("error: something left on stack\n");
+		// printf("error: something left on stack\n");
+		insertSyntaxError(syntaxErrorsHead,NULL,7,NULL,NULL);
 	}
-	else if(lookahead == NULL && top(stack)->variable->sym_name == $ && error_come == 0)
-	{
-		printf("Input source code is syntactically correct.\n");
-	}
+	// else if(lookahead == NULL && top(stack)->variable->sym_name == $ && error_come == 0)
+	// {
+	// 	printf("Input source code is syntactically correct.\n");
+	// }
 	free(buffer1);
 	free(buffer2);
 	free(lookupTable);
@@ -307,21 +315,23 @@ void printStack(STACK* stack)
 }
 
 // function used for printing parse tree in file
-void printParseTree(ParseTree tree,char* outfile)
+void printParseTree(ParseTree tree,int* numNodes)
 {
 	FILE* fp;
-	fp = fopen(outfile,"w");
+	fp = stdout;
 	fprintf(fp, "===================================================================================================================================\n");
 	fprintf(fp, "Lexeme Current Node   | Line Number | Token       | Value       | Parent Node Symbol      | isLeafNode | Node Symbol             |\n");
 	fprintf(fp, "===================================================================================================================================\n");
 
-	doInOrderTraversal(tree,fp);
-	fclose(fp);
+	doInOrderTraversal(tree,fp,numNodes);
+	fprintf(fp, "===================================================================================================================================\n");	
+	// fclose(fp);
 }
 
 // function used to do in order traversal of parse tree and print tree nodes in file
-void doInOrderTraversal(ParseTree tree,FILE* fp)
+void doInOrderTraversal(ParseTree tree,FILE* fp, int* numNodes)
 {
+	*numNodes = *numNodes + 1;
 	if(tree->children == NULL)
 	{
 		Token* tok = tree->nodeVal->token;
@@ -329,44 +339,44 @@ void doInOrderTraversal(ParseTree tree,FILE* fp)
 		if(tok == NULL) // means it is EPSILON leaf node
 		{
 			fprintf(fp, "----------------------| ------------| ------------| ------------| %-24s| YES        | %-24s|\n",tree->parent->nodeVal->variable->sym_str,tree->nodeVal->variable->sym_str);
-			fprintf(fp, "===================================================================================================================================\n");
+			// fprintf(fp, "===================================================================================================================================\n");
 		}
 		else if(tok->t_name == NUM)
 		{
 			fprintf(fp,"%-22s| %-12d| %-12s| %-12d| %-24s| YES        | ------------------------|\n",tok->lexeme,tok->line_no,tree->nodeVal->variable->sym_str,(tok->value).int_value,parent->nodeVal->variable->sym_str);
-			fprintf(fp, "===================================================================================================================================\n");
+			// fprintf(fp, "===================================================================================================================================\n");
 		}
 		else if(tok->t_name == RNUM)
 		{
 			fprintf(fp,"%-22s| %-12d| %-12s| %-12lf| %-24s| YES        | ------------------------|\n",tok->lexeme,tok->line_no,tree->nodeVal->variable->sym_str,(tok->value).real_value,parent->nodeVal->variable->sym_str);
-			fprintf(fp, "===================================================================================================================================\n");
+			// fprintf(fp, "===================================================================================================================================\n");
 		}
 		else
 		{
 			fprintf(fp,"%-22s| %-12d| %-12s| ------------| %-24s| YES        | ------------------------|\n",tok->lexeme,tok->line_no,tree->nodeVal->variable->sym_str,parent->nodeVal->variable->sym_str);
-			fprintf(fp, "===================================================================================================================================\n");
+			// fprintf(fp, "===================================================================================================================================\n");
 		}
 	}
 	else
 	{
 		ParseTree leftMostChild = tree->children;
-		doInOrderTraversal(leftMostChild,fp);
+		doInOrderTraversal(leftMostChild,fp,numNodes);
 		grammar_var* variable = tree->nodeVal->variable;
 		treeNode* parent = tree->parent;
 		if(parent == NULL)
 		{
 			fprintf(fp, "----------------------| ------------| ------------| ------------| ROOT                    | NO         | %-24s|\n",variable->sym_str);
-			fprintf(fp, "===================================================================================================================================\n");
+			// fprintf(fp, "===================================================================================================================================\n");
 		}
 		else
 		{
 			fprintf(fp, "----------------------| ------------| ------------| ------------| %-24s| NO         | %-24s|\n",parent->nodeVal->variable->sym_str,variable->sym_str);	
-			fprintf(fp, "===================================================================================================================================\n");
+			// fprintf(fp, "===================================================================================================================================\n");
 		}
 		ParseTree otherChildren = leftMostChild->nextSibling;
 		while(otherChildren != NULL)
 		{
-			doInOrderTraversal(otherChildren,fp);
+			doInOrderTraversal(otherChildren,fp,numNodes);
 			otherChildren = otherChildren->nextSibling;
 		}
 	}
@@ -378,12 +388,12 @@ void printTokens(HEAD* tokenList)
 	ll_node* n = tokenList->first;
 	Token* tok = NULL;
 	printf("===========================================================\n");
-	printf("Token name    | Lexeme                       | Line number|\n");
+	printf("Line number| Lexeme                       | Token name    |\n");
 	printf("===========================================================\n");
 	while(n != NULL)
 	{
 		tok = n->data->token;
-		printf("%-14s| %-20s         | %-11d|\n",grammar_var_mapping[(int)tok->t_name].sym_str,tok->lexeme,tok->line_no);
+		printf("%-11d| %-20s         | %-14s|\n",tok->line_no,tok->lexeme,grammar_var_mapping[(int)tok->t_name].sym_str);
 		printf("-----------------------------------------------------------\n");
 		n = n->next;
 	}

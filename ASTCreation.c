@@ -1,3 +1,5 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "astRules.c"
 
 ASTNode* createASTFromParseTree(ParseTree ptree)
@@ -356,64 +358,59 @@ void freeParseTree(ParseTree ptree)
 	free(ptree);
 }
 
-void printAST(ASTNode* ast)
+void printAST(ASTNode* ast, int* numNodes)
 {
 	FILE* fp;
-	fp = fopen("astfile.txt","w");
-	fprintf(fp, "==============================================\n");
-	fprintf(fp, "Operator |Lexeme Current Node   |Value|Parent  \n");
-	fprintf(fp, "==============================================\n");
+	fp = stdout;
+	fprintf(fp, "------------------------------------In Order Traversal-----------------------------------\n");
+	fprintf(fp, "=========================================================================================\n");
+	fprintf(fp, "Operator(Node symbol)   | Lexeme Current Node   | Line Number | Parent Node Symbol      |\n");
+	fprintf(fp, "=========================================================================================\n");
 
-	doInOrderTraversalAST(ast,fp);
-	fclose(fp);
+	doInOrderTraversalAST(ast,fp,numNodes);
+	fprintf(fp, "=========================================================================================\n");
+	// fclose(fp);
 }
 
-void doInOrderTraversalAST(ASTNode* ast,FILE* fp)
+void doInOrderTraversalAST(ASTNode* ast,FILE* fp,int* numNodes)
 {
+	*numNodes = *numNodes + 1;
 	if(ast->children == NULL)
 	{
 		Token* tok = ast->token;
 		if(tok == NULL)
 		{
-			fprintf(fp, "%s - - %s\n",grammar_var_mapping[(int)ast->op].sym_str,grammar_var_mapping[(int)ast->parent->op].sym_str);
-		}
-		else if(tok->t_name == NUM)
-		{
-			fprintf(fp,"%s %s %d %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,(tok->value).int_value,grammar_var_mapping[(int)ast->parent->op].sym_str);
-		}
-		else if(tok->t_name == RNUM)
-		{
-			fprintf(fp,"%s %s %lf %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,(tok->value).real_value,grammar_var_mapping[(int)ast->parent->op].sym_str);
+			fprintf(fp, "%-24s| ----------------------| ------------| %-24s|\n",grammar_var_mapping[(int)ast->op].sym_str,grammar_var_mapping[(int)ast->parent->op].sym_str);
 		}
 		else
 		{
-			fprintf(fp,"%s %s - %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,grammar_var_mapping[(int)ast->parent->op].sym_str);
+			fprintf(fp,"%-24s| %-22s| %-12d| %-24s|\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,tok->line_no,grammar_var_mapping[(int)ast->parent->op].sym_str);
 		}
 	}
 	else
 	{
 		ASTNode* leftMostChild = ast->children;
-		doInOrderTraversalAST(leftMostChild,fp);
+		doInOrderTraversalAST(leftMostChild,fp,numNodes);
 		Token* tok = ast->token;
 		if(ast->parent != NULL)
 		{	
 			if(tok == NULL)
 			{
-				fprintf(fp, "%s - - %s\n",grammar_var_mapping[(int)ast->op].sym_str,grammar_var_mapping[(int)ast->parent->op].sym_str);
+				fprintf(fp, "%-24s| ----------------------| ------------| %-24s|\n",grammar_var_mapping[(int)ast->op].sym_str,grammar_var_mapping[(int)ast->parent->op].sym_str);
 			}
 			else
 			{
-				fprintf(fp,"%s %s - %s\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,grammar_var_mapping[(int)ast->parent->op].sym_str);
+				fprintf(fp,"%-24s| %-22s| %-12d| %-24s|\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,tok->line_no,grammar_var_mapping[(int)ast->parent->op].sym_str);
 			}
 		}
 		else
 		{
-			fprintf(fp,"%s %s - -\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme);
+			fprintf(fp,"%-24s| %-22s| %-12d| ------------------------|\n",grammar_var_mapping[(int)ast->op].sym_str,tok->lexeme,tok->line_no);
 		}
 		ASTNode* otherChildren = leftMostChild->nextSibling;
 		while(otherChildren != NULL)
 		{
-			doInOrderTraversalAST(otherChildren,fp);
+			doInOrderTraversalAST(otherChildren,fp,numNodes);
 			otherChildren = otherChildren->nextSibling;
 		}
 	}

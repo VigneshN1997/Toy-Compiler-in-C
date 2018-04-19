@@ -1,3 +1,5 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "symbolTableFunctions.c"
 
 SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
@@ -6,6 +8,7 @@ SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead,
 	symTable->scopeName = (char*)malloc(6*sizeof(char));
 	strcpy(symTable->scopeName,"_main");
 	symTable->scopeName[strlen(symTable->scopeName)] = '\0';
+	symTable->nestingLevel = 1;
 	populateSymbolTable(asTree,symTable,symTableErrorListHead,typeCheckingErrorsHead);
 	return symTable;
 }
@@ -92,6 +95,7 @@ symbolTableEntry* insertIDorFunID(SymbolTable* symTable, Token* token,SYMBOL_NAM
 	if(token->t_name == FUNID)
 	{
 		SymbolTable* ptrToNewScopeST = createNewSymbolTable(symTable->tableSize);
+		ptrToNewScopeST->nestingLevel = symTable->nestingLevel + 1;
 		ptrToNewScopeST->scopeName = entry->idFuncLexeme;
 		entry->ptrToNewScopeST = ptrToNewScopeST;
 		ptrToNewScopeST->ptrToParentST = symTable;
@@ -207,10 +211,14 @@ ASTNode* getListOfStmts(ASTNode* asTree)
 
 void printSymbolTable(SymbolTable* symTable)
 {
-	printf("Indentifier name     |scope               |type              |offset    |\n");
-	printSymbolTableRecursive(symTable);
-}
+	printf("============================================================================================================================\n");
+	printf("Identifier name       | Scope                 | Nesting level  | Name of Static Parent   | Type      | Width  | Offset     |\n");
+	printf("============================================================================================================================\n");
 
+	printSymbolTableRecursive(symTable);
+	printf("============================================================================================================================\n");
+}
+// 22 22 15 24 10 7 10
 void printSymbolTableRecursive(SymbolTable* symTable)
 {
 	symbolTableEntry** syms = symTable->arrOfSymbols;
@@ -225,15 +233,36 @@ void printSymbolTableRecursive(SymbolTable* symTable)
 				{
 					if(entry->idInfoPtr->type == MATRIX)
 					{
-						printf("%-21s|%-20s|%-12s,%d,%d |%-10d \n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->widthInfo[1],entry->idInfoPtr->offset);
+						if(symTable->ptrToParentST != NULL)
+						{
+							printf("%-22s| %-22s| %-15d | %-24s| %-10s| (%d,%d)  | %-10d|\n",entry->idFuncLexeme,symTable->scopeName,symTable->nestingLevel,symTable->ptrToParentST->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->widthInfo[1],entry->idInfoPtr->offset);
+						}
+						else
+						{
+							printf("%-22s| %-22s| %-15d | ------------------------| %-10s| (%d,%d)  | %-10d|\n",entry->idFuncLexeme,symTable->scopeName,symTable->nestingLevel,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->widthInfo[1],entry->idInfoPtr->offset);
+						}
 					}
 					else if(entry->idInfoPtr->type == STRING)
 					{
-						printf("%-21s|%-20s|%15s,%d|%-10d\n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->offset);
+						if(symTable->ptrToParentST != NULL)
+						{
+							printf("%-22s| %-22s| %-15d | %-24s| %-10s| %-7d| %-10d|\n",entry->idFuncLexeme,symTable->scopeName,symTable->nestingLevel,symTable->ptrToParentST->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->offset);
+						}
+						else
+						{	
+							printf("%-22s| %-22s| %-15d | ------------------------| %-10s| %-7d| %-10d|\n",entry->idFuncLexeme,symTable->scopeName,symTable->nestingLevel,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->offset);
+						}
 					}
 					else
 					{
-						printf("%-21s|%-20s|%-18s|%-10d\n",entry->idFuncLexeme,symTable->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->offset);
+						if(symTable->ptrToParentST != NULL)
+						{
+							printf("%-22s| %-22s| %-15d | %-24s| %-10s| %-7d| %-10d|\n",entry->idFuncLexeme,symTable->scopeName,symTable->nestingLevel,symTable->ptrToParentST->scopeName,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->offset);
+						}
+						else
+						{
+							printf("%-22s| %-22s| %-15d | ------------------------| %-10s| %-7d| %-10d|\n",entry->idFuncLexeme,symTable->scopeName,symTable->nestingLevel,grammar_var_mapping[(int)entry->idInfoPtr->type].sym_str,entry->idInfoPtr->widthInfo[0],entry->idInfoPtr->offset);
+						}
 					}
 				}
 				else

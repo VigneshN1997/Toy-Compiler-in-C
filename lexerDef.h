@@ -121,10 +121,3 @@ typedef struct node_data node_data;
 typedef enum DFA_STATE DFA_STATE;
 typedef struct Error Error;
 typedef struct error_msg error_msg;
-
-// lexical error: error messages
-error_msg error_msg_mapping[] = {
-	{1,"Indentifier is longer than prescribed length"},
-	{2,"Unknown symbol "},
-	{3,"Unknown pattern "}
-};

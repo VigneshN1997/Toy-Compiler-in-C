@@ -1,3 +1,5 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "errorReporting.h"
 
 
@@ -12,19 +14,19 @@ errorHead* initializeErrorHead()
 void insertError(errorHead* h, Token* token,int error_no)
 {
 	errorSem* err = createNewError(error_no);
-	errorList* node = (errorList*)malloc(sizeof(errorList));
-	node->err = err;
-	node->token = token;
-	node->next = NULL;
+	errorList* lnode = (errorList*)malloc(sizeof(errorList));
+	lnode->err = err;
+	lnode->token = token;
+	lnode->next = NULL;
 	if(h->first == NULL)
 	{
-		h->first = node;
-		h->last = node;
+		h->first = lnode;
+		h->last = lnode;
 	}
 	else
 	{
-		(h->last)->next = node;
-		h->last = node;
+		(h->last)->next = lnode;
+		h->last = lnode;
 	}
 }
 
@@ -49,32 +51,34 @@ errorSem* createNewError(int error_no)
 
 void printErrors(errorHead* symTableErrorHead,errorHead* typeCheckingErrorHead)
 {
+	printf("----------------------------------\n");
+	printf("TYPE CHECKING AND SEMANTIC ERRORS \n");
+	printf("----------------------------------\n");
 	FILE* fp;
-	fp = fopen("errors.txt","w");
+	fp = stdout;
 	errorList* symTableError = symTableErrorHead->first;
 	errorList* typeCheckingError = typeCheckingErrorHead->first;		
 	while(symTableError != NULL && typeCheckingError != NULL)
 	{
 		if(symTableError->token->line_no <= typeCheckingError->token->line_no)
 		{
-			fprintf(fp,"line %d : %s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+			fprintf(fp,"line %d : Semantic error:%s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
 			symTableError = symTableError->next;
 		}
 		else
 		{
-			fprintf(fp,"line %d : %s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+			fprintf(fp,"line %d : Semantic error:%s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
 			typeCheckingError = typeCheckingError->next;
 		}
 	} 
 	while(symTableError != NULL)
 	{
-		fprintf(fp,"line %d : %s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+		fprintf(fp,"line %d : Semantic error:%s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
 		symTableError = symTableError->next;
 	}
 	while(typeCheckingError != NULL)
 	{
-		fprintf(fp,"line %d : %s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+		fprintf(fp,"line %d : Semantic error:%s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
 		typeCheckingError = typeCheckingError->next;
 	}
-	fclose(fp);
 }

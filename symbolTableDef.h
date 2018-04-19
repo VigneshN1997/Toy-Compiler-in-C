@@ -1,3 +1,5 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "errorReporting.c"
 
 #define SYMBOL_TABLE_SIZE 100
@@ -41,5 +43,6 @@ struct SymbolTable
 	int currOffset;
 	int numEntries;
 	int tableSize;
+	int nestingLevel;
 };
 

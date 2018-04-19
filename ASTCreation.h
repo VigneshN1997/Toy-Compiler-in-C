@@ -1,3 +1,5 @@
+// ID: 2015A7PS0355P
+// Name: Vignesh N
 #include "ASTDef.h"
 
 ASTNode* createASTFromParseTree(ParseTree ptree);
@@ -7,8 +9,8 @@ void processNonTerminalRule(ParseTree ptree);
 void setParentPointers(ASTNode* asTree);
 
 void freeParseTree(ParseTree ptree);
-void printAST(ASTNode* ast);		// testing
-void doInOrderTraversalAST(ASTNode* ast,FILE* fp); // testing
+void printAST(ASTNode* ast, int* numNodes);		// testing
+void doInOrderTraversalAST(ASTNode* ast,FILE* fp,int* numNodes); // testing
 
 ASTNode* createASTNode(SYMBOL_NAME op,Token* token,ASTNode* children);
 ASTNode* concat(ASTNode* singleNode,ASTNode* restList);
