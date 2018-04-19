@@ -5,10 +5,11 @@
 void initializeFile(FILE* codeFile)
 {
 	fprintf(codeFile, "%cinclude 'printing_reading.asm'\n",'%');
-	fprintf(codeFile, "section .data\n");
-	fprintf(codeFile, "nline db 0AH\n");
+	// fprintf(codeFile, "section .data\n");
 	fprintf(codeFile, "section .bss\n");
+	fprintf(codeFile, "nline\tRESB\t1\n");
 	fprintf(codeFile, "tempIp\tRESB\t20\n");
+	fprintf(codeFile, "baseOfStack\tRESB\t1\n");
 	fprintf(codeFile, "\n");
 	// fprintf(codeFile, "temp2\tRESB\t20\n");
 	// fprintf(codeFile, "tempmat1\tRESW\t100\n");
@@ -16,7 +17,10 @@ void initializeFile(FILE* codeFile)
 	fprintf(codeFile, "section .text\n");
 	fprintf(codeFile, "global _start\n");
 	fprintf(codeFile, "_start:\n");
-	fprintf(codeFile, "MOV EBP,ESP\n");
+	fprintf(codeFile, "MOV EBP,baseOfStack\n");
+	fprintf(codeFile, "MOV AL,0AH\n");
+	fprintf(codeFile, "MOV EBX,nline\n");
+	fprintf(codeFile, "MOV [EBX],AL\n");
 }
 
 void writeExitCode(FILE* codeFile)
