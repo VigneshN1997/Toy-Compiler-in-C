@@ -625,6 +625,7 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 			lexeme_name[i] = *c;
 			i++;
 		}
+		lexeme_name[lexeme->length - 1] = '\0';
 		lexeme->lexeme_name = (char*)malloc(lexeme->length * sizeof(char));
 		strcpy(lexeme->lexeme_name,lexeme_name);
 		// lexeme->lexeme_name = lexeme_name;
@@ -645,10 +646,11 @@ Lexeme* getLexeme(char* lexemeBegin,char* forward,int diff_buffer, char* prvs_bu
 			lexeme_name[i] = *c;
 			i++;
 		}
+		lexeme_name[lexeme->length - 1] = '\0';
 		lexeme->lexeme_name = (char*)malloc(lexeme->length * sizeof(char));
 		strcpy(lexeme->lexeme_name,lexeme_name);
 	}
-	lexeme->lexeme_name[lexeme->length - 1] = '\0';
+	// lexeme->lexeme_name[lexeme->length - 1] = '\0';
 	return lexeme;
 }
 

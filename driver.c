@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
 	int* numASTTreeNodes = (int*)malloc(sizeof(int));
 	int parseTreeMem = 0;
 	int asTreeMem = 0;
+	double compressionPercent = 0;
 	while(1)
 	{
 		printf("\n");
@@ -122,8 +123,10 @@ int main(int argc, char* argv[])
 			{
 				// printf("%d \n",(int)sizeof(treeNode));
 				// printf("%d \n",(int)sizeof(ASTNode));
+				compressionPercent = ((double)(parseTreeMem - asTreeMem)/(double)(parseTreeMem))*100;
 				printf("Parse Tree number of nodes = %d            Allocated Memory = %d Bytes\n",*numParseTreeNodes,parseTreeMem);
 				printf("AST number of nodes = %d                   Allocated Memory = %d Bytes\n",*numASTTreeNodes,asTreeMem);
+				printf("Compression percentage = %lf\n",compressionPercent);
 			}
 		}
 		else if(c == 5)
@@ -206,7 +209,7 @@ int main(int argc, char* argv[])
 					createIntermediateCode(asTree,symTable,tempVarNum,labelVarNum);
 					appendAllStatements(asTree);
 				}
-				printIntCode(asTree->code); // remove this
+				// printIntCode(asTree->code); // remove this
 				FILE* codeFile = fopen(argv[2],"w");
 				generateCode((codeNode*)asTree->code,symTable,codeFile);
 				fclose(codeFile);
