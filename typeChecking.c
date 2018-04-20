@@ -312,17 +312,17 @@ void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,
 	int found = 0;
 	while(stmt != NULL)
 	{
-		if(stmt->op == ASSIGNOP)
+		if(stmt->op == ASSIGNOP || stmt->op == READ)
 		{
-			ASTNode* lhsVars = stmt->children->children;
-			while(lhsVars != NULL)
+			if(stmt->op == READ)
 			{
+				ASTNode* var = stmt->children;
 				ASTNode* opParam = opParameterList;
 				index = 0;
 				found = 0;
 				while(opParam != NULL)
 				{
-					if(strcmp(lhsVars->token->lexeme,opParam->children->token->lexeme) == 0)
+					if(strcmp(var->token->lexeme,opParam->children->token->lexeme) == 0)
 					{
 						found = 1;
 						break;
@@ -338,7 +338,7 @@ void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,
 						int presentInInnerScope = 0;
 						while(par != funcSymTable)
 						{
-							symbolTableEntry* entry = findIdorFuncName(lhsVars->token->lexeme,par);
+							symbolTableEntry* entry = findIdorFuncName(var->token->lexeme,par);
 							if(entry != NULL)
 							{
 								presentInInnerScope = 1;
@@ -356,7 +356,53 @@ void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,
 						assigned[index] = 1;
 					}
 				}
-				lhsVars = lhsVars->nextSibling;
+			}
+			else
+			{
+				ASTNode* lhsVars = stmt->children->children;
+				while(lhsVars != NULL)
+				{
+					ASTNode* opParam = opParameterList;
+					index = 0;
+					found = 0;
+					while(opParam != NULL)
+					{
+						if(strcmp(lhsVars->token->lexeme,opParam->children->token->lexeme) == 0)
+						{
+							found = 1;
+							break;
+						}
+						index++;
+						opParam = opParam->nextSibling;
+					}
+					if(found)
+					{
+						if(level != 0)
+						{
+							SymbolTable* par = currSymTable;
+							int presentInInnerScope = 0;
+							while(par != funcSymTable)
+							{
+								symbolTableEntry* entry = findIdorFuncName(lhsVars->token->lexeme,par);
+								if(entry != NULL)
+								{
+									presentInInnerScope = 1;
+									break;
+								}
+								par = par->ptrToParentST;
+							}
+							if(!presentInInnerScope)
+							{
+								assigned[index] = 1;
+							}
+						}
+						else
+						{
+							assigned[index] = 1;
+						}
+					}
+					lhsVars = lhsVars->nextSibling;
+				}
 			}
 		}
 		else if(stmt->op == FUNCTION)
