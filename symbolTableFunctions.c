@@ -167,7 +167,7 @@ void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTable
 		while(temp != NULL)
 		{
 			numParams++;
-			insertIDorFunID(entry->ptrToNewScopeST,temp->children->token,temp->op);
+			temp->children->ptrToSymTableEntry = insertIDorFunID(entry->ptrToNewScopeST,temp->children->token,temp->op);
 			temp = temp->nextSibling;	
 		}
 		entry->funcInfoPtr->numIpParameters = numParams;
@@ -176,7 +176,7 @@ void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTable
 		while(temp != NULL)
 		{
 			numParams++;
-			insertIDorFunID(entry->ptrToNewScopeST,temp->children->token,temp->op);
+			temp->children->ptrToSymTableEntry = insertIDorFunID(entry->ptrToNewScopeST,temp->children->token,temp->op);
 			temp = temp->nextSibling;	
 		}
 		entry->funcInfoPtr->numOpParameters = numParams;

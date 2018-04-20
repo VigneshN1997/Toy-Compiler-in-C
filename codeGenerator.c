@@ -2,13 +2,13 @@
 // Name: Vignesh N
 #include "codeGenerator.h"
 
-void initializeFile(FILE* codeFile)
+void initializeFile(FILE* codeFile, int stackSize)
 {
 	fprintf(codeFile, "%cinclude 'printing_reading.asm'\n",'%');
 	fprintf(codeFile, "section .bss\n");
 	fprintf(codeFile, "nline\tRESB\t1\n");
 	fprintf(codeFile, "tempIp\tRESB\t20\n");
-	fprintf(codeFile, "baseOfStack\tRESB\t1\n");
+	fprintf(codeFile, "baseOfStack\tRESB\t%d\n",stackSize);
 	fprintf(codeFile, "\n");
 	fprintf(codeFile, "section .text\n");
 	fprintf(codeFile, "global _start\n");
@@ -28,7 +28,7 @@ void writeExitCode(FILE* codeFile)
 
 void generateCode(codeNode* codeLines,SymbolTable* symTable,FILE* codeFile)
 {
-	initializeFile(codeFile);
+	initializeFile(codeFile,2*(symTable->currOffset));
 	codeNode* intermediateCodeLine = codeLines;
 	threeAddrCode* tac = NULL;
 	while(intermediateCodeLine != NULL)

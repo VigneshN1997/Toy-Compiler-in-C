@@ -2,7 +2,7 @@
 // Name: Vignesh N
 #include "intCodeGen.c"
 
-void initializeFile(FILE* codeFile);
+void initializeFile(FILE* codeFile, int stackSize);
 void writeExitCode(FILE* codeFile);
 void generateCode(codeNode* codeLines,SymbolTable* symTable,FILE* codeFile);
 
