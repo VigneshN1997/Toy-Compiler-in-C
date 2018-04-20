@@ -62,23 +62,51 @@ void printErrors(errorHead* symTableErrorHead,errorHead* typeCheckingErrorHead)
 	{
 		if(symTableError->token->line_no <= typeCheckingError->token->line_no)
 		{
-			fprintf(fp,"line %d : Semantic error:%s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+			if(symTableError->token != NULL)
+			{
+				fprintf(fp,"line %d : Semantic error:%s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+			}
+			else
+			{
+				fprintf(fp,"line : Semantic error:%s\n",symTableError->err->errorMsg);	
+			}
 			symTableError = symTableError->next;
 		}
 		else
 		{
-			fprintf(fp,"line %d : Semantic error:%s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+			if(typeCheckingError->token != NULL)
+			{
+				fprintf(fp,"line %d : Semantic error:%s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+			}
+			else
+			{
+				fprintf(fp,"line : Semantic error:%s \n",typeCheckingError->err->errorMsg);	
+			}
 			typeCheckingError = typeCheckingError->next;
 		}
 	} 
 	while(symTableError != NULL)
 	{
-		fprintf(fp,"line %d : Semantic error:%s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+		if(symTableError->token != NULL)
+		{
+			fprintf(fp,"line %d : Semantic error:%s (%s)\n",symTableError->token->line_no,symTableError->err->errorMsg,symTableError->token->lexeme);
+		}
+		else
+		{
+			fprintf(fp,"line : Semantic error:%s\n",symTableError->err->errorMsg);	
+		}
 		symTableError = symTableError->next;
 	}
 	while(typeCheckingError != NULL)
 	{
-		fprintf(fp,"line %d : Semantic error:%s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+		if(typeCheckingError->token != NULL)
+		{
+			fprintf(fp,"line %d : Semantic error:%s (%s)\n",typeCheckingError->token->line_no,typeCheckingError->err->errorMsg,typeCheckingError->token->lexeme);
+		}
+		else
+		{
+			fprintf(fp,"line : Semantic error:%s \n",typeCheckingError->err->errorMsg);	
+		}
 		typeCheckingError = typeCheckingError->next;
 	}
 }

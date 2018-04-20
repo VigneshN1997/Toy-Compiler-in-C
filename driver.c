@@ -155,6 +155,10 @@ int main(int argc, char* argv[])
 			{
 				printf("First parse input code to verify syntactic correctness of code.\n");
 			}
+			else if(syntaxErrorsHead->first != NULL)
+			{
+				printSyntaxErrors(syntaxErrorsHead);
+			}
 			else if(asTree == NULL)
 			{
 				printf("First create and print AST.\n");	
@@ -162,10 +166,6 @@ int main(int argc, char* argv[])
 			else if(symTable == NULL)
 			{
 				printf("First create and print symbol table.\n");	
-			}
-			else if(syntaxErrorsHead->first != NULL)
-			{
-				printSyntaxErrors(syntaxErrorsHead);
 			}
 			else if(symTableErrorListHead->first != NULL || typeCheckingErrorsHead->first != NULL)
 			{
@@ -182,6 +182,10 @@ int main(int argc, char* argv[])
 			if(ptree == NULL)
 			{
 				printf("First parse input code to verify syntactic correctness of code.\n");
+			}
+			else if(syntaxErrorsHead->first != NULL)
+			{
+				printf("Code contains syntax errors.\n");	
 			}
 			else if(asTree == NULL)
 			{
@@ -209,7 +213,7 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				printf("Code contains errors.\n");
+				printf("Code contains semantic errors.\n");
 			}
 		}
 	}

@@ -5,15 +5,11 @@
 void initializeFile(FILE* codeFile)
 {
 	fprintf(codeFile, "%cinclude 'printing_reading.asm'\n",'%');
-	// fprintf(codeFile, "section .data\n");
 	fprintf(codeFile, "section .bss\n");
 	fprintf(codeFile, "nline\tRESB\t1\n");
 	fprintf(codeFile, "tempIp\tRESB\t20\n");
 	fprintf(codeFile, "baseOfStack\tRESB\t1\n");
 	fprintf(codeFile, "\n");
-	// fprintf(codeFile, "temp2\tRESB\t20\n");
-	// fprintf(codeFile, "tempmat1\tRESW\t100\n");
-	// fprintf(codeFile, "tempmat2\tRESW\t100\n");
 	fprintf(codeFile, "section .text\n");
 	fprintf(codeFile, "global _start\n");
 	fprintf(codeFile, "_start:\n");
@@ -57,6 +53,7 @@ void generateCode(codeNode* codeLines,SymbolTable* symTable,FILE* codeFile)
 				fprintf(codeFile, "\n");
 				break;
 			case DIV_OP:
+				printf("Cannot generate code for division.\n");
 				fprintf(codeFile, "\n");
 				break;
 			case LABEL:
@@ -127,7 +124,7 @@ void createCodeFor_Read(threeAddrCode* tac, FILE* codeFile)
 	}
 	else if(symEntry->idInfoPtr->type == REAL)
 	{
-		
+		printf("Cannot read real numbers\n");
 	}
 }
 
@@ -141,7 +138,7 @@ void createCodeFor_Print(threeAddrCode* tac,FILE* codeFile)
 	}
 	else if(symEntry->idInfoPtr->type == REAL)
 	{
-
+		printf("Cannot print real numbers\n");
 	}
 	else if(symEntry->idInfoPtr->type == STRING)
 	{
@@ -186,7 +183,7 @@ void createCodeFor_Comparison(threeAddrCode* tac,FILE* codeFile, char* jmpVarian
 	}
 	else if(tac->var1->op == RNUM)
 	{
-
+		printf("Cannot compare real numbers.\n");
 	}
 	else if(tac->var1->op == ID)
 	{
@@ -198,7 +195,7 @@ void createCodeFor_Comparison(threeAddrCode* tac,FILE* codeFile, char* jmpVarian
 	}
 	else if(tac->var2->op == RNUM)
 	{
-
+		printf("Cannot compare real numbers.\n");
 	}
 	else if(tac->var2->op == ID)
 	{
@@ -219,7 +216,7 @@ void createCodeFor_AssignOp(threeAddrCode* tac,FILE* codeFile)
 	}
 	else if(tac->var1->op == RNUM)
 	{
-
+		printf("Cannot store real numbers.\n");
 	}
 	else if(tac->var1->op == STR)
 	{
@@ -239,7 +236,7 @@ void createCodeFor_AssignOp(threeAddrCode* tac,FILE* codeFile)
 		}
 		else if(symEntry1->idInfoPtr->type == REAL)
 		{
-
+			printf("Cannot store real numbers.\n");
 		}
 		else if(symEntry1->idInfoPtr->type == STRING)
 		{
@@ -273,7 +270,7 @@ void createCodeFor_Plus(threeAddrCode* tac,FILE* codeFile)
 	}
 	else if(symEntry1->idInfoPtr->type == REAL && symEntry2->idInfoPtr->type == REAL)
 	{
-
+		printf("Cannot add real numbers.\n");
 	}
 	else if(symEntry1->idInfoPtr->type == STRING && symEntry2->idInfoPtr->type == STRING)
 	{
@@ -303,7 +300,7 @@ void createCodeFor_Minus(threeAddrCode* tac,FILE* codeFile)
 	}
 	else if(symEntry1->idInfoPtr->type == REAL && symEntry2->idInfoPtr->type == REAL)
 	{
-
+		printf("Cannot subtract real numbers.\n");
 	}
 	else if(symEntry1->idInfoPtr->type == MATRIX && symEntry2->idInfoPtr->type == MATRIX)
 	{
@@ -326,7 +323,7 @@ void createCodeFor_Multiply(threeAddrCode* tac,FILE* codeFile)
 	}
 	else if(symEntry1->idInfoPtr->type == REAL && symEntry2->idInfoPtr->type == REAL)
 	{
-
+		printf("Cannot multiply real numbers.\n");
 	}
 }
 

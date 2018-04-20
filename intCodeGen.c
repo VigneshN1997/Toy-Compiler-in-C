@@ -47,7 +47,7 @@ void generateCodeFor_AssignmentStmtSingleVar(ASTNode* assignStmt, SymbolTable* s
 	}
 	else if(rhs->op == FUNID)
 	{
-
+		printf("Cannot generate code for function calls\n");
 	}
 	else
 	{
@@ -84,10 +84,10 @@ void generateCodeFor_AssignmentStmtListVar(ASTNode* assignStmt, SymbolTable* sym
 		line2->code->var1 = createASTNode(NUM,tok2,NULL);
 		assignStmt->code = appendCodes(line1,line2);
 	}
-	else if(rhs->op == FUNID)
-	{
+	// else if(rhs->op == FUNID)
+	// {
 
-	}	
+	// }	
 }
 
 void generateCodeFor_IfStmt(ASTNode* ifStmt,SymbolTable* symTable,int* tempVarNum,int* labelVarNum)
