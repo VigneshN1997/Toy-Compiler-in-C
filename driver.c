@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "codeGenerator.c"
 int main(int argc, char* argv[])
 {
@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 		printf("usage: ./stage1exe testcase.txt code.asm\n");
 		return 0;
 	}
-	printf("LEVEL 4:All modules work according to the language specification.");
+	printf("LEVEL 4:AST, Symbol table, type checking, semantic rules,code generation modules work.");
 	HEAD* tokenList = initializeLinkedList();
 	FILE* g_file = fopen("grammar.txt","r");
 	if(g_file == NULL)
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 		printf("2. Parse to verify syntactic correctness of code and print parse tree on console.\n");
 		printf("3. Print Abstract Syntax Tree on console.\n"); // specify traversal order
 		printf("4. Print amount of memory used by parse tree and abstract syntax tree.\n");
-		printf("5. Print symbol table.\n");
+		printf("5. Print symbol table.\n"); // if this option is selected before and after generating code(temp vars will also be present in the symbol table)
 		printf("6. Compile to verify the syntactic and semantic correctness.\n");
 		printf("7. Produce assembly code\n");
 
@@ -73,10 +73,10 @@ int main(int argc, char* argv[])
 			{
 				printf("First generate tokens.\n");
 			}
-			else if(asTree != NULL)
-			{
-				printf("AST is created so parse tree is deallocated(it cannot be printed now)\n");
-			}
+			// else if(asTree != NULL)
+			// {
+			// 	printf("AST is created so parse tree is deallocated(it cannot be printed now)\n");
+			// }
 			else
 			{
 				*numParseTreeNodes = 0;

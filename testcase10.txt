@@ -1,0 +1,32 @@
+_main[]
+	int a,b,c,d,e,f;
+	a = 1;
+	b = 2;
+	c = 3;
+	d = 4;
+	e = 5;
+	f = 6;
+	real h;
+	real h2;
+	string s;
+	string s2;
+	s= "abc";
+	matrix m1, m2;
+	if((a<s).and.(e==f))
+		a = b + c;
+		a = b + c/d*f + b;
+		a = b + c/d*f + b;
+	endif;
+
+	if(.not.((m1 < m2).and.((c >= d).or.(e == f))))
+		a = b + c*d/f - b;
+	else
+		a = b + c/d*f + b;
+	endif;
+
+	if(.not.((a < b).and.((h2 >= h).or.(s == s2))))
+		a = b + c*d/f - b;
+	else
+		a = b + c/d*f + b;
+	endif;
+end

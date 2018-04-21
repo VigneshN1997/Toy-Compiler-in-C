@@ -1,0 +1,7 @@
+_main[]
+	function[int b] = _func1[int c]
+		int a;
+		a = 2;
+	end;
+	a = 4;
+end

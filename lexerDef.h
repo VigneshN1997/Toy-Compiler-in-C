@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

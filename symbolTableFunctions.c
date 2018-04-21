@@ -1,6 +1,7 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "symbolTableCreation.h"
+// process declaration statement to insert variables into symbol table and check for variable redeclaration errors
 void processDeclarationStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead)
 {
 	SYMBOL_NAME type = stmt->children->op;
@@ -21,7 +22,7 @@ void processDeclarationStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTa
 		var = var->nextSibling;
 	}
 }
-
+// process assignments statement to check if variables in the statement are already declared or not
 void processAssignmentStmtSingleVar(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead)
 {
 	ASTNode* lhs = stmt->children->children;
@@ -47,7 +48,6 @@ void processAssignmentStmtSingleVar(ASTNode* stmt,SymbolTable* symTable,errorHea
 		{
 			id->ptrToSymTableEntry = entry;
 		}
-		// handle string type variables(if they have not been assigned thier size will be 0)
 	}
 	else if(rhs->op == FUNID)
 	{
@@ -96,7 +96,7 @@ void processAssignmentStmtListVar(ASTNode* stmt,SymbolTable* symTable,errorHead*
 		processFunCallStmt(rhs,symTable,symTableErrorListHead);
 	}
 }
-
+// process if statement: process boolean expression, type check the boolean expression and then process statements inside if and else
 void processIfStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* booleanExpr = stmt->children;
@@ -120,7 +120,7 @@ void processIOStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorL
 		var->ptrToSymTableEntry = entry;
 	}
 }
-
+// check id parameters if declared or not
 void processFunCallStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableErrorListHead)
 {
 	symbolTableEntry* entry = checkIdExistence(stmt->token->lexeme,symTable);
@@ -144,7 +144,7 @@ void processFunCallStmt(ASTNode* stmt,SymbolTable* symTable,errorHead* symTableE
 		parameter = parameter->nextSibling;
 	}
 }
-
+// process function definition: check for function overloading, get input and output parameters
 void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* parameterListIn = stmt->children->children;
@@ -184,7 +184,7 @@ void processFunctionDef(ASTNode* stmt, SymbolTable* symTable,errorHead* symTable
 		populateSymbolTable(stmt,entry->ptrToNewScopeST,symTableErrorListHead,typeCheckingErrorsHead);
 	}
 }
-
+// process boolean expression
 void processBooleanExpr(ASTNode* expr, SymbolTable* symTable,errorHead* symTableErrorListHead)
 {
 	if(expr->op == ID)
@@ -210,7 +210,7 @@ void processBooleanExpr(ASTNode* expr, SymbolTable* symTable,errorHead* symTable
 		}
 	}
 }
-
+// process arithmetic expression
 void processArithmeticExprST(ASTNode* expr, SymbolTable* symTable,errorHead* symTableErrorListHead)
 {
 	if(expr->op == ID)
@@ -236,7 +236,7 @@ void processArithmeticExprST(ASTNode* expr, SymbolTable* symTable,errorHead* sym
 		}
 	}
 }
-
+// check id existence in symbol table
 symbolTableEntry* checkIdExistence(char* tokenLexeme, SymbolTable* symTable)
 {
 	symbolTableEntry* entry = findIdorFuncName(tokenLexeme,symTable);
@@ -256,5 +256,3 @@ symbolTableEntry* checkIdExistence(char* tokenLexeme, SymbolTable* symTable)
 	}
 	return NULL;
 }
-
-// special handling for matrix

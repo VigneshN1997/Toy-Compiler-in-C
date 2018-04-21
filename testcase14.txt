@@ -1,0 +1,11 @@
+_main[]
+	int a,b,c;
+	real d;
+	d = a + b - c;
+	real f,g,h;
+	string s;
+	s = f + g/h;
+end
+
+#line 4 : type mismatch error (d)
+#line 7 : type mismatch error (s)

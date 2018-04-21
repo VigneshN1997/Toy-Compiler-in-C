@@ -1,7 +1,7 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "typeChecking.h"
-
+// type check assignment type 1 statement
 void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* lhs = assgnStmt->children->children;
@@ -89,7 +89,7 @@ void typeCheckAssignmentStmtSingleVar(ASTNode* assgnStmt,SymbolTable* symTable, 
 		// if sizes are already present then throw an error
 	}
 }
-
+// type check assignment type 2 statement
 void typeCheckAssignmentStmtListVar(ASTNode* assgnStmt,SymbolTable* symTable, errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* lhs = assgnStmt->children->children;
@@ -156,7 +156,7 @@ void typeCheckAssignmentStmtListVar(ASTNode* assgnStmt,SymbolTable* symTable, er
 		typeCheckFunCallStmt(lhs,numLHSVars,rhs,symTable,typeCheckingErrorsHead);
 	}
 }
-
+// type check function call statement
 void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	if(((symbolTableEntry*)funCallStmt->ptrToSymTableEntry) != NULL)
@@ -261,7 +261,7 @@ void typeCheckFunCallStmt(ASTNode* lhs,int numLHSVars,ASTNode* funCallStmt,Symbo
 		}
 	}
 }
-
+// check if recursion is present
 int recursionPresent(ASTNode* funCallStmt, SymbolTable* symTable)
 {
 	SymbolTable* par = symTable;
@@ -280,7 +280,7 @@ int recursionPresent(ASTNode* funCallStmt, SymbolTable* symTable)
 	}
 	return 0;
 }
-
+// type check function definition
 void typeCheckFunction(ASTNode* func, SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* funcStmts = func->children->nextSibling->nextSibling->children;
@@ -304,7 +304,7 @@ void typeCheckFunction(ASTNode* func, SymbolTable* symTable,errorHead* typeCheck
 		}
 	}
 }
-
+// check if all output parameters in a function definition are assigned a value
 void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,int* assigned,int level,SymbolTable* funcSymTable,SymbolTable* currSymTable)
 {
 	ASTNode* stmt = funcStmts;
@@ -413,7 +413,7 @@ void checkOuputParametersAssignment(ASTNode* funcStmts,ASTNode* opParameterList,
 		stmt = stmt->nextSibling;
 	}
 }
-
+// type check boolean expression
 void typeCheckBooleanExpr(ASTNode* boolExpr,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	if(boolExpr->op == ID)
@@ -497,7 +497,7 @@ void typeCheckBooleanExpr(ASTNode* boolExpr,SymbolTable* symTable,errorHead* typ
 		// }
 	}
 }
-
+// type check arithmetic expression
 void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	if(arithmeticExpr->op == ID)
@@ -704,14 +704,14 @@ void typeCheckArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,error
 		}
 	}
 }
-
+// get string length
 int* extractStringSize(ASTNode* stringNode)
 {
 	int* len = (int*)malloc(sizeof(int));
 	len[0] = strlen(stringNode->token->lexeme) - 2;
 	return len;
 }
-
+// get matrix size
 int* extractMatrixSize(ASTNode* matrixNode,errorHead* typeCheckingErrorsHead)
 {
 	int* width = (int*)malloc(2*sizeof(int));
@@ -763,7 +763,7 @@ int* extractMatrixSize(ASTNode* matrixNode,errorHead* typeCheckingErrorsHead)
 	}
 	return width;
 }
-
+// type check io statement
 void typeCheckIOStmt(ASTNode* ioStmt,SymbolTable* symTable,errorHead* typeCheckingErrorsHead)
 {
 	symbolTableEntry* entry = ((symbolTableEntry*)ioStmt->children->ptrToSymTableEntry);

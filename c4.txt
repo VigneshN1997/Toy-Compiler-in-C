@@ -1,0 +1,18 @@
+_main[]
+	int a;
+	string s;
+	s = "abcd";
+	print(s);
+	string s1;
+	s1 = s + "abcd";
+	print(s1);
+	string s2;
+	s2 = "sadf" + "sd" + "sdf";
+	print(s2);
+	string s3;
+	s3 = "dsfdg" + s2;
+	print(s3);
+	#s = s1 + s2;
+	s = "cd" + "gh";
+	print(s);
+end

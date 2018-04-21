@@ -1,0 +1,47 @@
+_main[]
+	int a,b,c,d;
+	a = 22;
+	b = 34;
+	c = a + b;
+	string s1,s2,s3;
+	s1 = "a is ";
+	s2 = "b is ";
+	s3 = "c is ";
+	print(s1);
+	print(a);
+	print(s2);
+	print(b);
+	print(s3);
+	print(c);
+
+	string s5;
+	string s6;
+	s5 = "input a";
+	s6 = "input b";
+	print(s5);
+	read(a);
+	print(s6);
+	read(b);
+
+	c = a - b;
+	string s7;
+	s7 = "c is a minus b";
+	print(s7);
+	print(s1);
+	print(a);
+	print(s2);
+	print(b);
+	print(s3);
+	print(c);
+
+	c = a * b;
+	string s8;
+	s8 = "c is a mult b";
+	print(s8);
+	print(s1);
+	print(a);
+	print(s2);
+	print(b);
+	print(s3);
+	print(c);
+end

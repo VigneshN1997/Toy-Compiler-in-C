@@ -1,0 +1,53 @@
+_main[]
+	int a, b, c, d;
+	real e, f, g, h;
+	string s1, s2, s3, s4;
+	matrix m1, m2, m3, m4;
+
+	m1 = [1,2,3;3,5,6,7,7];
+	m1 = [1,2;3,4;5,6];
+	m2 = [1,2;3,4;5,6];
+	m1 = m1 + m2;
+	m1 = m1 - m2;
+	m1 = m1*m2;
+	m1 = m1/m2;
+
+	m1 = m2 + [1,2;3,4;5,6];
+	m2 = [1,2;3,4;5,6] + m1;
+	m2 = [1,2;3,4;5,6] + m1 + m3;
+
+	m3 = m1 - m2;
+	m4 = m3 + m2 + m1;
+	m4 = m4  + [1,2, 3; 4,5,6];
+
+	s1 = "abcd";
+
+	s2 = s1 + "ds";
+	s3 = s1 + s2 + "dsfdf";
+
+
+	s4 = "aaaaaaaaaaaaaaaaaa";
+	s4 = s1 + s2 + "sadfafds";
+
+	a = b/c;
+	e = b/c;
+	a = b + c+ m2[2,2] + m3[1,1];
+	a = b - c - a;
+	b = a*a+g;
+	f = g+h;
+	f = g-h;
+	f = g/h;
+	f = g*a;
+
+
+
+
+
+
+	real gh;
+	string jk;
+	jk = "sadasf";
+
+	int yy;
+
+end

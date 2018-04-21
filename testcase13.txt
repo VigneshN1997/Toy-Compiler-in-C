@@ -1,0 +1,12 @@
+_main[]
+	int a;
+	string b;
+	int c;
+	b = "abcd";
+	a = @c;
+	real d;
+	d = @b;
+end
+
+#line 6 : type mismatch error in size expression (c)
+#line 8 : type mismatch error (d)

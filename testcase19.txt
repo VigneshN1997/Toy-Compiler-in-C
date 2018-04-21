@@ -1,0 +1,65 @@
+_main[]
+	int a,b,c,d,e,f;
+	a = 1;
+	b = 2;
+	function[int a, int b] = _fun[int c, int d]
+		a = c+d;
+		b = c*d - c + d;
+		function[int m, int n] = _fun1[int j, int k]
+			j = k + 2;
+			m = k - j;
+			[a, b, c] = _fun2(d);
+			function[real a, real c, real d] = _fun2[real s]
+				a = s + c;
+				s = d;
+				j = 9;
+			end;
+			real g;
+			[a, c] = _fun1(j, k);
+			#[a, c, d] = _fun1(a);
+			matrix m1;
+			int a;
+			string t;
+			int y;
+			int abcdefgh;
+			matrix mhgy;
+			real wert;
+			mhgy = [1,2,3; 4,5,6; 3,2,9; 4,5,6];
+			real cdfh;
+			[a, b, c] = _fun2(d);
+		end;
+		_fun1(a, b);
+		[a, b] = _fun1(c, d);
+		s = 3;
+		real q;
+		int h;
+		[c,d] = _fun(a,b);
+		[a, b] = _fun2(d);
+	end;
+	s = 2;
+	[a, b, c] = _fun2(d);
+	[a, b] = _fun1(c, d);
+	real z;
+	string s;
+	s = "asdnjkdsf";
+	read(s);
+	matrix m;
+	m = [1,2,3; 4,5,6; 3,2,9; 4,5,6];
+	matrix m2;
+	m2 = [1,2,3,4; 5,6,7,8; 4,5,6; 2,3];
+	int tyop;
+	read(m);
+	print(a);
+	print(s);
+	read(z);
+	read(a);
+	print(m);
+	print(z);
+	[a, b] = @s;
+	a = @s;
+	a = @m;
+	[c, d] = @m;
+	[c,d] = _fun(a,b);
+	[e,f] = _fun(3,4);
+	a = _as(b);
+end

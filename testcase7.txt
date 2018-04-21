@@ -1,0 +1,34 @@
+_main[]
+    int a,b,c;
+    int result,d;
+    real p,q,r;
+    matrix mat1;
+    string str;
+    mat1 = [1,2;4,5;7,8] + [1,2;4,5;7,8];
+    a = 10;
+    b = 20;
+    result = a + b;
+    c = 30;
+    p = 12.45;
+    q = 34.90;
+    r = 11.98;
+    result = a * 10 - 8 - 2;
+    result = a/p + c;
+    d = result + a*2;
+    d = 0;
+    if(a>2)
+        b = 5;
+    else
+        b = 10;
+    endif;
+    a = @c;
+    [a,b] = @mat1;
+    a = mat1[1,1];
+    print(a);
+    str = "hello" + "world" + "rg";
+    print(str);
+    print(b);
+    print(c);
+    print(result);
+    print(mat1);
+end

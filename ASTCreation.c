@@ -1,16 +1,16 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "astRules.c"
 
 ASTNode* createASTFromParseTree(ParseTree ptree)
 {
 	traverseParseTree(ptree);
 	ASTNode* mainNodeAST = ptree->ptrToASTNode;
-	freeParseTree(ptree);
+	// freeParseTree(ptree);
 	setParentPointers(mainNodeAST);
 	return mainNodeAST;
 }
-
+// traverse parse tree to create AST
 void traverseParseTree(ParseTree ptree)
 {
 	if(ptree->children == NULL)
@@ -39,7 +39,7 @@ void traverseParseTree(ParseTree ptree)
 		processNonTerminalRule(ptree);
 	}
 }
-
+// parse tree traversal for arithmetic expression
 void processArithmeticExpr(treeNode* node)
 {
 	if(node->children == NULL)
@@ -76,7 +76,7 @@ void processArithmeticExpr(treeNode* node)
 	}
 	processNonTerminalRule(node);
 }
-
+// computing synthesized attributes for non terminals
 void processNonTerminalRule(ParseTree ptree)
 {
 	int ruleNumber = ptree->ptrToRule->ruleNumber;
@@ -342,7 +342,7 @@ void processNonTerminalRule(ParseTree ptree)
 			break;
 	}
 }
-
+// for freeing parse tree(not called because parse tree can be printed any number of times in driver)
 void freeParseTree(ParseTree ptree)
 {
 	if(ptree->children == NULL)
@@ -357,7 +357,7 @@ void freeParseTree(ParseTree ptree)
 	}
 	free(ptree);
 }
-
+// for printing AST on console
 void printAST(ASTNode* ast, int* numNodes)
 {
 	FILE* fp;
@@ -369,7 +369,6 @@ void printAST(ASTNode* ast, int* numNodes)
 
 	doInOrderTraversalAST(ast,fp,numNodes);
 	fprintf(fp, "=========================================================================================\n");
-	// fclose(fp);
 }
 
 void doInOrderTraversalAST(ASTNode* ast,FILE* fp,int* numNodes)

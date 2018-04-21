@@ -1,7 +1,7 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "symbolTableFunctions.c"
-
+// create main scope symbol table
 SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	SymbolTable* symTable = createNewSymbolTable(SYMBOL_TABLE_SIZE);
@@ -14,7 +14,7 @@ SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead,
 }
 
 
-
+// create symbol table entry
 symbolTableEntry* createSymbolTableEntry(Token* token,int isID,int width,SYMBOL_NAME type)
 {
 	symbolTableEntry* entry = (symbolTableEntry*)malloc(sizeof(symbolTableEntry));
@@ -45,7 +45,7 @@ symbolTableEntry* createSymbolTableEntry(Token* token,int isID,int width,SYMBOL_
 	entry->nextEntry = NULL;
 	return entry;
 }
-
+// insert id or function id in symbol table
 symbolTableEntry* insertIDorFunID(SymbolTable* symTable, Token* token,SYMBOL_NAME type)
 {
 	symTable->numEntries += 1;
@@ -102,7 +102,7 @@ symbolTableEntry* insertIDorFunID(SymbolTable* symTable, Token* token,SYMBOL_NAM
 	}
 	return entry;
 }
-
+// create a new symbol table
 SymbolTable* createNewSymbolTable(int size)
 {
 	SymbolTable* symTable = (SymbolTable*)malloc(sizeof(SymbolTable));
@@ -118,7 +118,7 @@ SymbolTable* createNewSymbolTable(int size)
 	symTable->currOffset = 0;
 	return symTable;
 }
-
+// find an entry in symbol table
 symbolTableEntry* findIdorFuncName(char* findId,SymbolTable* symTable)
 {
 	int index = hashingFunction(findId,symTable->tableSize);
@@ -146,7 +146,7 @@ symbolTableEntry* findIdorFuncName(char* findId,SymbolTable* symTable)
 	}
 	return NULL;
 }
-
+// populate symbol table and also do type checking by traversing AST
 void populateSymbolTable(ASTNode* asTree,SymbolTable* symTable,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead)
 {
 	ASTNode* stmts = getListOfStmts(asTree);
@@ -188,7 +188,7 @@ void populateSymbolTable(ASTNode* asTree,SymbolTable* symTable,errorHead* symTab
 		stmts = stmts->nextSibling;
 	}
 }
-
+// get list of statements that are children of a ASTNode
 ASTNode* getListOfStmts(ASTNode* asTree)
 {
 	if(asTree->op == MAIN)
@@ -208,7 +208,7 @@ ASTNode* getListOfStmts(ASTNode* asTree)
 		return asTree->children;
 	}
 }
-
+// print symbol table on console
 void printSymbolTable(SymbolTable* symTable)
 {
 	printf("============================================================================================================================\n");
@@ -218,7 +218,7 @@ void printSymbolTable(SymbolTable* symTable)
 	printSymbolTableRecursive(symTable);
 	printf("============================================================================================================================\n");
 }
-// 22 22 15 24 10 7 10
+// traverse the symbol table structure to print ids on console
 void printSymbolTableRecursive(SymbolTable* symTable)
 {
 	symbolTableEntry** syms = symTable->arrOfSymbols;

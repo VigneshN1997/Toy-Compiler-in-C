@@ -1,0 +1,40 @@
+_main[]
+	int a,b,c,d,e,f;
+	string s1,s2,s3,s4,s5,s6;
+	s1 =  "a";
+	s2 =  "b";
+	s3 =  "c";
+	s4 =  "d";
+	s5 =  "e";
+	s6 =  "f";
+	a = 1;
+	b = 2;
+	c = 3;
+	d = 4;
+	e = 4;
+	f = 6;
+	if((a < b).and.((c >= d).or.(e == f)))
+		a = b + c*d - f;
+	else
+		c = b + c*d*f + b;
+	endif;
+
+	if(d >= e)
+		f = 4;
+	else
+		f = 10;
+	endif;
+
+	print(s1);
+	print(a);
+	print(s2);
+	print(b);
+	print(s3);
+	print(c);
+	print(s4);
+	print(d);
+	print(s5);
+	print(e);
+	print(s6);
+	print(f);
+end

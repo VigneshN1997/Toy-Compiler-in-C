@@ -1,7 +1,7 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "codeGenerator.h"
-
+// initialization code
 void initializeFile(FILE* codeFile, int stackSize)
 {
 	fprintf(codeFile, "%cinclude 'printing_reading.asm'\n",'%');
@@ -18,14 +18,14 @@ void initializeFile(FILE* codeFile, int stackSize)
 	fprintf(codeFile, "MOV EBX,nline\n");
 	fprintf(codeFile, "MOV [EBX],AL\n");
 }
-
+// exit code
 void writeExitCode(FILE* codeFile)
 {
 	fprintf(codeFile, "MOV EAX,1\n");
 	fprintf(codeFile, "MOV EBX,0\n");
 	fprintf(codeFile, "INT 80H\n");	
 }
-
+// this function will write asm code to file
 void generateCode(codeNode* codeLines,SymbolTable* symTable,FILE* codeFile)
 {
 	initializeFile(codeFile,2*(symTable->currOffset));
@@ -106,7 +106,7 @@ void generateCode(codeNode* codeLines,SymbolTable* symTable,FILE* codeFile)
 	}
 	writeExitCode(codeFile);
 }
-
+// for reading input
 void createCodeFor_Read(threeAddrCode* tac, FILE* codeFile)
 {
 	symbolTableEntry* symEntry = ((symbolTableEntry*)tac->var1->ptrToSymTableEntry);
@@ -127,7 +127,7 @@ void createCodeFor_Read(threeAddrCode* tac, FILE* codeFile)
 		printf("Cannot read real numbers\n");
 	}
 }
-
+// for printing variable values to console
 void createCodeFor_Print(threeAddrCode* tac,FILE* codeFile)
 {
 	symbolTableEntry* symEntry = ((symbolTableEntry*)tac->var1->ptrToSymTableEntry);
@@ -155,6 +155,7 @@ void createCodeFor_Print(threeAddrCode* tac,FILE* codeFile)
 		fprintf(codeFile, "MOV EAX,4\n");
 		fprintf(codeFile, "INT 80H\n");
 	}
+	// matrix is printed in column major form
 	else if(symEntry->idInfoPtr->type == MATRIX)
 	{
 		int dim1 = symEntry->idInfoPtr->widthInfo[0];
@@ -167,14 +168,14 @@ void createCodeFor_Print(threeAddrCode* tac,FILE* codeFile)
 		}
 	}
 }
-
+// for printing integer
 void printInteger(int offset,FILE* codeFile)
 {
 	fprintf(codeFile, "XOR EAX,EAX\n");
 	fprintf(codeFile, "MOV AX,[EBP + %d]\n",offset);
 	fprintf(codeFile, "CALL iprintLF\n");
 }
-
+// for if else boolean expressions
 void createCodeFor_Comparison(threeAddrCode* tac,FILE* codeFile, char* jmpVariant)
 {
 	if(tac->var1->op == NUM)
@@ -204,7 +205,7 @@ void createCodeFor_Comparison(threeAddrCode* tac,FILE* codeFile, char* jmpVarian
 	fprintf(codeFile, "CMP AX,BX\n");
 	fprintf(codeFile, "%s %s\n",jmpVariant,tac->resVar->token->lexeme);
 }
-
+// for assignment operation
 void createCodeFor_AssignOp(threeAddrCode* tac,FILE* codeFile)
 {
 	symbolTableEntry* symEntry1 = NULL;
@@ -248,7 +249,7 @@ void createCodeFor_AssignOp(threeAddrCode* tac,FILE* codeFile)
 		}
 	}
 }
-
+// for addition operation
 void createCodeFor_Plus(threeAddrCode* tac,FILE* codeFile)
 {
 	symbolTableEntry* symEntry1 = (symbolTableEntry*)tac->var1->ptrToSymTableEntry;
@@ -284,7 +285,7 @@ void createCodeFor_Plus(threeAddrCode* tac,FILE* codeFile)
 		matrixOperation(tac->var1,tac->var2,symEntry1->idInfoPtr->offset,symEntry2->idInfoPtr->offset,resultEntry->idInfoPtr->offset,codeFile,"ADD");
 	}
 }
-
+// for subtraction operation
 void createCodeFor_Minus(threeAddrCode* tac,FILE* codeFile)
 {
 	symbolTableEntry* symEntry1 = (symbolTableEntry*)tac->var1->ptrToSymTableEntry;
@@ -307,7 +308,7 @@ void createCodeFor_Minus(threeAddrCode* tac,FILE* codeFile)
 		matrixOperation(tac->var1,tac->var2,symEntry1->idInfoPtr->offset,symEntry2->idInfoPtr->offset,resultEntry->idInfoPtr->offset,codeFile,"SUB");
 	}
 }
-
+// for multiplication operation
 void createCodeFor_Multiply(threeAddrCode* tac,FILE* codeFile)
 {
 	symbolTableEntry* symEntry1 = (symbolTableEntry*)tac->var1->ptrToSymTableEntry;
@@ -326,7 +327,7 @@ void createCodeFor_Multiply(threeAddrCode* tac,FILE* codeFile)
 		printf("Cannot multiply real numbers.\n");
 	}
 }
-
+// for storing string in memory
 void writeStringinCode(ASTNode* stringNode, FILE* codeFile, int offset)
 {
 	int strlen = stringNode->widthInfo[0];
@@ -338,7 +339,7 @@ void writeStringinCode(ASTNode* stringNode, FILE* codeFile, int offset)
 		offset++;
 	}
 }
-
+// for copying string from one memory location to another
 void writeStringIDinCode(ASTNode* stringNode,FILE* codeFile, int offset_rhs, int offset_lhs)
 {
 	int strlen = ((symbolTableEntry*)stringNode->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
@@ -350,7 +351,7 @@ void writeStringIDinCode(ASTNode* stringNode,FILE* codeFile, int offset_rhs, int
 		offset_lhs++;
 	}
 }
-
+// for storing matrix in memory in column major format
 void writeMatrixinCode(ASTNode* matrixNode, FILE* codeFile, int offset)
 {
 	int dim1 = matrixNode->widthInfo[0];
@@ -379,7 +380,7 @@ void writeMatrixinCode(ASTNode* matrixNode, FILE* codeFile, int offset)
 		colNum++;
 	}
 }
-
+// for copying matrix from one memory location to another
 void writeMatrixIDinCode(ASTNode* matrixNode, FILE* codeFile, int offset_rhs, int offset_lhs)
 {
 	int dim1 = ((symbolTableEntry*)matrixNode->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
@@ -392,7 +393,7 @@ void writeMatrixIDinCode(ASTNode* matrixNode, FILE* codeFile, int offset_rhs, in
 		offset_lhs += 2;
 	}
 }
-
+// for performing matrix addition/ subtraction
 void matrixOperation(ASTNode* matrixID1, ASTNode* matrixID2, int offsetID1, int offsetID2, int resOffset,FILE* codeFile,char* operation)
 {
 	int dim1 = ((symbolTableEntry*)matrixID1->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];

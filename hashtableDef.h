@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "linked_list.c"
 
 struct node

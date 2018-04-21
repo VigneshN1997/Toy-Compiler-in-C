@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "lexer.h"
 
 // This function removes comments from testcase file and puts the comment free code on console

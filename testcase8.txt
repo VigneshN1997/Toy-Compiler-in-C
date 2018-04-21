@@ -1,0 +1,54 @@
+_main[]
+	int a;
+	string s;
+	s = "abcd";
+	a = @s;
+	real b;
+	b = @s;
+	matrix m;
+	a = @m;
+	[a, b] = @m;
+	int c;
+	[a, c] = @m;
+	m = [1,2,3;4,5,6;7,8,9];
+	a = [1,2,3;4,5,6];
+	a = "bcdf";
+	function[matrix m] = _fun2[matrix a, string s, int d]
+		a = s + c;
+		s = d;
+	end;
+
+	m = _fun2(a, s, c);
+	[a,b] = _fun2(s, m);
+	m = _fun2([1,2,3; 4,5,6], s, m[1,2]);
+	m = _fun2([1,2,3; 4,6], s, m[1,2]);
+	m = _fun2(m, s, m[1,2], a);
+
+	m = _fun2(m[2,3], "abcdf", 99);
+	m = _fun2(m, "abcdf", 99);
+	m = _fun2(m[5,6], "abcdf", 99);
+	a = _fun2(m[2,3]);
+	matrix m1;
+	m1 = [1,2,3; 4,5,6; 6,7,8];
+
+	m = m + m1;
+	m = m - m1;
+	m = m*m1;
+	m = m/m1;
+	string s1;
+	s1 = s + "abcd";
+	string s2;
+	s2 = "sadf" + "sd" + "sdf";
+	s1 = s1 - s2;
+	s1 = s1*s2;
+	s1 = s1/ s2;
+
+	int z;
+	z = a +s + b;
+	string s3;
+	s3 = "dsfdg" + s2;
+	s = s1 + s2;
+	s = "cd" + "gh";
+	m = a;
+
+end

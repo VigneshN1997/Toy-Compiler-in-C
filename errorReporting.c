@@ -1,8 +1,8 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "errorReporting.h"
 
-
+// initialize the error head
 errorHead* initializeErrorHead()
 {
 	errorHead* head = (errorHead*)malloc(sizeof(errorHead));
@@ -10,7 +10,7 @@ errorHead* initializeErrorHead()
 	head->last = NULL;
 	return head;
 }
-
+// insert new error to error list
 void insertError(errorHead* h, Token* token,int error_no)
 {
 	errorSem* err = createNewError(error_no);
@@ -29,7 +29,7 @@ void insertError(errorHead* h, Token* token,int error_no)
 		h->last = lnode;
 	}
 }
-
+// delete an error from linked list
 errorList* deleteErrorFromFront(errorHead* h)
 {
 	if(h->first == NULL)
@@ -40,7 +40,7 @@ errorList* deleteErrorFromFront(errorHead* h)
 	h->first = temp->next;
 	return temp;
 }
-
+// create new error with error number and error message
 errorSem* createNewError(int error_no)
 {
 	errorSem* err = (errorSem*)malloc(sizeof(errorSem));
@@ -48,7 +48,7 @@ errorSem* createNewError(int error_no)
 	err->errorMsg = semantic_error_msg_mapping[error_no - 1].errorMsg; // check this
 	return err;
 }
-
+// print semtantic and type checking errors on console
 void printErrors(errorHead* symTableErrorHead,errorHead* typeCheckingErrorHead)
 {
 	printf("----------------------------------\n");

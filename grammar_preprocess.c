@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "grammar_preprocess.h"
 
 // this function is passed a file pointer(file containing grammar) and returns the grammar extracted from file

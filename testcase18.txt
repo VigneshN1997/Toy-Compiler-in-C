@@ -1,0 +1,29 @@
+_main[]
+	int a,b,c;
+	real p,q,r;
+	string s1,s2;
+	matrix m1,m2;
+	int sum,diff;
+	function [int sum, int diff]= _calculator1[int c, int d, int e]
+		sum = c + b;
+		diff = c - a;
+		function [int sum, int diff]= _calculator[int c, int d, int e]
+			sum = a + b;
+		end;
+	end;
+	 _calculator1(a,b,c);
+	 [sum] = _calculator1(a,b);
+	 [c,q] = _calculator1(a,b,3);
+	 [c,d] = _calculator1(m1,b,4.33);
+
+	 function [int x]= _reccheck[int c]
+	 	x = 1;
+	 	x = _reccheck(2);
+		function [int x]= _reccheck1[int c]
+	 		x = 1;
+	 		x = _reccheck(5);
+	 	end;
+	end;
+
+	a = _reccheck(4);
+end

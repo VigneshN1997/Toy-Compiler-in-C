@@ -1,7 +1,7 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "intCodeGen.h"
-
+// create intermediate code
 void createIntermediateCode(ASTNode* asTree,SymbolTable* symTable, int* tempVarNum,int* labelVarNum)
 {
 	ASTNode* stmts = getListOfStmts(asTree);
@@ -27,7 +27,7 @@ void createIntermediateCode(ASTNode* asTree,SymbolTable* symTable, int* tempVarN
 	}
 }
 
-
+// intermediate code for assignment statement (single variable in the lhs)
 void generateCodeFor_AssignmentStmtSingleVar(ASTNode* assignStmt, SymbolTable* symTable, int* tempVarNum)
 {
 	ASTNode* lhs = assignStmt->children->children;
@@ -57,7 +57,7 @@ void generateCodeFor_AssignmentStmtSingleVar(ASTNode* assignStmt, SymbolTable* s
 		assignStmt->code = appendCodes((codeNode*)rhs->code,line);
 	}
 }
-
+// intermediate code for assignment statement (list of variables in the lhs)
 void generateCodeFor_AssignmentStmtListVar(ASTNode* assignStmt, SymbolTable* symTable, int* tempVarNum)
 {
 	ASTNode* lhs = assignStmt->children->children;
@@ -89,7 +89,7 @@ void generateCodeFor_AssignmentStmtListVar(ASTNode* assignStmt, SymbolTable* sym
 
 	// }	
 }
-
+// intermediate code for if statement
 void generateCodeFor_IfStmt(ASTNode* ifStmt,SymbolTable* symTable,int* tempVarNum,int* labelVarNum)
 {
 	ASTNode* boolExpr = ifStmt->children;
@@ -133,7 +133,7 @@ void generateCodeFor_IfStmt(ASTNode* ifStmt,SymbolTable* symTable,int* tempVarNu
 		ifStmt->code = appendCodes(boolExpr->code,tempCode);
 	}
 }
-
+// intermediate code for IO statement
 void generateCodeFor_IOStmt(ASTNode* ioStmt)
 {
 	if(ioStmt->op == READ)
@@ -145,7 +145,7 @@ void generateCodeFor_IOStmt(ASTNode* ioStmt)
 		ioStmt->code = generateThreeAddrCode(NULL,PRINT_OP,ioStmt->children,NULL);
 	}
 }
-
+// intermediate code for boolean expression
 void generateCodeFor_BoolExpr(ASTNode* boolExpr, int* labelVarNum)
 {
 	if(boolExpr->op == ID || boolExpr->op == NUM || boolExpr->op == RNUM)
@@ -230,7 +230,7 @@ void generateCodeFor_BoolExpr(ASTNode* boolExpr, int* labelVarNum)
 		}
 	}
 }
-
+// intermediate code for arithmetic expression
 void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTable,int* tempVarNum)
 {
 	if(arithmeticExpr->op == ID)
@@ -387,7 +387,7 @@ void generateCodeFor_ArithmeticExpr(ASTNode* arithmeticExpr,SymbolTable* symTabl
 		}
 	}
 }
-
+// append all linked list of codes into a single linked list
 void appendAllStatements(ASTNode* mainNode)
 {
 	ASTNode* stmts = mainNode->children;
@@ -399,7 +399,7 @@ void appendAllStatements(ASTNode* mainNode)
 	}
 }
 
-
+// generate new label variable
 ASTNode* newLabelVar(int* labelVarNum)
 {
 	Token* tok = (Token*)malloc(sizeof(Token));
@@ -415,7 +415,7 @@ ASTNode* newLabelVar(int* labelVarNum)
 	*labelVarNum = *labelVarNum + 1;
 	return labelVar;
 }
-
+// generate new temporary variable
 ASTNode* newTempVar(int* tempVarNum,SymbolTable* symTable, SYMBOL_NAME type)
 {
 	Token* tok = (Token*)malloc(sizeof(Token));
@@ -441,7 +441,7 @@ ASTNode* newTempVar(int* tempVarNum,SymbolTable* symTable, SYMBOL_NAME type)
 	return tempVar;
 }
 
-
+// generate intermediate code for matrix element(m[i,j])
 void generateCodeFor_MatrixElementValue(ASTNode* matId, int* tempVarNum,SymbolTable* symTable)
 {
 	int dim1 = ((symbolTableEntry*)matId->ptrToSymTableEntry)->idInfoPtr->widthInfo[0];
@@ -464,7 +464,7 @@ void generateCodeFor_MatrixElementValue(ASTNode* matId, int* tempVarNum,SymbolTa
 	codeNode* tempCode = appendCodes(line2,line3);
 	matId->code = appendCodes(line1,tempCode);
 }	
-
+// generate three address code
 codeNode* generateThreeAddrCode(ASTNode* resVar, OPERATOR op,ASTNode* var1, ASTNode* var2)
 {
 	threeAddrCode* tac = (threeAddrCode*)malloc(sizeof(threeAddrCode));
@@ -477,7 +477,7 @@ codeNode* generateThreeAddrCode(ASTNode* resVar, OPERATOR op,ASTNode* var1, ASTN
 	cNode->nextLine = NULL;
 	return cNode;
 }
-
+// append two linked lists of codes
 codeNode* appendCodes(codeNode* c1, codeNode* c2)
 {
 	if(c1 == NULL)
@@ -492,7 +492,7 @@ codeNode* appendCodes(codeNode* c1, codeNode* c2)
 	temp->nextLine = c2;
 	return c1;
 }
-
+// printing intermediate code for testing
 void printIntCode(codeNode* c)
 {
 	FILE* fp = fopen("code.txt","w");
@@ -540,7 +540,7 @@ void printIntCode(codeNode* c)
 	}
 	fclose(fp);
 }
-
+// for testing
 void printMatrix(ASTNode* m, FILE* fp)
 {
 	fprintf(fp,"[");

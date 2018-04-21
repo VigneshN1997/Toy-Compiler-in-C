@@ -1,0 +1,11 @@
+_main[]
+	int a;
+	string a;
+	a = b + c;
+end
+
+#3 : Variable redeclaration error (a)
+#4 : Variable not declared before its use (b)
+#4 : Variable not declared before its use (c)
+#4 : type mismatch error (+)
+#4 : type mismatch error (a)

@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "typeChecking.c"
 
 SymbolTable* createSymbolTable(ASTNode* asTree,errorHead* symTableErrorListHead,errorHead* typeCheckingErrorsHead);

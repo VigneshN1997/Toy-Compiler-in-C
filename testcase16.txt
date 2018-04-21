@@ -1,0 +1,8 @@
+_main[]
+	string s;
+	s = "hello" + "world";
+	s = "abcdefghij";
+	s = "xy";
+end
+
+#line 5 : string already assigned(new assignment cannot be of different size) (s)

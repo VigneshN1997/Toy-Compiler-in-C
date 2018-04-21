@@ -1,0 +1,13 @@
+_main[]
+	matrix m;
+	int a,b;
+	string s;
+	real c;
+	[a,b] = @a;
+	[a,b] = @s;
+	[a,c] = @m;
+end
+
+#line 6 : type mismatch error in size expression (a)
+#line 7 : number of variables in lhs exceed than required in size expression (s)
+#line 8 : type mismatch error (c)

@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "firstfollow.h"
 
 // This function is called to compute first sets of the non terminals in grammar

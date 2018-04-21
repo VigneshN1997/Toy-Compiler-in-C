@@ -1,5 +1,5 @@
 // ID: 2015A7PS0355P
-// Name: Vignesh N
+// Name: Vignesh Nanda Kumar
 #include "syntacticErrors.h"
 
 errorHeadSyntactic* initializeErrorHeadSyntax()
@@ -9,7 +9,7 @@ errorHeadSyntactic* initializeErrorHeadSyntax()
 	head->last = NULL;
 	return head;
 }
-
+// insert a lexical error
 void insertLexicalError(errorHeadSyntactic* h, Token* token)
 {
 	errorListSyn* n = (errorListSyn*)malloc(sizeof(errorListSyn));
@@ -29,7 +29,7 @@ void insertLexicalError(errorHeadSyntactic* h, Token* token)
 		h->last = n;
 	}
 }
-
+// insert syntax error
 void insertSyntaxError(errorHeadSyntactic* h, Token* token,int error_no, char* expectedToken, char* presentToken)
 {
 	errorListSyn* n = (errorListSyn*)malloc(sizeof(errorListSyn));
@@ -49,7 +49,7 @@ void insertSyntaxError(errorHeadSyntactic* h, Token* token,int error_no, char* e
 		h->last = n;
 	}
 }
-
+// create new syntax error
 errorSyn* createNewSyntaxError(char* expectedToken, char* presentToken)
 {
 	errorSyn* es = (errorSyn*)malloc(sizeof(errorSyn));
@@ -69,7 +69,7 @@ errorSyn* createNewSyntaxError(char* expectedToken, char* presentToken)
 	}
 	return es;
 }
-
+// print syntax errors on console
 void printSyntaxErrors(errorHeadSyntactic* syntaxErrorsHead)
 {
 	printf("-------------------------\n");
